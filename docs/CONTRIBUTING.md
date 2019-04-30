@@ -1,6 +1,6 @@
 # Contributing to pg-doc
 
-Thank you for your help!
+Thank you for your help! Feedback and suggestions are welcome.
 
 
 ## Code of Conduct
@@ -8,7 +8,7 @@ Thank you for your help!
 Please be polite and avoid unprofessional or inappropriate behavior when communicating with maintainers, contributors and users of this project. Report problematic or abusive behavior, with links or proof if available, to [Jason Eads (eadsjr)][contact-project-lead]. Violations can result in a suspension or permanent ban from this project.
 
 
-## Questions and Bug Reports
+## Questions, Suggestions and Bug Reports
 
 First, [do a quick search][search-issues] to see if your issue is already known. If it is already present, comment on that issue rather then opening a new one.
 
