@@ -3,7 +3,9 @@
 
 # pg-doc
 
-A dead-simple NoSQL library for PostgresQL.
+A dead-simple NoSQL library for PostgreSQL.
+
+Make PostgreSQL your document database.
 
 A work-in-progress.
 
@@ -38,10 +40,20 @@ Support for NodeJS
 Support for other langauges (tentative)
 
 
+## Support
+
+Please report any bugs on our [GitHub issues page][issues]
+
+Be sure to state your issue clearly and provide information that can help with reproducing it, such as PostgreSQL version. For details on how to do this, or if you just want to help out, [look at the contibution guidelines][contributing] for more information.
+
+
 ## License
 
 The code is available at [Github][license] under the [MIT license][license].
 
+
 [home]: https://github.com/eadsjr/pg-doc
+[issues]: https://github.com/eadsjr/pg-doc/issues
+[contributing]: https://github.com/eadsjr/pg-doc/blob/master/docs/CONTRIBUTING.md
 [license]: https://github.com/eadsjr/pg-doc/blob/master/LICENSE
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg
