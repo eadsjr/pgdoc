@@ -1,0 +1,34 @@
+{
+  "name": "pg-doc",
+  "version": "0.0.0",
+  "description": "Dead-simple NoSQL document storage using PostgreSQL.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eadsjr/pg-doc.git"
+  },
+  "keywords": [
+    "pg",
+    "postgres",
+    "postgresql",
+    "nosql",
+    "doc",
+    "document",
+    "db",
+    "database",
+    "store",
+    "pgdoc"
+  ],
+  "author": "Jason Randolph Eads",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/eadsjr/pg-doc/issues"
+  },
+  "homepage": "https://github.com/eadsjr/pg-doc#readme"
+}
