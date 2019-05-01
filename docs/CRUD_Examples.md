@@ -105,6 +105,29 @@ else {
 }
 ```
 
+Because the ID is sequential and gives insight into your data, you don't want it to be accessible outside your system for security reasons. If you need to pass objects to clients you should rebuild or prune them to remove any data that the client does not need, including the ID number for it in the database.
+
+If you need an ID to coordinate with the client you should generate one yourself and map it to the server ID for the object.
+
+You can store the id and other metadata outside your data object by nesting them inside another object. This way you aren't 'polluting' your data with extra stuff.
+
+``` js
+// Storing metadata apart from your data
+docType = "player"
+myData = { name:"John Smith", age:42, team:"red" }
+id = pgdoc.requestID(docType)
+if( id > 0 ) {
+  myMetaData = { timestamp: Date.now(), id: id }
+  myDoc = { meta: myMetaData, data: myData }
+  errorCode = pgdoc.store( docType, myDoc )
+}
+```
+
+Of course if you do this, you must also unpack it before use.
+
+``` js
+  myData = docFromDatabase.data
+```
 
 ### RETRIEVE
 
