@@ -54,6 +54,16 @@ myDoc = { name:"John Smith", age:42, team:"red" }
 errorCode = pgdoc.store( docType, myDoc )
 ````
 
+You can store more complex objects using the same method.
+
+```js
+// Store a more complex object
+complexObject = { data: {}, evenMoreData: {} }
+docType = "player"
+myDoc = { name:"John Smith", age:42, team:"red", config:complexObject }
+errorCode = pgdoc.store( docType, myDoc )
+```
+
 ### RETRIEVE
 
 ### UPDATE
