@@ -87,6 +87,24 @@ myDoc = `{ name:"John Smith", age:42, team:"red", config:${str(complexObject)} }
 errorCode = pgdoc.store( docType, myDoc )
 ```
 
+You can request an ID with `pgdoc.requestID` to store inside the object and make finding it again easier. This ID is a simple integer, but every time it is requested from the database by a server it will be incremented by one. A separate counter sequence is used for each document type.
+
+You should verify you were able to get an ID before using it. Valid IDs will be 1 or greater.
+
+``` js
+// Store a basic object with a unique ID
+docType = "player"
+id = pgdoc.requestID(docType)
+if( id > 0 ) {
+  myDoc = { name:"John Smith", age:42, team:"red", config:id }
+  errorCode = pgdoc.store( docType, myDoc )
+}
+else {
+  errorCode = id
+  console.error(`Unable to collect a valid id. Error Message: ${pgdoc.errorMessage(errorCode)}`)
+}
+```
+
 
 ### RETRIEVE
 
