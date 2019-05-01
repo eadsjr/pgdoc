@@ -76,6 +76,17 @@ errorCode = pgdoc.store( docType, myDoc )
 
 Though `pg-doc` will attempt to error out should you pass it anything too suspicious, it is ultimately your responsibility to ensure that broken or malicious data isn't hi-jacking your server or being passed through to the database.
 
+This string method is useful if you need some template JSON that will be reused often. You can embed dynamic information in it pretty easily.
+
+``` js
+// Store a stringified basic object with dynamic fields
+// SECURITY NOTE: Don't forget to verify dynamic data from client is not malicious or malformed!
+complexObject = { data: {}, evenMoreData: {} }
+docType = "player"
+myDoc = `{ name:"John Smith", age:42, team:"red", config:${str(complexObject)} }`
+errorCode = pgdoc.store( docType, myDoc )
+```
+
 
 ### RETRIEVE
 
