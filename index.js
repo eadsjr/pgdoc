@@ -6,6 +6,17 @@
  * @todo TODO: Console.log("") the above message, instructions and then exit only when script is run directly in node.
  */ 
 
+
+/**
+ * Configure connection to postgres
+*
+ * @param {string} - connectionString - a path to connect to postgres with
+ * @returns {number} - an error code. 0 if no error.
+ */
+module.exports.connect = (connectionString) => {
+  // TODO
+}
+
 /**
  * Store a document in the database.
  *
