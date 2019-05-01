@@ -39,9 +39,20 @@ else {
 }
 ```
 
+As you can see, this returns an `errorCode`. This integer can be converted to a printable error message by passing it to `pgdoc.errorMessage()`.
+
 Assuming you were able to connect successfully, you can now start using the methods detailed below.
 
 ### CREATE
+
+Now we can store a Javascript object in postgres by simply calling `pgdoc.store()`.
+
+``` js
+// Store a basic object
+docType = "player"
+myDoc = { name:"John Smith", age:42, team:"red" }
+errorCode = pgdoc.store( docType, myDoc )
+````
 
 ### RETRIEVE
 
