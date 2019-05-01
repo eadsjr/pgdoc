@@ -64,6 +64,19 @@ myDoc = { name:"John Smith", age:42, team:"red", config:complexObject }
 errorCode = pgdoc.store( docType, myDoc )
 ```
 
+You can also store valid JSON strings directly. This can be especially useful when passing stuff through from the client, but it is important that you validate that the incoming data is not malicious, malformed or corrupted.
+
+``` js
+// Store a stringified basic object
+// SECURITY NOTE: Don't forget to verify incoming data from client is not malicious or malformed!
+docType = "player"
+myDoc = `{ name:"John Smith", age:42, team:"red" }`
+errorCode = pgdoc.store( docType, myDoc )
+```
+
+Though `pg-doc` will attempt to error out should you pass it anything too suspicious, it is ultimately your responsibility to ensure that broken or malicious data isn't hi-jacking your server or being passed through to the database.
+
+
 ### RETRIEVE
 
 ### UPDATE
