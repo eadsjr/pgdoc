@@ -5,8 +5,13 @@ TODO.md
 index.js: determine async method
 index.js: implement basic functions using determined async method
 index.js: ensure basic functions with strings provided instead
+index.js: ensure basic functions work for objects
+index.js: ensure basic functions work for strings
+index.js: ensure basic functions work for classes
 index.js: @todo TODO: Console.log("") the above message, instructions and then exit only when script is run directly in node.
 index.js: warn people that undo() may have side effects if other servers have already relied on the data
+
+SECURITY: Ensure that anything that would break postgres fails with an error code. Validate everything that would be passed through.
 
 docs/CRUD_Examples.md: Update to not use deprecated connectionString
 docs/CRUD_Examples.md: everything in all markdown should not require horizontal scrolling on a normal sized window
@@ -31,12 +36,16 @@ SEE ALSO: README.md Planned features
 
 # DONE List
 
-docs/CRUD_examples.js: configure connection to database
+docs/CRUD_examples.md: configure connection to database
+docs/CRUD_examples.md: wrote out example cases (syncronous)
 
 
 # CONSDIER List
 
 index.js: implement alternate basic functions with catchable exceptions?
+index.js: implement basic functions with asyncronous execution using callbacks
+index.js: implement basic functions with asyncronous execution using promises
+index.js: implement basic functions with asyncronous execution using async/await
 
 Add a JSON primer? Links?
 
