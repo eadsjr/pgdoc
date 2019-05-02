@@ -13,6 +13,7 @@ index.js: warn people that undo() may have side effects if other servers have al
 
 SECURITY: Ensure that anything that would break postgres fails with an error code. Validate everything that would be passed through.
 
+docs/CRUD_Examples.md: Rewrite all examples to be asyncrounous!
 docs/CRUD_Examples.md: Update to not use deprecated connectionString
 docs/CRUD_Examples.md: everything in all markdown should not require horizontal scrolling on a normal sized window
 docs/CRUD_Examples.md: add hyperlink to install script reference
@@ -47,9 +48,12 @@ index.js: implement basic functions with asyncronous execution using callbacks
 index.js: implement basic functions with asyncronous execution using promises
 index.js: implement basic functions with asyncronous execution using async/await
 
+docs/CRUD_Examples.md: split this into five documents or more, with next/previous/up hyperlink buttons
+
 Add a JSON primer? Links?
 
 
 # FUTURE List
 
 README.md: add a releases notes with link per language
+docs/CRUD_Examples.md: Update CREATE section if it is clear that we have validated everything they might pass us.
