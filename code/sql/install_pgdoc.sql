@@ -12,8 +12,8 @@ CREATE ROLE pgdoc LOGIN;
 
 -- Create the table that will store all user data
 CREATE TABLE docs (
-  type TEXT,  -- Contains the type of document stored
-  data JSONB, -- Contains the document in JSON form
+  type TEXT, -- Contains the type of document stored
+  data JSONB -- Contains the document in JSON form
 );
 ALTER TABLE docs OWNER TO pgdoc;
 
