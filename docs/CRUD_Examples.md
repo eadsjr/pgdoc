@@ -129,7 +129,22 @@ Of course if you do this, you must also unpack it before use.
   myData = docFromDatabase.data
 ```
 
+
 ### RETRIEVE
+
+You get documents back out by performing a search in the form of an Object. `pgdoc.retrieve()` always returns a list. To get a single document, use something unique like an ID and verify the list size is 1.
+
+```js
+// Basic object retrieval
+docType = "player"
+mySearch = { id: 12576 }
+myDoc = null
+myDocs = pgdoc.retrieve(docType, mySearch)
+if( myDocs != null && myDocs.length == 1 ) {
+  myDoc = pgdoc.retrieve(docType, mySearch)
+}
+```
+
 
 ### UPDATE
 
