@@ -158,6 +158,19 @@ if( myDocs != null && myDocs.length == 1 ) {
 }
 ```
 
+You can retrieve multiple documents by simply searching a shared member.
+
+``` js
+// Multiple object retrieval
+docType = "player"
+mySearch = { team:"red" }
+myDocs = pgdoc.retrieve(docType, mySearch)
+for( doc in myDocs ) {
+  // <- application logic here
+}
+```
+
+
 
 ### UPDATE
 
