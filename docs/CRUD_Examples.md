@@ -185,6 +185,19 @@ if( myDocsAsStrings != null && myDocsAsStrings.length == 1 ) {
 
 ### UPDATE
 
+It is very simple to overwrite a document.
+
+``` js
+// Overwrite a single existing document
+docType = "player"
+newDoc  = `{ name:"John Smith", age:43, team:"red" }`
+errorCode = pgdoc.store( docType, newDoc )
+if( errorCode == pgdoc.errorCodeFor("CLOBBERED") ) {
+  console.warn(`Document was overwritten successfully`)
+}
+```
+
+
 ### DELETE
 
 
