@@ -197,6 +197,33 @@ if( errorCode == pgdoc.errorCodeFor("CLOBBERED") ) {
 }
 ```
 
+It takes a bit more effort to update an existing document. First you need to retrieve the old document, then perform your update logic on it. After that you store it, as per normal.
+
+``` js
+// Update a single existing document
+docType = "player"
+newDoc  = `{ name:"John Smith", age:43, team:"red"} }`
+// Perform a search for the document, returning the string representation
+oldDoc = null
+oldDocs = pgdoc.retrieveString(docType, mySearch)
+if( oldDocs != null && oldDocs.length == 1 ) {
+  // React to the returned document
+  oldDoc = oldDocs[0]
+  if( myDoc == newDoc ) {
+    console.log("document already current")
+  }
+  else if ( myDocString == null ) {
+    console.log("document not found")
+  }
+  else {
+    let newDocObject = parse(newDoc)
+    let oldDocObject = parse(oldDoc)
+    // <- application logic here, combine the objects as you see fit and store in newDoc
+    errorCode = pgdoc.store(docType, newDoc)
+  }
+}
+```
+
 
 ### DELETE
 
