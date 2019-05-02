@@ -227,6 +227,15 @@ if( oldDocs != null && oldDocs.length == 1 ) {
 
 ### DELETE
 
+Deletion is handled using the same search method as `pgdoc.retrieve()`, but the matched documents are deleted instead of being retrieved.
+
+``` js
+// Single object deletion
+docType = "player"
+mySearch = { id: 12576 }
+deletedDocCount = pgdoc.delete(docType, mySearch)
+// <- verify success here
+```
 
 
 [CRUD]:https://en.wikipedia.org/wiki/Create,_read,_update_and_delete
