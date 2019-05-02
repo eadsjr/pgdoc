@@ -88,7 +88,19 @@ module.exports.undo = () => {
  *
  * @returns {number} - errorCode -  negative integer representing the kind of pg-doc error
  */
-module.exports.errorCode = (string) => {
+module.exports.errorCode = () => {
+  // TODO
+}
+
+/**
+ * Provide an error code based on a short string description.
+ * Intended to make code more readable.
+ *
+ * @param {string} - errorLabel - descriptive string naming error
+ * @returns {number} - errorCode -  negative integer representing the kind of pg-doc error
+ */
+module.exports.errorCodeFor = (errorLabel) => {
+  if( errorLabel == "CLOBBERED" ) { return -2 } // TODO: change this to match spec
   // TODO
 }
 
