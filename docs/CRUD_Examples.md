@@ -145,6 +145,19 @@ if( myDocs != null && myDocs.length == 1 ) {
 }
 ```
 
+This works with any information specific to one document.
+
+```js
+// Basic object retrieval, again
+docType = "player"
+mySearch = { name:"John Smith" }
+myDoc = null
+myDocs = pgdoc.retrieve(docType, mySearch)
+if( myDocs != null && myDocs.length == 1 ) {
+  myDoc = myDocs[0]
+}
+```
+
 
 ### UPDATE
 
