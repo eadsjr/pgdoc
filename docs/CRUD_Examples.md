@@ -230,11 +230,24 @@ if( oldDocs != null && oldDocs.length == 1 ) {
 Deletion is handled using the same search method as `pgdoc.retrieve()`, but the matched documents are deleted instead of being retrieved.
 
 ``` js
+// Multiple object deletion
+docType = "player"
+mySearch = { team: "red" }
+deletedDocCount = await pgdoc.delete(docType, mySearch)
+```
+
+You can limit the number of documents to be deleted, which is especially useful if you only want your search to match one document.
+
+``` js
 // Single object deletion
 docType = "player"
 mySearch = { id: 12576 }
-deletedDocCount = await pgdoc.delete(docType, mySearch)
-// <- verify success here
+options = { "maxMatches": 1 }
+deletedDocCount = await pgdoc.delete(docType, mySearch, null, options)
+if( deletedDocCount != 1 ) {
+  errorCode = deletedDocCount
+  console.error(`${docType} deletion failed for search ${str(mySearch)}. Error: ${pgdoc.errorMessage(errorCode)}.`)
+}
 ```
 
 Deleting a document is not hard, though it is important that you specify what happens when it does not work. If something unexpected happens, you can rollback changes with `pgdoc.undo()`. This will only work if it is not disabled and you haven't made another request yet.
