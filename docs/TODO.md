@@ -16,7 +16,7 @@ code/node/pgdoc.js: warn people that undo() may have side effects if other serve
 
 SECURITY: Ensure that anything that would break postgres fails with an error code. Validate everything that would be passed through.
 
-docs/CRUD_Examples.md: Rewrite all examples to be asyncrounous!
+docs/CRUD_Examples.md: add a select example using maxMatch option
 docs/CRUD_Examples.md: Update to not use deprecated connectionString
 docs/CRUD_Examples.md: everything in all markdown should not require horizontal scrolling on a normal sized window
 docs/CRUD_Examples.md: add hyperlink to install script reference
@@ -40,6 +40,9 @@ SEE ALSO: README.md Planned features
 
 # DONE List
 
+docs/CRUD_Examples.md: add a maxMatch option for select/delete
+docs/CRUD_Examples.md: Change undo() example to instead use options
+docs/CRUD_Examples.md: Rewrite all examples to be asyncrounous!
 docs/CRUD_examples.md: configure connection to database
 docs/CRUD_examples.md: wrote out example cases (syncronous)
 code/node/pgdoc.js: determine async method
@@ -47,9 +50,20 @@ code/node/pgdoc.js: determine async method
 
 # CONSDIER List
 
-drop undo function
+docs/Async_Examples.md: write examples including use of tids
+
+log a warning if parse object has a function
+option to disable this warning
+
+drop undo function entirely
 require tid in undo function
 integrate undo rollback with postgres features
+
+To reduce confusion about what needs await vs not:
+  Add a handler object to pgdoc and attach all the syncronous error handling related functions to it.
+  Separately include this handler as an alias/varible in the examples
+  Also consider making tid() async just to avoid the unnessesary error on await
+    but only if this doesn't allow for a race condition
 
 code/node/pgdoc.js: implement undo as a short-lived delay in execution that is flushed immediately if flush() is called or another db call is made.
 code/node/pgdoc.js: allow disabling of undo via config option
@@ -57,6 +71,7 @@ code/node/pgdoc.js: allow disabling of undo via config option
 code/node/pgdoc.js: implement alternate basic functions with catchable exceptions?
 
 docs/CRUD_Examples.md: split this into five documents or more, with next/previous/up hyperlink buttons
+docs/CRUD_Examples.md: add examples using tids
 
 Add a JSON primer? Links?
 
