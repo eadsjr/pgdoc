@@ -2,17 +2,17 @@ TODO.md
 
 # TODO List
 
-index.js: pass in transaction IDs to allow async polling for return values / error codes
-index.js: prune old stored results
-index.js: prune old stored results, option: set time to keep alive
-index.js: prune old stored results, option: delete on successful read
-index.js: implement basic functions with asyncronous execution using async/await
-index.js: ensure basic functions with strings provided instead
-index.js: ensure basic functions work for objects
-index.js: ensure basic functions work for strings
-index.js: ensure basic functions work for classes
-index.js: @todo TODO: Console.log("") the above message, instructions and then exit only when script is run directly in node.
-index.js: warn people that undo() may have side effects if other servers have already relied on the data
+code/node/pgdoc.js: pass in transaction IDs to allow async polling for return values / error codes
+code/node/pgdoc.js: prune old stored results
+code/node/pgdoc.js: prune old stored results, option: set time to keep alive
+code/node/pgdoc.js: prune old stored results, option: delete on successful read
+code/node/pgdoc.js: implement basic functions with asyncronous execution using async/await
+code/node/pgdoc.js: ensure basic functions with strings provided instead
+code/node/pgdoc.js: ensure basic functions work for objects
+code/node/pgdoc.js: ensure basic functions work for strings
+code/node/pgdoc.js: ensure basic functions work for classes
+code/node/pgdoc.js: @todo TODO: Console.log("") the above message, instructions and then exit only when script is run directly in node.
+code/node/pgdoc.js: warn people that undo() may have side effects if other servers have already relied on the data
 
 SECURITY: Ensure that anything that would break postgres fails with an error code. Validate everything that would be passed through.
 
@@ -42,7 +42,7 @@ SEE ALSO: README.md Planned features
 
 docs/CRUD_examples.md: configure connection to database
 docs/CRUD_examples.md: wrote out example cases (syncronous)
-index.js: determine async method
+code/node/pgdoc.js: determine async method
 
 
 # CONSDIER List
@@ -51,10 +51,10 @@ drop undo function
 require tid in undo function
 integrate undo rollback with postgres features
 
-index.js: implement undo as a short-lived delay in execution that is flushed immediately if flush() is called or another db call is made.
-index.js: allow disabling of undo via config option
+code/node/pgdoc.js: implement undo as a short-lived delay in execution that is flushed immediately if flush() is called or another db call is made.
+code/node/pgdoc.js: allow disabling of undo via config option
 
-index.js: implement alternate basic functions with catchable exceptions?
+code/node/pgdoc.js: implement alternate basic functions with catchable exceptions?
 
 docs/CRUD_Examples.md: split this into five documents or more, with next/previous/up hyperlink buttons
 
@@ -63,8 +63,8 @@ Add a JSON primer? Links?
 
 # REJECT List
 
-index.js: implement basic functions with asyncronous execution using callbacks
-index.js: implement basic functions with asyncronous execution using (only) promises
+code/node/pgdoc.js: implement basic functions with asyncronous execution using callbacks
+code/node/pgdoc.js: implement basic functions with asyncronous execution using (only) promises
 
 
 # FUTURE List
