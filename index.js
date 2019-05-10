@@ -6,6 +6,7 @@
  * @todo TODO: Console.log("") the above message, instructions and then exit only when script is run directly in node.
  */ 
 
+let tid_count = 0
 
 /**
  * Configure connection to postgres
@@ -71,16 +72,32 @@ module.exports.requestID = async (type) => {
 }
 
 /**
- * Rollback the changes of the last action.
+ * Rollback the changes of the last action, or an action specified by id.
  *
  * WARNING: This may have side effects if multiple databases are using the database, and have already relied on the data you changed.
+ * WARNING: This will have side effects if no tid is provided, and another executing function has performed a pg-doc action
  *
  * @todo document clearly the err object in this header
  *
+ * @param {number} - [tid] - OPTIONAL integer for identifying pg-doc transactions
+ *
  * @returns {number} - errorCode - negative integer representing the kind of pg-doc error
  */
-module.exports.undo = async () => {
+module.exports.undo = async (tid) => {
   // TODO
+}
+
+/**
+ * Creates a fresh transaction identifier for use with pg-doc functions.
+ *
+ * These are simple sequential integers that provide you a means to reference a given action while several are in progress.
+ *
+ * They are not relevant outside of a given runtime, and are not stored in the database directly.
+ *
+ * @returns {number} - tid - integer for identifying pg-doc transactions
+ */
+module.exports.tid = () => {
+  return tid_count++
 }
 
 /**
