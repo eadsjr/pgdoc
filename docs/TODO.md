@@ -2,8 +2,11 @@ TODO.md
 
 # TODO List
 
-index.js: determine async method
-index.js: implement basic functions using determined async method
+index.js: pass in transaction IDs to allow async polling for return values / error codes
+index.js: prune old stored results
+index.js: prune old stored results, option: set time to keep alive
+index.js: prune old stored results, option: delete on successful read
+index.js: implement basic functions with asyncronous execution using async/await
 index.js: ensure basic functions with strings provided instead
 index.js: ensure basic functions work for objects
 index.js: ensure basic functions work for strings
@@ -39,18 +42,29 @@ SEE ALSO: README.md Planned features
 
 docs/CRUD_examples.md: configure connection to database
 docs/CRUD_examples.md: wrote out example cases (syncronous)
+index.js: determine async method
 
 
 # CONSDIER List
 
+drop undo function
+require tid in undo function
+integrate undo rollback with postgres features
+
+index.js: implement undo as a short-lived delay in execution that is flushed immediately if flush() is called or another db call is made.
+index.js: allow disabling of undo via config option
+
 index.js: implement alternate basic functions with catchable exceptions?
-index.js: implement basic functions with asyncronous execution using callbacks
-index.js: implement basic functions with asyncronous execution using promises
-index.js: implement basic functions with asyncronous execution using async/await
 
 docs/CRUD_Examples.md: split this into five documents or more, with next/previous/up hyperlink buttons
 
 Add a JSON primer? Links?
+
+
+# REJECT List
+
+index.js: implement basic functions with asyncronous execution using callbacks
+index.js: implement basic functions with asyncronous execution using (only) promises
 
 
 # FUTURE List
