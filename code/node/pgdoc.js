@@ -108,6 +108,20 @@ module.exports.tid = () => {
 }
 
 /**
+ * Changes defult options for all actions starting after this change takes effect.
+ *
+ * They can be overriden on a per-method-call basis
+ *
+ * @param {object} - options - object containing options to alter default function behavior
+ *
+ * @returns {number} - errorCode -  negative integer representing the kind of pg-doc error
+ */
+module.exports.configure = () => {
+  // TODO
+}
+
+
+/**
  * Provide an error code for the last action.
  *
  * @returns {number} - errorCode -  negative integer representing the kind of pg-doc error
