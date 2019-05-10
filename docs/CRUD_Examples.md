@@ -30,7 +30,7 @@ password = `password` /* the password to access the database */
 domain   = `127.0.0.1` /* database domain path. 127.0.0.1 if local */
 port     = `5432` /* 5432 is postgres default. It's a major security risk not to change this if you put it online! */
 connectionString = `postgres://pgdoc:${password}@${domain}:${port}/pgdoc`
-errorCode = pgdoc.connect(connectionString)
+errorCode = await pgdoc.connect(connectionString)
 if(errorCode == 0 ) {
   console.log(`pg-doc connected to the database successfully`)
 }
@@ -51,7 +51,7 @@ Now we can store a Javascript object in postgres by simply calling `pgdoc.store(
 // Store a basic object
 docType = "player"
 myDoc = { name:"John Smith", age:42, team:"red" }
-errorCode = pgdoc.store( docType, myDoc )
+errorCode = await pgdoc.store( docType, myDoc )
 ````
 
 You can store more complex objects using the same method.
@@ -61,7 +61,7 @@ You can store more complex objects using the same method.
 complexObject = { data: {}, evenMoreData: {} }
 docType = "player"
 myDoc = { name:"John Smith", age:42, team:"red", config:complexObject }
-errorCode = pgdoc.store( docType, myDoc )
+errorCode = await pgdoc.store( docType, myDoc )
 ```
 
 You can also store valid JSON strings directly. This can be especially useful when passing stuff through from the client, but it is important that you validate that the incoming data is not malicious, malformed or corrupted.
@@ -71,7 +71,7 @@ You can also store valid JSON strings directly. This can be especially useful wh
 // SECURITY NOTE: Don't forget to verify incoming data from client is not malicious or malformed!
 docType = "player"
 myDoc = `{ name:"John Smith", age:42, team:"red" }`
-errorCode = pgdoc.store( docType, myDoc )
+errorCode = await pgdoc.store( docType, myDoc )
 ```
 
 Though `pg-doc` will attempt to error out should you pass it anything too suspicious, it is ultimately your responsibility to ensure that broken or malicious data isn't hi-jacking your server or being passed through to the database.
@@ -84,7 +84,7 @@ This string method is useful if you need some template JSON that will be reused 
 complexObject = { data: {}, evenMoreData: {} }
 docType = "player"
 myDoc = `{ name:"John Smith", age:42, team:"red", config:${str(complexObject)} }`
-errorCode = pgdoc.store( docType, myDoc )
+errorCode = await pgdoc.store( docType, myDoc )
 ```
 
 You can request an ID with `pgdoc.requestID` to store inside the object and make finding it again easier. This ID is a simple integer, but every time it is requested from the database by a server it will be incremented by one. A separate counter sequence is used for each document type.
@@ -94,10 +94,10 @@ You should verify you were able to get an ID before using it. Valid IDs will be 
 ``` js
 // Store a basic object with a unique ID
 docType = "player"
-id = pgdoc.requestID(docType)
+id = await pgdoc.requestID(docType)
 if( id > 0 ) {
   myDoc = { name:"John Smith", age:42, team:"red", config:id }
-  errorCode = pgdoc.store( docType, myDoc )
+  errorCode = await pgdoc.store( docType, myDoc )
 }
 else {
   errorCode = id
@@ -115,11 +115,11 @@ You can store the id and other metadata outside your data object by nesting them
 // Storing metadata apart from your data
 docType = "player"
 myData = { name:"John Smith", age:42, team:"red" }
-id = pgdoc.requestID(docType)
+id = await pgdoc.requestID(docType)
 if( id > 0 ) {
   myMetaData = { timestamp: Date.now(), id: id }
   myDoc = { meta: myMetaData, data: myData }
-  errorCode = pgdoc.store( docType, myDoc )
+  errorCode = await pgdoc.store( docType, myDoc )
 }
 ```
 
@@ -139,7 +139,7 @@ You get documents back out by performing a search in the form of an Object. `pgd
 docType = "player"
 mySearch = { id: 12576 }
 myDoc = null
-myDocs = pgdoc.retrieve(docType, mySearch)
+myDocs = await pgdoc.retrieve(docType, mySearch)
 if( myDocs != null && myDocs.length == 1 ) {
   myDoc = myDocs[0]
 }
@@ -152,7 +152,7 @@ This works with any information specific to one document.
 docType = "player"
 mySearch = { name:"John Smith" }
 myDoc = null
-myDocs = pgdoc.retrieve(docType, mySearch)
+myDocs = await pgdoc.retrieve(docType, mySearch)
 if( myDocs != null && myDocs.length == 1 ) {
   myDoc = myDocs[0]
 }
@@ -164,7 +164,7 @@ You can retrieve multiple documents by simply searching a shared member.
 // Multiple object retrieval
 docType = "player"
 mySearch = { team:"red" }
-myDocs = pgdoc.retrieve(docType, mySearch)
+myDocs = await pgdoc.retrieve(docType, mySearch)
 for( doc in myDocs ) {
   // <- application logic here
 }
@@ -176,7 +176,7 @@ If you do not need to use the object you can request it be returned as a string 
 docType = "player"
 mySearch = { name:"John Smith" }
 myDoc = null
-myDocsAsStrings = pgdoc.retrieveString(docType, mySearch)
+myDocsAsStrings = await pgdoc.retrieveString(docType, mySearch)
 if( myDocsAsStrings != null && myDocsAsStrings.length == 1 ) {
   myDocString = myDocsAsStrings[0]
 }
@@ -191,7 +191,7 @@ It is very simple to overwrite a document.
 // Overwrite a single existing document
 docType = "player"
 newDoc  = `{ name:"John Smith", age:43, team:"red" }`
-errorCode = pgdoc.store( docType, newDoc )
+errorCode = await pgdoc.store( docType, newDoc )
 if( errorCode == pgdoc.errorCodeFor("CLOBBERED") ) {
   console.warn(`Document was overwritten successfully`)
 }
@@ -205,7 +205,7 @@ docType = "player"
 newDoc  = `{ name:"John Smith", age:43, team:"red"} }`
 // Perform a search for the document, returning the string representation
 oldDoc = null
-oldDocs = pgdoc.retrieveString(docType, mySearch)
+oldDocs = await pgdoc.retrieveString(docType, mySearch)
 if( oldDocs != null && oldDocs.length == 1 ) {
   // React to the returned document
   oldDoc = oldDocs[0]
@@ -219,7 +219,7 @@ if( oldDocs != null && oldDocs.length == 1 ) {
     let newDocObject = parse(newDoc)
     let oldDocObject = parse(oldDoc)
     // <- application logic here, combine the objects as you see fit and store in newDoc
-    errorCode = pgdoc.store(docType, newDoc)
+    errorCode = await pgdoc.store(docType, newDoc)
   }
 }
 ```
@@ -233,7 +233,7 @@ Deletion is handled using the same search method as `pgdoc.retrieve()`, but the 
 // Single object deletion
 docType = "player"
 mySearch = { id: 12576 }
-deletedDocCount = pgdoc.delete(docType, mySearch)
+deletedDocCount = await pgdoc.delete(docType, mySearch)
 // <- verify success here
 ```
 
@@ -246,7 +246,7 @@ if( deletedDocCount < 0 ) {
 }
 else if( deletedDocCount > 1 ) {
   console.error(`Document type ${docType} deletion failed for search ${str(mySearch)}. Too many documents removed! Reverting...`)
-  errorCode = pgdoc.undo()
+  errorCode = await pgdoc.undo()
   if( errorCode == 0 ) {
     console.log(`Revert success`)
   }

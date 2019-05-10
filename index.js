@@ -13,7 +13,7 @@
  * @param {string} - connectionString - a path to connect to postgres with
  * @returns {number} - an error code. 0 if no error.
  */
-module.exports.connect = (connectionString) => {
+module.exports.connect = async (connectionString) => {
   // TODO
 }
 
@@ -25,7 +25,7 @@ module.exports.connect = (connectionString) => {
  * @param {string} - data - A javascript object that can be stringified into proper JSON
  * @returns {number} - A sequential integer representing this request uniquely, or an error code
  */
-module.exports.store = (type, data) => {
+module.exports.store = async (type, data) => {
   // TODO
 }
 
@@ -36,7 +36,7 @@ module.exports.store = (type, data) => {
  * @param {string} - search - An object with key-value pairs that must be matched to be returned.
  * @returns {list} - A list of javascript objects parsed from the document, or NULL
  */
-module.exports.retrieve = (type, search) => {
+module.exports.retrieve = async (type, search) => {
   // TODO
 }
 
@@ -47,7 +47,7 @@ module.exports.retrieve = (type, search) => {
  * @param {string} - search - An object with key-value pairs that must be matched to be returned.
  * @returns {list} - A list JSON documents as strings, or NULL
  */
-module.exports.retrieveString = (type, search) => {
+module.exports.retrieveString = async (type, search) => {
   // TODO
 }
 
@@ -56,7 +56,7 @@ module.exports.retrieveString = (type, search) => {
  * @param {string} - search - An object with key-value pairs that must be matched to be returned.
  * @returns {number} - The number of deleted documents, or a negative integer error code
  */
-module.exports.delete = (type, search) => {
+module.exports.delete = async (type, search) => {
   // TODO
 }
 
@@ -66,7 +66,7 @@ module.exports.delete = (type, search) => {
  * @param {string} - type - The type of document. AKA - The name of the collection
  * @returns {object} - A javascript object parsed from the document, or null
  */
-module.exports.requestID = (type) => {
+module.exports.requestID = async (type) => {
   // TODO
 }
 
@@ -79,7 +79,7 @@ module.exports.requestID = (type) => {
  *
  * @returns {number} - errorCode - negative integer representing the kind of pg-doc error
  */
-module.exports.undo = () => {
+module.exports.undo = async () => {
   // TODO
 }
 
