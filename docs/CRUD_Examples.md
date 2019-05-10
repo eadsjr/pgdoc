@@ -237,7 +237,7 @@ deletedDocCount = await pgdoc.delete(docType, mySearch)
 // <- verify success here
 ```
 
-Deleting a document is not hard, though it is important that you specify what happens when it does not work. If something unexpected happens, you can rollback changes with `pgdoc.undo()`
+Deleting a document is not hard, though it is important that you specify what happens when it does not work. If something unexpected happens, you can rollback changes with `pgdoc.undo()`. This will only work if it is not disabled and you haven't made another request yet.
 
 ``` js
 if( deletedDocCount < 0 ) {
