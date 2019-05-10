@@ -250,29 +250,5 @@ if( deletedDocCount != 1 ) {
 }
 ```
 
-Deleting a document is not hard, though it is important that you specify what happens when it does not work. If something unexpected happens, you can rollback changes with `pgdoc.undo()`. This will only work if it is not disabled and you haven't made another request yet.
-
-``` js
-if( deletedDocCount < 0 ) {
-  errorCode = deletedDocCount
-  console.error(`${docType} deletion failed for search ${str(mySearch)}. Error: ${pgdoc.errorMessage(errorCode)}.`)
-}
-else if( deletedDocCount > 1 ) {
-  console.error(`Document type ${docType} deletion failed for search ${str(mySearch)}. Too many documents removed! Reverting...`)
-  errorCode = await pgdoc.undo()
-  if( errorCode == 0 ) {
-    console.log(`Revert success`)
-  }
-  else {
-    console.error(`Revert failed with error: ${pgdoc.errorMessage(errorCode)}`)
-  }
-}
-else if( deletedDocCount == 0 ) {
-  console.warn(`Document type ${docType} deletion failed for search ${str(mySearch)}. Document(s) missing.`)
-}
-else {
-  console.log(`Document type ${docType} deletion success for search ${str(mySearch)}. Removed 1 document.`)
-}
-```
 
 [CRUD]:https://en.wikipedia.org/wiki/Create,_read,_update_and_delete
