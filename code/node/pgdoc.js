@@ -6,6 +6,8 @@
  * @todo TODO: Console.log("") the above message, instructions and then exit only when script is run directly in node.
  */ 
 
+const pg = require('pg');
+
 /**
  * Configure connection to postgres
 *
@@ -14,6 +16,8 @@
  */
 module.exports.connect = async (connectionString) => {
   // TODO
+
+  // test connection working, store connectionString
 }
 
 /**
@@ -28,6 +32,29 @@ module.exports.connect = async (connectionString) => {
  */
 module.exports.store = async (type, data, tid, options) => {
   // TODO
+
+  // database interaction example code
+  /*
+  let client = new pg.Client(connectionString);
+  client.connect();
+  client.query(command, (err,res) => {
+    if(err) {
+      return // ERROR CODE REF HERE
+    }
+    if(res != null) {
+      if(res.rows.length > 0) {
+        return 0 // SUCCESS CODE REF HERE
+      }
+      else {
+        // Nothing was stored
+        return // ERROR CODE REF HERE
+      }
+    }
+    else {
+      return // ERROR CODE REF HERE
+    }
+  }
+  */
 
   // let command = `INSERT INTO docs VALUES ('${type}', '${data}') ;`
   // INSERT INTO docs VALUES ('test','{"a":"a", "b":"b", "c":{"test":1}}') ;
