@@ -6,8 +6,6 @@
  * @todo TODO: Console.log("") the above message, instructions and then exit only when script is run directly in node.
  */ 
 
-let tid_count = 0
-
 /**
  * Configure connection to postgres
 *
@@ -24,9 +22,11 @@ module.exports.connect = async (connectionString) => {
  * @todo document sequence integer limits of postgres here
  * @param {string} - type - The type of document. AKA - The name of the document collection
  * @param {string} - data - A javascript object that can be stringified into proper JSON
+ * @param {number} - [tid]     - OPTIONAL integer for identifying pg-doc transactions
+ * @param {object} - [options] - OPTIONAL object containing options to alter this function call
  * @returns {number} - A sequential integer representing this request uniquely, or an error code
  */
-module.exports.store = async (type, data) => {
+module.exports.store = async (type, data, tid, options) => {
   // TODO
 }
 
@@ -35,9 +35,11 @@ module.exports.store = async (type, data) => {
  *
  * @param {string} - type - The type of document. AKA - The name of the collection
  * @param {string} - search - An object with key-value pairs that must be matched to be returned.
+ * @param {number} - [tid]     - OPTIONAL integer for identifying pg-doc transactions
+ * @param {object} - [options] - OPTIONAL object containing options to alter this function call
  * @returns {list} - A list of javascript objects parsed from the document, or NULL
  */
-module.exports.retrieve = async (type, search) => {
+module.exports.retrieve = async (type, search, tid, options) => {
   // TODO
 }
 
@@ -46,18 +48,22 @@ module.exports.retrieve = async (type, search) => {
  * 
  * @param {string} - type - The type of document. AKA - The name of the collection
  * @param {string} - search - An object with key-value pairs that must be matched to be returned.
+ * @param {number} - [tid]     - OPTIONAL integer for identifying pg-doc transactions
+ * @param {object} - [options] - OPTIONAL object containing options to alter this function call
  * @returns {list} - A list JSON documents as strings, or NULL
  */
-module.exports.retrieveString = async (type, search) => {
+module.exports.retrieveString = async (type, search, tid, options) => {
   // TODO
 }
 
 /**
  * @param {string} - type - The type of document. AKA - The name of the collection
  * @param {string} - search - An object with key-value pairs that must be matched to be returned.
+ * @param {number} - [tid]     - OPTIONAL integer for identifying pg-doc transactions
+ * @param {object} - [options] - OPTIONAL object containing options to alter this function call
  * @returns {number} - The number of deleted documents, or a negative integer error code
  */
-module.exports.delete = async (type, search) => {
+module.exports.delete = async (type, search, tid, options) => {
   // TODO
 }
 
@@ -79,7 +85,7 @@ module.exports.requestID = async (type) => {
  *
  * @todo document clearly the err object in this header
  *
- * @param {number} - [tid] - OPTIONAL integer for identifying pg-doc transactions
+ * @param {number} - [tid]     - OPTIONAL integer for identifying pg-doc transactions
  *
  * @returns {number} - errorCode - negative integer representing the kind of pg-doc error
  */
@@ -96,6 +102,7 @@ module.exports.undo = async (tid) => {
  *
  * @returns {number} - tid - integer for identifying pg-doc transactions
  */
+let tid_count = 0
 module.exports.tid = () => {
   return tid_count++
 }
