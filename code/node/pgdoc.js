@@ -28,6 +28,9 @@ module.exports.connect = async (connectionString) => {
  */
 module.exports.store = async (type, data, tid, options) => {
   // TODO
+
+  // let command = `INSERT INTO docs VALUES ('${type}', '${data}') ;`
+  // INSERT INTO docs VALUES ('test','{"a":"a", "b":"b", "c":{"test":1}}') ;
 }
 
 /**
@@ -41,6 +44,9 @@ module.exports.store = async (type, data, tid, options) => {
  */
 module.exports.retrieve = async (type, search, tid, options) => {
   // TODO
+
+  // stringResponse = await retrieveString(type, search, tid, options)
+  // return parse(stringResponse)
 }
 
 /**
@@ -54,6 +60,16 @@ module.exports.retrieve = async (type, search, tid, options) => {
  */
 module.exports.retrieveString = async (type, search, tid, options) => {
   // TODO
+
+  // example SQL commands
+
+  // for getting all of a given document type
+  // let command = `SELECT data FROM docs WHERE type = '${type}';`
+
+  // for getting anything that matches the search at the top level
+  // let command = `SELECT data FROM docs WHERE type = '${type}' AND data @> '${search}';`
+  // SELECT data FROM docs WHERE type = 'test' AND data @> '{"a":"a"}' ;
+  // SELECT data FROM docs WHERE type = 'test' AND data @> '{"c":{"test":1}}' ;
 }
 
 /**
@@ -65,6 +81,9 @@ module.exports.retrieveString = async (type, search, tid, options) => {
  */
 module.exports.delete = async (type, search, tid, options) => {
   // TODO
+
+  // let command = `DELETE FROM docs WHERE type = '${type}' AND data @> '${search}';`
+  // DELETE FROM docs WHERE type = 'test' AND data @> '{"a":"a"}' ;
 }
 
 /**
