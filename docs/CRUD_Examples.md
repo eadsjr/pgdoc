@@ -141,7 +141,7 @@ mySearch = { id: 12576 }
 myDoc = null
 myDocs = pgdoc.retrieve(docType, mySearch)
 if( myDocs != null && myDocs.length == 1 ) {
-  myDoc = pgdoc.retrieve(docType, mySearch)
+  myDoc = myDocs[0]
 }
 ```
 
