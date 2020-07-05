@@ -21,20 +21,22 @@ ALTER TABLE docs OWNER TO pgdoc;
 GRANT SELECT,INSERT,UPDATE ON TABLE docs TO pgdoc;
 
 -- Create a named sequence when an ID is requested for the first time for a given document type.
--- TODO: need to finish this
 CREATE OR REPLACE FUNCTION generateSequence( type TEXT )
+RETURNS TEXT AS
 $$
-DECLARE variable TEXT; -- example declaration
+DECLARE seqName TEXT;
 BEGIN
-  variable := (SELECT /*example-query-here*/)
-  CREATE SEQUENCE /*seq-name-goes-here*/
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    MINVALUE 1
-    NO MAXVALUE
-    CACHE 1;
-  GRANT SELECT,USAGE ON SEQUENCE /*seq-name-goes-here*/ TO pgdoc;
+  seqName := type || 'Sequence' ;
+  EXECUTE 'CREATE SEQUENCE '
+    || quote_ident(seqName)
+    || ' AS integer '
+    || 'START WITH 1 '
+    || 'INCREMENT BY 1 '
+    || 'MINVALUE 1 '
+    || 'NO MAXVALUE '
+    || 'CACHE 1;';
+  EXECUTE 'GRANT SELECT,USAGE ON SEQUENCE ' || quote_ident(seqName) || ' TO pgdoc;';
+  RETURN seqName;
 END;
 $$
 LANGUAGE plpgsql;
