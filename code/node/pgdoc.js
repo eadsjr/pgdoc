@@ -7,6 +7,40 @@
  */ 
 
 const pg = require('pg');
+const str = require('fast-safe-stringify')
+
+let config = {
+  database: 'pgdoc',
+  schema: 'pgdoc'
+}
+
+/**
+ * Stringify a javascript object, returning a string
+ */
+module.exports.stringify = (object) => {
+  return str(object);
+}
+
+/**
+ * Parse JSON string to a javascript object
+ */
+const parse = (string) => {
+  try {
+    //console.log(`parsing`)
+    //console.log(typeof(string))
+    object = JSON.parse(string)
+    // TODO: ensure no security hole here in case of compromised database / database connection
+    return object;
+  }
+  catch (err) {
+    // parse error?
+    //console.error(err)
+    return -3
+  }
+}
+module.exports.parse = parse
+
+
 
 /**
  * Configure connection to postgres
@@ -203,21 +237,4 @@ module.exports.errorMessage = (string) => {
   if( errorCode ==  -2 ) { return `PLACEHOLDER` } // TODO: change this to match spec
   if( errorCode ==  -3 ) { return `PLACEHOLDER` } // TODO: change this to match spec
   if( errorCode <   -3 ) { return `Invalid Error Code: Error code not found. Was it from a newer version?` } // TODO: update as error codes are added
-}
-
-
-/**
- * Stringify a javascript object, returning a string
- */
-module.exports.stringify = (object) => {
-  // TODO
-  return string;
-}
-
-/**
- * Parse JSON string to a javascipt object
- */
-module.exports.parse = (string) => {
-  // TODO
-  return object;
 }
