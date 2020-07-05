@@ -189,7 +189,42 @@ module.exports.delete = async (type, search, tid, options) => {
  * @returns {object} - A javascript object parsed from the document, or null
  */
 module.exports.requestID = async (type) => {
-  // TODO
+
+  let schema = config.schema
+
+  // TODO: THIS IS NOT SQL INJECTION SAFE
+  let command = `SELECT incrementSequence('${schema}', '${type}') ;`
+  //console.log(command)
+  // INSERT INTO docs VALUES ('test','{"a":"a", "b":"b", "c":{"test":1}}') ;
+
+  let client = new pg.Client(config.connString);
+  await client.connect();
+  try {
+    let res = await client.query(command)
+    client.end()
+    if(res != null) {
+      //console.log(res)
+      //console.log(str(res))
+      // TODO: more specific success validation
+      if(res.rowCount > 0) {
+        //console.log(res)
+        let data = res.rows[0].incrementsequence
+        return data // SUCCESS CODE REF HERE
+      }
+      else {
+        // Nothing was stored
+        return -2 // ERROR CODE REF HERE
+      }
+    }
+    else {
+      return -1 // ERROR CODE REF HERE
+    }
+  }
+  catch (err) {
+    //console.error(err)
+    client.end()
+    return -1 // ERROR CODE REF HERE
+  }
 }
 
 /**
