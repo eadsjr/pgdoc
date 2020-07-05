@@ -169,29 +169,6 @@ module.exports.retrieve = async (type, search, tid, options) => {
 }
 
 /**
- * Retrieve a list of JSON documents matching the fields of a JSON object.
- * 
- * @param {string} - type - The type of document. AKA - The name of the collection
- * @param {string} - search - An object with key-value pairs that must be matched to be returned.
- * @param {number} - [tid]     - OPTIONAL integer for identifying pg-doc transactions
- * @param {object} - [options] - OPTIONAL object containing options to alter this function call
- * @returns {list} - A list JSON documents as strings, or NULL
- */
-module.exports.retrieveString = async (type, search, tid, options) => {
-  // TODO
-
-  // example SQL commands
-
-  // for getting all of a given document type
-  // let command = `SELECT data FROM docs WHERE type = '${type}';`
-
-  // for getting anything that matches the search at the top level
-  // let command = `SELECT data FROM docs WHERE type = '${type}' AND data @> '${search}';`
-  // SELECT data FROM docs WHERE type = 'test' AND data @> '{"a":"a"}' ;
-  // SELECT data FROM docs WHERE type = 'test' AND data @> '{"c":{"test":1}}' ;
-}
-
-/**
  * @param {string} - type - The type of document. AKA - The name of the collection
  * @param {string} - search - An object with key-value pairs that must be matched to be returned.
  * @param {number} - [tid]     - OPTIONAL integer for identifying pg-doc transactions
