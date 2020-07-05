@@ -120,8 +120,50 @@ module.exports.store = async (type, data, tid, options) => {
  * @returns {list} - A list of javascript objects parsed from the document, or NULL
  */
 module.exports.retrieve = async (type, search, tid, options) => {
-  // TODO
 
+  // let result = await module.exports.retrieveString(type, search, tid, options)
+  // if( typeof result == 'number' ) {
+  //   return result
+  // }
+  // else {
+  //   //console.error(result)
+  //   return parse(result)
+  // }
+
+  let schema = config.schema
+
+  let command = `SELECT data FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}';`
+  //console.log(command)
+
+  let client = new pg.Client(config.connString);
+  await client.connect();
+  try {
+    let res = await client.query(command)
+    client.end()
+    if(res != null) {
+      // TODO: more specific success validation
+      if(res.rowCount > 0) {
+        console.log(res)
+        let data = res.rows[0].data
+        return data // SUCCESS CODE REF HERE
+      }
+      else {
+        // Nothing was found
+        return []
+      }
+    }
+    else {
+      return -1 // ERROR CODE REF HERE
+    }
+  }
+  catch (err) {
+    console.error(err)
+    client.end()
+    return -4 // ERROR CODE REF HERE
+  }
+
+
+  // let command = `SELECT docs VALUES ('${type}', '${data}') ;`
   // stringResponse = await retrieveString(type, search, tid, options)
   // return parse(stringResponse)
 }
