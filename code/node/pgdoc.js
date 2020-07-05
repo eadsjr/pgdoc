@@ -41,17 +41,25 @@ const parse = (string) => {
 module.exports.parse = parse
 
 
-
 /**
  * Configure connection to postgres
 *
- * @param {string} - connectionString - a path to connect to postgres with
+ * @param {string} - connectionString - a URL path to connect to postgres with
+ * @param {object} - options - a list of configuration options for pg-doc
  * @returns {number} - an error code. 0 if no error.
  */
-module.exports.connect = async (connectionString) => {
-  // TODO
+module.exports.connect = async (connectionString, options) => {
+  if( typeof(options) == 'object' ) {
+    Object.assign(config, options)
+  }
+  config.connString = connectionString
 
-  // test connection working, store connectionString
+  // TODO: verify back-end configuration with a query / sever proc
+  let client = new pg.Client(connectionString);
+  await client.connect()
+  client.end()
+
+  return 0
 }
 
 /**
