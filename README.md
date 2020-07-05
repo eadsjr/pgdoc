@@ -5,10 +5,11 @@
 
 ```diff
 ----- This is a work-in-progress. It is not currently ready for use. -----
+----- The API is currently unstable and subject to dramatic change. -----
 ```
 #### A dead-simple NoSQL document store using PostgreSQL.
 
-This project is intended to allow you to get a simple JSON document store database up and running as quickly as possible, with minimal cognitive overhead. The system is using a robust and popular database as the backend. The point is to delay having to wrangle the complexities of database management as long as possible for you own project, which for many small projects may mean never having to worry about it.
+This project is intended to allow you to get a simple JSON document store database up and running as quickly as possible, with minimal cognitive overhead. The system is using a robust and popular database called PostgreSQL as the backend. The point is to delay having to wrangle the complexities of database management as long as possible for you own project, which for many small projects may mean never having to worry about it.
 
 Using this you can store and search JSON documents, a generic format for data structures popular in web programming, with simple function calls (or other language specific methods). All application logic is handled server-side, in the cozy confines of your programming language of choice. If it is supported.
 
