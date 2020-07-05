@@ -24,13 +24,13 @@ All non-administrative communication about pg-doc deveopment should be in the fo
 
 ## Developement Goals
 
-This project should require as little as possible from the user when it comes to understanding the domain of databases and interfacing with them via SQL or other means. You can expect them to know JSON, thier programming langauge (such as Javascript), and IP address basics.
+This project should require as little as possible from the user when it comes to understanding the domain of databases and interfacing with them via SQL or other means. You can expect them to know JSON, their programming language (such as Javascript), and IP address basics.
 
 This project should provide users good usage examples for every feature.
 
 This project should have tests for every feature that interacts with PostgreSQL and every function that the user is expected to call. Those tests should have as close to total coverage as feasible. They should all pass for supported versions before a stable release.
 
-The code should be well commented with names that are expressive and accurate. Also, complex or non-obvious functions should have a leading comment describing thier purpose, parameters, return values, and any error cases that may need to be handled.
+The code should be well commented with names that are expressive and accurate. Also, complex or non-obvious functions should have a leading comment describing their purpose, parameters, return values, and any error cases that may need to be handled.
 
 The code should be tight and simple, don't sprawl too much in the core module. If a feature appears to be somewhat orthogonal to the libraries primary functions it can be made part of an extended optional feature set in a separate module, or a script.
 

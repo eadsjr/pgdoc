@@ -96,7 +96,7 @@ You should verify you were able to get an ID before using it. Valid IDs will be 
 docType = "player"
 id = await pgdoc.requestID(docType)
 if( id > 0 ) {
-  myDoc = { name:"John Smith", age:42, team:"red", config:id }
+  myDoc = { name:"John Smith", age:42, team:"red", id:id }
   errorCode = await pgdoc.store( docType, myDoc )
 }
 else {
