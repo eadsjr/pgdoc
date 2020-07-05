@@ -170,18 +170,6 @@ for( doc in myDocs ) {
 }
 ```
 
-If you do not need to use the object you can request it be returned as a string to avoid a casting operation. This may be useful if you are just going to transmit it again.
-
-``` js
-docType = "player"
-mySearch = { name:"John Smith" }
-myDoc = null
-myDocsAsStrings = await pgdoc.retrieveString(docType, mySearch)
-if( myDocsAsStrings != null && myDocsAsStrings.length == 1 ) {
-  myDocString = myDocsAsStrings[0]
-}
-```
-
 
 ### UPDATE
 
