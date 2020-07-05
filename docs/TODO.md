@@ -4,6 +4,7 @@ TODO.md
 
 implement protection as per [OWASP SQL Injection Prevention Cheat Sheet](https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.md)
 Use stored procs with EXECUTE...USING to prevent injection. SEE: [PostgresQL Docs](https://www.postgresql.org/docs/11/plpgsql-statements.html#PLPGSQL-STATEMENTS-EXECUTING-DYN)
+<pre>
 
 'pg' module returns stored JSONB as an object, need to consider striking retrieveString()
 add a noClobber option to enhance the store / update function
@@ -65,20 +66,22 @@ README.md: Add 'See Also' section concerning other relevant projects and modules
 README.md: Mention postgresql more clearly in README
 
 SEE ALSO: README.md Planned features
-
+</pre>
 
 # DONE List
 
+<pre>
 docs/CRUD_Examples.md: add a maxMatch option for select/delete
 docs/CRUD_Examples.md: Change undo() example to instead use options
 docs/CRUD_Examples.md: Rewrite all examples to be asyncrounous!
 docs/CRUD_examples.md: configure connection to database
 docs/CRUD_examples.md: wrote out example cases (syncronous)
 code/node/pgdoc.js: determine async method
-
+</pre>
 
 # CONSDIER List
 
+<pre>
 Add an "exclude" as well as "search"
 
 docs/Async_Examples.md: write examples including use of tids
@@ -105,15 +108,18 @@ docs/CRUD_Examples.md: split this into five documents or more, with next/previou
 docs/CRUD_Examples.md: add examples using tids
 
 Add a JSON primer? Links?
-
+</pre>
 
 # REJECT List
 
+<pre>
 code/node/pgdoc.js: implement basic functions with asynchronous execution using callbacks
 code/node/pgdoc.js: implement basic functions with asynchronous execution using (only) promises
-
+</pre>
 
 # FUTURE List
 
+<pre>
 README.md: add a releases notes with link per language
 docs/CRUD_Examples.md: Update CREATE section if it is clear that we have validated everything they might pass us.
+</pre>
