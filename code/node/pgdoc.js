@@ -258,9 +258,9 @@ module.exports.tid = () => {
 }
 
 /**
- * Changes defult options for all actions starting after this change takes effect.
+ * Changes default options for all actions starting after this change takes effect.
  *
- * They can be overriden on a per-method-call basis
+ * They can be overridden on a per-method-call basis
  *
  * @param {object} - options - object containing options to alter default function behavior
  *
@@ -304,7 +304,7 @@ module.exports.errorMessage = (string) => {
   if( errorCode >    0 ) { return `Invalid Error Code: Positive number.` }
   if( errorCode ==   0 ) { return `Action complete successfully` }
   if( errorCode ==  -1 ) { return `Unknown Error` }
-  if( errorCode ==  -2 ) { return `PLACEHOLDER` } // TODO: change this to match spec
-  if( errorCode ==  -3 ) { return `PLACEHOLDER` } // TODO: change this to match spec
+  if( errorCode ==  -2 ) { return `Query completed, but nothing changed` }
+  if( errorCode ==  -3 ) { return `Error Parsing value` } // TODO: change this to match spec
   if( errorCode <   -3 ) { return `Invalid Error Code: Error code not found. Was it from a newer version?` } // TODO: update as error codes are added
 }
