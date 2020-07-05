@@ -73,33 +73,41 @@ module.exports.connect = async (connectionString, options) => {
  * @returns {number} - A sequential integer representing this request uniquely, or an error code
  */
 module.exports.store = async (type, data, tid, options) => {
-  // TODO
 
-  // database interaction example code
-  /*
-  let client = new pg.Client(connectionString);
-  client.connect();
-  client.query(command, (err,res) => {
-    if(err) {
-      return // ERROR CODE REF HERE
-    }
+  data = str(data)
+  let schema = config.schema
+
+  // TODO: THIS IS NOT SQL INJECTION SAFE
+  let command = `INSERT INTO ${schema}.docs VALUES ('${type}', '${data}') ;`
+  //console.log(command)
+  // INSERT INTO docs VALUES ('test','{"a":"a", "b":"b", "c":{"test":1}}') ;
+
+  let client = new pg.Client(config.connString);
+  await client.connect();
+  try {
+    let res = await client.query(command)
+    client.end()
     if(res != null) {
-      if(res.rows.length > 0) {
+      //console.log(res)
+      //console.log(str(res))
+      // TODO: more specific success validation
+      if(res.rowCount > 0) {
         return 0 // SUCCESS CODE REF HERE
       }
       else {
         // Nothing was stored
-        return // ERROR CODE REF HERE
+        return -2 // ERROR CODE REF HERE
       }
     }
     else {
-      return // ERROR CODE REF HERE
+      return -1 // ERROR CODE REF HERE
     }
   }
-  */
-
-  // let command = `INSERT INTO docs VALUES ('${type}', '${data}') ;`
-  // INSERT INTO docs VALUES ('test','{"a":"a", "b":"b", "c":{"test":1}}') ;
+  catch (err) {
+    //console.error(err)
+    client.end()
+    return -1 // ERROR CODE REF HERE
+  }
 }
 
 /**
