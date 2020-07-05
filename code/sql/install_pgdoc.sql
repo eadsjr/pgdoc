@@ -41,5 +41,32 @@ END;
 $$
 LANGUAGE plpgsql;
 
+-- Create a named sequence when an ID is requested for the first time for a given document type.
+CREATE OR REPLACE FUNCTION incrementSequence( schemaName TEXT, type TEXT )
+RETURNS TEXT AS
+$$
+DECLARE seqName TEXT;
+DECLARE typeID  TEXT;
+BEGIN
+  seqName := schemaName || '.' || type || 'Sequence' ;
+  IF
+    (SELECT to_regclass(quote_ident(seqName)))
+  IS NULL
+  THEN
+    -- generate new sequence as needed
+    PERFORM generateSequence(type);
+  END IF;
+  typeID  := nextval(quote_ident(seqName))::TEXT ;
+  RETURN typeID;
+END;
+$$
+LANGUAGE plpgsql;
+
+-- required for the above function to succeed
+GRANT create ON SCHEMA public TO pgdoc ;
+
+CREATE SCHEMA pgdoc;
+GRANT create ON SCHEMA pgdoc TO pgdoc ;
+-- TODO: write a script to do the above 2 lines for an arbitrary schema, an error message that explains the script AND gives these lines for the schema provided
 
 -- TODO: all the rest
