@@ -25,6 +25,7 @@ const str = (object) => {
  * Parse JSON string to a javascript object
  */
 const parse = (string) => {
+  args = [string]
   try {
     //console.log(`parsing`)
     //console.log(typeof(string))
@@ -33,9 +34,7 @@ const parse = (string) => {
     return object;
   }
   catch (err) {
-    // parse error?
-    //console.error(err)
-    return -3
+    return pgdocError(`ParseFailed`, args)
   }
 }
 
@@ -47,23 +46,36 @@ module.exports.JSON = { parse, stringify: str, str }
 *
  * @param {string} - connectionString - a URL path to connect to postgres with
  * @param {object} - options - a list of configuration options for pg-doc
- * @returns {err} - a pgdoc error object. Null if no error.
+ * @returns {object} - A pgdoc error object. Null if no error.
  */
 module.exports.connect = async (connectionString, options) => {
+  let args = [connectionString, options]
   if( typeof(options) == 'object' ) {
     Object.assign(config, options)
   }
   else {
-    return error(`BadOptions`, arguments)
+    return pgdocError(`BadOptions`, args)
   }
-  config.connString = connectionString
+  config.connectionString = connectionString
 
   // TODO: verify back-end configuration with a query / sever proc
-  let client = new pg.Client(connectionString);
-  await client.connect()
-  client.end()
+  try {
+    let client = new pg.Client(connectionString);
+    await client.connect()
+    client.end()
+  }
+  catch (err) {
+    if( err.code == `ECONNREFUSED` ) {
+      return pgdocError(`DatabaseUnreachable`, args, err)
+    }
+    else {
+      console.log(err)
+      return pgdocError(`UnknownError`, args, err)
+    }
+  }
 
-  return 0
+  // return { error: false }
+  return null
 }
 
 /**
@@ -74,7 +86,7 @@ module.exports.connect = async (connectionString, options) => {
  * @param {string} - data - A javascript object that can be stringified into proper JSON
  * @param {number} - [tid]     - OPTIONAL integer for identifying pg-doc transactions
  * @param {object} - [options] - OPTIONAL object containing options to alter this function call
- * @returns {number} - A sequential integer representing this request uniquely, or an error code
+ * @returns {object} - A pgdoc error object. Null if no error.
  */
 module.exports.store = async (type, data, tid, options) => {
 
@@ -86,7 +98,7 @@ module.exports.store = async (type, data, tid, options) => {
   //console.log(command)
   // INSERT INTO docs VALUES ('test','{"a":"a", "b":"b", "c":{"test":1}}') ;
 
-  let client = new pg.Client(config.connString);
+  let client = new pg.Client(config.connectionString);
   await client.connect();
   try {
     let res = await client.query(command)
@@ -141,7 +153,7 @@ module.exports.retrieve = async (type, search, tid, options) => {
   let command = `SELECT data FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}';`
   // console.log(command)
 
-  let client = new pg.Client(config.connString);
+  let client = new pg.Client(config.connectionString);
   await client.connect();
   try {
     let res = await client.query(command)
@@ -209,7 +221,7 @@ module.exports.requestID = async (type) => {
   //console.log(command)
   // INSERT INTO docs VALUES ('test','{"a":"a", "b":"b", "c":{"test":1}}') ;
 
-  let client = new pg.Client(config.connString);
+  let client = new pg.Client(config.connectionString);
   await client.connect();
   try {
     let res = await client.query(command)
@@ -283,10 +295,13 @@ module.exports.configure = () => {
 }
 
 /// This private function creates the error object that is returned.
-const error = (label, args) => {
+const pgdocError = (label, args, wrapped=null) => {
   err = {}
   Object.assign( err, errors[label] )
   err.args = args
+  if( wrapped != null ) {
+    err.wrapped = wrapped
+  }
   return err
 }
 
@@ -294,23 +309,23 @@ const error = (label, args) => {
  * Provides programmatic access to the error codes as a javascript Object indexed by label.
  */
 const errors = {
-  UnknownError:        { label: `UnknownError`,         code: -1,   description: `An unknown error has occurred.` },
-  InvalidErrorCode:    { label: `InvalidErrorCode`,     code: -2,   description: `Invalid Error Code: Error code not found. Was it from a newer version of pgdoc?` },
-  DatabaseUnreachable: { label: `DatabaseUnreachable`,  code: -3,   description: `When attempting to connect, the database was not found. Ensure it is online and that your connection configuration is correct.` },
-  AccessDenied:        { label: `AccessDenied`,         code: -4,   description: `When attempting to connect, the database refused your connection due to failed authentication` },
-  DatabaseNotCreated:  { label: `DatabaseNotCreated`,   code: -5,   description: `When attempting to connect, PostgreSQL connected but the specific database was not found. Ensure your installation completed successfully.` },
-  BadPermissions:      { label: `BadPermissions`,       code: -6,   description: `When attempting to interact with the database, your action was rejected due to permissions settings in the database. Please ensure your installation completed successfully.` },
-  NothingChanged:      { label: `NothingChanged`,       code: -7,   description: `The action succeeded but the database is unchanged. If this is expected it can be ignored safely.` },
-  NoClobber:           { label: `NoClobber`,            code: -8,   description: `The store operation was rejected because it would overwrite existing data` },
-  OnlyOne:             { label: `OnlyOne`,              code: -9,   description: `The retrieve operation returned multiple records when it shouldn't have.` },
-  CreateFailed:        { label: `CreateFailed`,         code: -10,  description: `The create operation failed for unknown reasons.` },
-  UpdateFailed:        { label: `UpdateFailed`,         code: -11,  description: `The update operation failed for unknown reasons.` },
-  RetrieveFailed:      { label: `RetrieveFailed`,       code: -12,  description: `The retrieve operation failed for unknown reasons.` },
-  DeleteFailed:        { label: `DeleteFailed`,         code: -12,  description: `The delete operation failed for unknown reasons.` },
-  ConfigureFailed:     { label: `ConfigureFailed`,      code: -13,  description: `The configure operation failed for unknown reasons.` },
-  RequestIDFailed:     { label: `RequestIDFailed`,      code: -14,  description: `The requestID operation failed for unknown reasons.` },
-  ParseFailed:         { label: `ParseFailed`,          code: -15,  description: `The pgdoc.JSON.parse call failed. Is the argument valid JSON?` },
-  BadOptions:          { label: `BadOptions`,           code: -16,  description: `The options object passed into the function was not valid. It must be an object.` },
+  UnknownError:        { error: true, label: `UnknownError`,         code: -1,   description: `An unknown error has occurred.` },
+  InvalidErrorCode:    { error: true, label: `InvalidErrorCode`,     code: -2,   description: `Invalid Error Code: Error code not found. Was it from a newer version of pgdoc?` },
+  DatabaseUnreachable: { error: true, label: `DatabaseUnreachable`,  code: -3,   description: `When attempting to connect, the database was not found. Ensure it is online and that your connection configuration is correct.` },
+  AccessDenied:        { error: true, label: `AccessDenied`,         code: -4,   description: `When attempting to connect, the database refused your connection due to failed authentication` },
+  DatabaseNotCreated:  { error: true, label: `DatabaseNotCreated`,   code: -5,   description: `When attempting to connect, PostgreSQL connected but the specific database was not found. Ensure your installation completed successfully.` },
+  BadPermissions:      { error: true, label: `BadPermissions`,       code: -6,   description: `When attempting to interact with the database, your action was rejected due to permissions settings in the database. Please ensure your installation completed successfully.` },
+  NothingChanged:      { error: true, label: `NothingChanged`,       code: -7,   description: `The action succeeded but the database is unchanged. If this is expected it can be ignored safely.` },
+  NoClobber:           { error: true, label: `NoClobber`,            code: -8,   description: `The store operation was rejected because it would overwrite existing data` },
+  OnlyOne:             { error: true, label: `OnlyOne`,              code: -9,   description: `The retrieve operation returned multiple records when it shouldn't have.` },
+  CreateFailed:        { error: true, label: `CreateFailed`,         code: -10,  description: `The create operation failed for unknown reasons.` },
+  UpdateFailed:        { error: true, label: `UpdateFailed`,         code: -11,  description: `The update operation failed for unknown reasons.` },
+  RetrieveFailed:      { error: true, label: `RetrieveFailed`,       code: -12,  description: `The retrieve operation failed for unknown reasons.` },
+  DeleteFailed:        { error: true, label: `DeleteFailed`,         code: -12,  description: `The delete operation failed for unknown reasons.` },
+  ConfigureFailed:     { error: true, label: `ConfigureFailed`,      code: -13,  description: `The configure operation failed for unknown reasons.` },
+  RequestIDFailed:     { error: true, label: `RequestIDFailed`,      code: -14,  description: `The requestID operation failed for unknown reasons.` },
+  ParseFailed:         { error: true, label: `ParseFailed`,          code: -15,  description: `The pgdoc.JSON.parse call failed. Is the argument valid JSON?` },
+  BadOptions:          { error: true, label: `BadOptions`,           code: -16,  description: `The options object passed into the function was not valid. It must be an object.` },
 }
 Object.freeze(errors)
 module.exports.errors = errors
