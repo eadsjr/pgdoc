@@ -279,41 +279,33 @@ module.exports.configure = () => {
   // TODO
 }
 
-
-/**
- * Provide an error code for the last action.
- *
- * @returns {number} - errorCode -  negative integer representing the kind of pg-doc error
- */
-module.exports.errorCode = () => {
-  // TODO
+/// This private function creates the error object that is returned.
+const error = (label, args) => {
+  err = {}
+  Object.assign( err, errors[label] )
+  err.args = args
+  return err
 }
 
 /**
- * Provide an error code based on a short string description.
- * Intended to make code more readable.
- *
- * @param {string} - errorLabel - descriptive string naming error
- * @returns {number} - errorCode -  negative integer representing the kind of pg-doc error
+ * Provides programmatic access to the error codes as a javascript Object indexed by label.
  */
-module.exports.errorCodeFor = (errorLabel) => {
-  if( errorLabel == "CLOBBERED" ) { return -2 } // TODO: change this to match spec
-  // TODO
+const errors = {
+  UnknownError:        { label: `UnknownError`,         code: -1,   description: `An unknown error has occurred.` },
+  InvalidErrorCode:    { label: `InvalidErrorCode`,     code: -2,   description: `Invalid Error Code: Error code not found. Was it from a newer version of pgdoc?` },
+  DatabaseUnreachable: { label: `DatabaseUnreachable`,  code: -3,   description: `When attempting to connect, the database was not found. Ensure it is online and that your connection configuration is correct.` },
+  AccessDenied:        { label: `AccessDenied`,         code: -4,   description: `When attempting to connect, the database refused your connection due to failed authentication` },
+  DatabaseNotCreated:  { label: `DatabaseNotCreated`,   code: -5,   description: `When attempting to connect, PostgreSQL connected but the specific database was not found. Ensure your installation completed successfully.` },
+  BadPermissions:      { label: `BadPermissions`,       code: -6,   description: `When attempting to interact with the database, your action was rejected due to permissions settings in the database. Please ensure your installation completed successfully.` },
+  NothingChanged:      { label: `NothingChanged`,       code: -7,   description: `The action succeeded but the database is unchanged. If this is expected it can be ignored safely.` },
+  NoClobber:           { label: `NoClobber`,            code: -8,   description: `The store operation was rejected because it would overwrite existing data` },
+  OnlyOne:             { label: `OnlyOne`,              code: -9,   description: `The retrieve operation returned multiple records when it shouldn't have.` },
+  CreateFailed:        { label: `CreateFailed`,         code: -10,  description: `The create operation failed for unknown reasons.` },
+  UpdateFailed:        { label: `UpdateFailed`,         code: -11,  description: `The update operation failed for unknown reasons.` },
+  RetrieveFailed:      { label: `RetrieveFailed`,       code: -12,  description: `The retrieve operation failed for unknown reasons.` },
+  DeleteFailed:        { label: `DeleteFailed`,         code: -12,  description: `The delete operation failed for unknown reasons.` },
+  ConfigureFailed:     { label: `ConfigureFailed`,      code: -13,  description: `The configure operation failed for unknown reasons.` },
+  RequestIDFailed:     { label: `RequestIDFailed`,      code: -14,  description: `The requestID operation failed for unknown reasons.` },
 }
-
-/**
- * Provide an error message given an errorCode.
- * 
- * @todo TODO: finish implementing error code spec
- * @todo TODO: update errorMessage() to conform to error code spec
- * 
- * @returns {string} - A human-readable error description ready for logging
- */
-module.exports.errorMessage = (string) => {
-  if( errorCode >    0 ) { return `Invalid Error Code: Positive number.` }
-  if( errorCode ==   0 ) { return `Action complete successfully` }
-  if( errorCode ==  -1 ) { return `Unknown Error` }
-  if( errorCode ==  -2 ) { return `Query completed, but nothing changed` }
-  if( errorCode ==  -3 ) { return `Error Parsing value` } // TODO: change this to match spec
-  if( errorCode <   -3 ) { return `Invalid Error Code: Error code not found. Was it from a newer version?` } // TODO: update as error codes are added
-}
+Object.freeze(errors)
+module.exports.errors = errors
