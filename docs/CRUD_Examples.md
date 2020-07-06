@@ -15,8 +15,8 @@ Then in your Javascript file include the module.
 
 ``` js
 const pgdoc = require("pg-doc")
-const str   = pgdoc.stringify
-const parse = pgdoc.parse
+const str   = pgdoc.JSON.stringify
+const parse = pgdoc.JSON.parse
 ```
 
 This gives you access to pgdoc and some handy aliases.

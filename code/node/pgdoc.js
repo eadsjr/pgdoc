@@ -7,7 +7,7 @@
  */ 
 
 const pg = require('pg')
-const str = require('fast-safe-stringify')
+const stringify = require('fast-safe-stringify')
 
 let config = {
   database: 'pgdoc',
@@ -17,8 +17,8 @@ let config = {
 /**
  * Stringify a javascript object, returning a string
  */
-module.exports.stringify = (object) => {
-  return str(object);
+const str = (object) => {
+  return stringify(object);
 }
 
 /**
@@ -38,7 +38,8 @@ const parse = (string) => {
     return -3
   }
 }
-module.exports.parse = parse
+
+module.exports.JSON = { parse, stringify: str, str }
 
 
 /**
