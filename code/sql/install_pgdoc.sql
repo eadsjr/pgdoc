@@ -66,7 +66,7 @@ LANGUAGE plpgsql;
 GRANT create ON SCHEMA public TO pgdoc ;
 
 CREATE SCHEMA pgdoc;
-GRANT create ON SCHEMA pgdoc TO pgdoc ;
+GRANT create,usage ON SCHEMA pgdoc TO pgdoc ;
 -- TODO: write a script to do the above 2 lines for an arbitrary schema, an error message that explains the script AND gives these lines for the schema provided
 
 -- TODO: all the rest

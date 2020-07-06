@@ -6,7 +6,7 @@
  * @todo TODO: Console.log("") the above message, instructions and then exit only when script is run directly in node.
  */ 
 
-const pg = require('pg');
+const pg = require('pg')
 const str = require('fast-safe-stringify')
 
 let config = {
