@@ -132,8 +132,10 @@ module.exports.retrieve = async (type, search, tid, options) => {
 
   let schema = config.schema
 
+  search = str(search)
+
   let command = `SELECT data FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}';`
-  //console.log(command)
+  // console.log(command)
 
   let client = new pg.Client(config.connString);
   await client.connect();
@@ -143,9 +145,15 @@ module.exports.retrieve = async (type, search, tid, options) => {
     if(res != null) {
       // TODO: more specific success validation
       if(res.rowCount > 0) {
-        console.log(res)
-        let data = res.rows[0].data
-        return data // SUCCESS CODE REF HERE
+        // console.log(res)
+        if(res.rowCount == 1) {
+          let data = res.rows[0].data
+          return data // SUCCESS CODE REF HERE
+        }
+        else {
+          let data = res.rows
+          return data // SUCCESS CODE REF HERE
+        }
       }
       else {
         // Nothing was found
