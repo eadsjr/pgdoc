@@ -11,7 +11,8 @@ const stringify = require('fast-safe-stringify')
 
 let config = {
   database: 'pgdoc',
-  schema: 'pgdoc'
+  schema: 'pgdoc',
+  verbose: 'false'
 }
 
 /**
@@ -28,21 +29,49 @@ const parse = (string) => {
   args = [string]
   try {
     object = JSON.parse(string)
-    // TODO: ensure no security hole here in case of compromised database / database connection
+    /// TODO: ensure no security hole here in case of compromised database / database connection
     return object;
   }
   catch (err) {
-    // Triggers on NaN, invalid JSON strings and possibly other strange input
+    /// Triggers on NaN, invalid JSON strings and possibly other strange input
     return pgdocError(`ParseFailed`, args)
   }
 }
 
 module.exports.JSON = { parse, stringify: str, str }
 
+const unhandledError = `\n!!!! pg-doc unhandled error! Please report the above object on an issue here: https://github.com/eadsjr/pg-doc/issues !!!!\n`
+const unknownError   = `\n!!!! pg-doc unknown error! Please report any relevant details on an issue here: https://github.com/eadsjr/pg-doc/issues !!!!\n`
+
+const connectionErrorHandler = (err, args) => {
+  if( err.code == `ECONNREFUSED` ) {
+    /// SYSTEM: net.js: TCPConnectWrap.afterConnect: ECONNREFUSED
+    return pgdocError(`DatabaseUnreachable`, args, err)
+  }
+  else if( err.code == `28000` ) {
+    /// POSTGRES: error: role {} does not exist
+    /// POSTGRES: error: role {} is not permitted to log in
+    return pgdocError(`AccessDenied`, args, err)
+  }
+  else if( err.code == `42501` ) {
+    /// POSTGRES: error: permission denied for schema {}
+    /// POSTGRES: error: permission denied for table docs
+    return pgdocError(`BadPermissions`, args, err)
+  }
+  else if( err.code == `3D000` ) {
+    /// POSTGRES: error: database {} does not exist
+    return pgdocError(`DatabaseNotCreated`, args, err)
+  }
+  else {
+    console.error(err)
+    console.error(unhandledError)
+    return pgdocError(`UnknownError`, args, err)
+  }
+}
 
 /**
  * Configure connection to postgres
-*
+ *
  * @param {string} - connectionString - a URL path to connect to postgres with
  * @param {object} - options - a list of configuration options for pg-doc
  * @returns {object} - A pgdoc error object. Null if no error.
@@ -63,30 +92,9 @@ module.exports.connect = async (connectionString, options) => {
     client.end()
   }
   catch (err) {
-    if( err.code == `ECONNREFUSED` ) {
-      return pgdocError(`DatabaseUnreachable`, args, err)
-    }
-    else if( err.code == `28000`) {
-      // POSTGRES: error: role {} does not exist
-      // POSTGRES: error: role {} is not permitted to log in
-      return pgdocError(`AccessDenied`, args, err)
-    }
-    else if( err.code == `42501`) {
-      // POSTGRES: error: permission denied for schema {}
-      // POSTGRES: error: permission denied for table docs
-      return pgdocError(`BadPermissions`, args, err)
-    }
-    else if(err.code == `3D000`) {
-      // POSTGRES: error: database {} does not exist
-      return pgdocError(`DatabaseNotCreated`, args, err)
-    }
-    else {
-      console.error(err)
-      console.error(`\n!!!! pg-doc unhandled error! Please report above object as an issue here: https://github.com/eadsjr/pg-doc/issues !!!!\n`)
-      return pgdocError(`UnknownError`, args, err)
-    }
+    return connectionErrorHandler(err, args)
   }
-  return null // All is well
+  return null /// All is well
 }
 
 /**
@@ -100,40 +108,57 @@ module.exports.connect = async (connectionString, options) => {
  * @returns {object} - A pgdoc error object. Null if no error.
  */
 module.exports.store = async (type, data, tid, options) => {
+  let args = [type, data, tid, options]
 
   data = str(data)
   let schema = config.schema
 
-  // TODO: THIS IS NOT SQL INJECTION SAFE
-  let command = `INSERT INTO ${schema}.docs VALUES ('${type}', '${data}') ;`
-  //console.log(command)
-  // INSERT INTO docs VALUES ('test','{"a":"a", "b":"b", "c":{"test":1}}') ;
+  /// TODO: option for NoClobber
 
-  let client = new pg.Client(config.connectionString);
-  await client.connect();
+  /// TODO: THIS IS NOT SQL INJECTION SAFE
+  let command = `INSERT INTO ${schema}.docs VALUES ('${type}', '${data}') ;`
+  if(verbose) {
+    console.log(command)
+  }
+  /// INSERT INTO docs VALUES ('test','{"a":"a", "b":"b", "c":{"test":1}}') ;
+
+  /// Get connection online.
+  let client
+  try {
+    let client = new pg.Client(connectionString);
+    await client.connect()
+  }
+  catch (err) {
+    return connectionErrorHandler(err, args)
+  }
+  /// Execute store command
   try {
     let res = await client.query(command)
     client.end()
     if(res != null) {
-      //console.log(res)
-      //console.log(str(res))
-      // TODO: more specific success validation
+      if(verbose) {
+        console.log(`received response: ${str(res)}`)
+        console.log(res)
+      }
+      /// TODO: more specific success validation
       if(res.rowCount > 0) {
-        return 0 // SUCCESS CODE REF HERE
+        return null
       }
       else {
-        // Nothing was stored
-        return -2 // ERROR CODE REF HERE
+        /// Nothing was stored
+        return pgdocError('NothingChanged', args)
       }
     }
     else {
-      return -1 // ERROR CODE REF HERE
+      console.error(unknownError)
+      return pgdocError('StoreFailed', args)
     }
   }
   catch (err) {
-    //console.error(err)
     client.end()
-    return -1 // ERROR CODE REF HERE
+    console.error(err)
+    console.error(unhandledError)
+    return pgdocError('StoreFailed', args)
   }
 }
 
@@ -329,7 +354,7 @@ const errors = {
   NothingChanged:      { error: true, label: `NothingChanged`,       code: -7,   description: `The action succeeded but the database is unchanged. If this is expected it can be ignored safely.` },
   NoClobber:           { error: true, label: `NoClobber`,            code: -8,   description: `The store operation was rejected because it would overwrite existing data` },
   OnlyOne:             { error: true, label: `OnlyOne`,              code: -9,   description: `The retrieve operation returned multiple records when it shouldn't have.` },
-  CreateFailed:        { error: true, label: `CreateFailed`,         code: -10,  description: `The create operation failed for unknown reasons.` },
+  StoreFailed:         { error: true, label: `StoreFailed`,          code: -10,  description: `The create operation failed for unknown reasons.` },
   UpdateFailed:        { error: true, label: `UpdateFailed`,         code: -11,  description: `The update operation failed for unknown reasons.` },
   RetrieveFailed:      { error: true, label: `RetrieveFailed`,       code: -12,  description: `The retrieve operation failed for unknown reasons.` },
   DeleteFailed:        { error: true, label: `DeleteFailed`,         code: -12,  description: `The delete operation failed for unknown reasons.` },
