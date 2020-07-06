@@ -6,7 +6,6 @@ implement protection as per [OWASP SQL Injection Prevention Cheat Sheet](https:/
 Use stored procs with EXECUTE...USING to prevent injection. SEE: [PostgresQL Docs](https://www.postgresql.org/docs/11/plpgsql-statements.html#PLPGSQL-STATEMENTS-EXECUTING-DYN)
 <pre>
 
-'pg' module returns stored JSONB as an object, need to consider striking retrieveString()
 add a noClobber option to enhance the store / update function
 
 move pg-doc relations to pgdoc SCHEMA
@@ -71,6 +70,7 @@ SEE ALSO: README.md Planned features
 # DONE List
 
 <pre>
+removing retrieveString(), because 'pg' module returns stored JSONB as an object
 docs/CRUD_Examples.md: add a maxMatch option for select/delete
 docs/CRUD_Examples.md: Change undo() example to instead use options
 docs/CRUD_Examples.md: Rewrite all examples to be asyncrounous!

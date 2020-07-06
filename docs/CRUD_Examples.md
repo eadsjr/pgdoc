@@ -193,7 +193,7 @@ docType = "player"
 newDoc  = `{ name:"John Smith", age:43, team:"red"} }`
 // Perform a search for the document, returning the string representation
 oldDoc = null
-oldDocs = await pgdoc.retrieveString(docType, mySearch)
+oldDocs = await pgdoc.retrieve(docType, mySearch)
 if( oldDocs != null && oldDocs.length == 1 ) {
   // React to the returned document
   oldDoc = oldDocs[0]
