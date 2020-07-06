@@ -36,3 +36,6 @@ let playGame = async () => {
   // }
 }
 playGame()
+
+// console.log( pgdoc.JSON.parse(NaN) )
+// console.log( pgdoc.JSON.parse('cats Wros') )

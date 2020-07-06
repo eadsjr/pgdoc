@@ -27,13 +27,12 @@ const str = (object) => {
 const parse = (string) => {
   args = [string]
   try {
-    //console.log(`parsing`)
-    //console.log(typeof(string))
     object = JSON.parse(string)
     // TODO: ensure no security hole here in case of compromised database / database connection
     return object;
   }
   catch (err) {
+    // Triggers on NaN, invalid JSON strings and possibly other strange input
     return pgdocError(`ParseFailed`, args)
   }
 }
@@ -58,7 +57,6 @@ module.exports.connect = async (connectionString, options) => {
   }
   config.connectionString = connectionString
 
-  // TODO: verify back-end configuration with a query / sever proc
   try {
     let client = new pg.Client(connectionString);
     await client.connect()
@@ -68,14 +66,27 @@ module.exports.connect = async (connectionString, options) => {
     if( err.code == `ECONNREFUSED` ) {
       return pgdocError(`DatabaseUnreachable`, args, err)
     }
+    else if( err.code == `28000`) {
+      // POSTGRES: error: role {} does not exist
+      // POSTGRES: error: role {} is not permitted to log in
+      return pgdocError(`AccessDenied`, args, err)
+    }
+    else if( err.code == `42501`) {
+      // POSTGRES: error: permission denied for schema {}
+      // POSTGRES: error: permission denied for table docs
+      return pgdocError(`BadPermissions`, args, err)
+    }
+    else if(err.code == `3D000`) {
+      // POSTGRES: error: database {} does not exist
+      return pgdocError(`DatabaseNotCreated`, args, err)
+    }
     else {
-      console.log(err)
+      console.error(err)
+      console.error(`\n!!!! pg-doc unhandled error! Please report above object as an issue here: https://github.com/eadsjr/pg-doc/issues !!!!\n`)
       return pgdocError(`UnknownError`, args, err)
     }
   }
-
-  // return { error: false }
-  return null
+  return null // All is well
 }
 
 /**
@@ -312,8 +323,8 @@ const errors = {
   UnknownError:        { error: true, label: `UnknownError`,         code: -1,   description: `An unknown error has occurred.` },
   InvalidErrorCode:    { error: true, label: `InvalidErrorCode`,     code: -2,   description: `Invalid Error Code: Error code not found. Was it from a newer version of pgdoc?` },
   DatabaseUnreachable: { error: true, label: `DatabaseUnreachable`,  code: -3,   description: `When attempting to connect, the database was not found. Ensure it is online and that your connection configuration is correct.` },
-  AccessDenied:        { error: true, label: `AccessDenied`,         code: -4,   description: `When attempting to connect, the database refused your connection due to failed authentication` },
-  DatabaseNotCreated:  { error: true, label: `DatabaseNotCreated`,   code: -5,   description: `When attempting to connect, PostgreSQL connected but the specific database was not found. Ensure your installation completed successfully.` },
+  AccessDenied:        { error: true, label: `AccessDenied`,         code: -4,   description: `When attempting to connect, the database refused your connection due to failed authentication. Ensure your installation completed successfully, and check your login configuration.` },
+  DatabaseNotCreated:  { error: true, label: `DatabaseNotCreated`,   code: -5,   description: `When attempting to connect, PostgreSQL connected but the specific database requested was not found. Ensure your installation completed successfully and check your login configuration.` },
   BadPermissions:      { error: true, label: `BadPermissions`,       code: -6,   description: `When attempting to interact with the database, your action was rejected due to permissions settings in the database. Please ensure your installation completed successfully.` },
   NothingChanged:      { error: true, label: `NothingChanged`,       code: -7,   description: `The action succeeded but the database is unchanged. If this is expected it can be ignored safely.` },
   NoClobber:           { error: true, label: `NoClobber`,            code: -8,   description: `The store operation was rejected because it would overwrite existing data` },
