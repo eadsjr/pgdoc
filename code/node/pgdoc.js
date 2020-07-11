@@ -12,7 +12,7 @@ const stringify = require('fast-safe-stringify')
 let config = {
   database: 'pgdoc',
   schema: 'pgdoc',
-  verbose: 'false'
+  verbose: 'false',
 }
 
 /**
@@ -128,7 +128,7 @@ module.exports.store = async (type, data, tid, options) => {
   /// Get connection online.
   let client
   try {
-    let client = new pg.Client(config.connectionString)
+    client = new pg.Client(config.connectionString)
     // console.log(client)
     if(client == null) {
       return pgdocError('UnknownError',args)
