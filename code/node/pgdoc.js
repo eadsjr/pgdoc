@@ -30,7 +30,7 @@ const parse = (string) => {
   try {
     object = JSON.parse(string)
     /// TODO: ensure no security hole here in case of compromised database / database connection
-    return object;
+    return object
   }
   catch (err) {
     /// Triggers on NaN, invalid JSON strings and possibly other strange input
@@ -78,6 +78,9 @@ const connectionErrorHandler = (err, args) => {
  */
 module.exports.connect = async (connectionString, options) => {
   let args = [connectionString, options]
+  if( connectionString == null ) {
+    return pgdocError(`BadConnectionString`, args)
+  }
   if( typeof(options) == 'object' ) {
     Object.assign(config, options)
   }
@@ -117,7 +120,7 @@ module.exports.store = async (type, data, tid, options) => {
 
   /// TODO: THIS IS NOT SQL INJECTION SAFE
   let command = `INSERT INTO ${schema}.docs VALUES ('${type}', '${data}') ;`
-  if(verbose) {
+  if(config.verbose) {
     console.log(command)
   }
   /// INSERT INTO docs VALUES ('test','{"a":"a", "b":"b", "c":{"test":1}}') ;
@@ -125,7 +128,11 @@ module.exports.store = async (type, data, tid, options) => {
   /// Get connection online.
   let client
   try {
-    let client = new pg.Client(connectionString);
+    let client = new pg.Client(config.connectionString)
+    // console.log(client)
+    if(client == null) {
+      return pgdocError('UnknownError',args)
+    }
     await client.connect()
   }
   catch (err) {
@@ -136,7 +143,7 @@ module.exports.store = async (type, data, tid, options) => {
     let res = await client.query(command)
     client.end()
     if(res != null) {
-      if(verbose) {
+      if(config.verbose) {
         console.log(`received response: ${str(res)}`)
         console.log(res)
       }
@@ -155,7 +162,9 @@ module.exports.store = async (type, data, tid, options) => {
     }
   }
   catch (err) {
-    client.end()
+    if(client != null) {
+      client.end()
+    }
     console.error(err)
     console.error(unhandledError)
     return pgdocError('StoreFailed', args)
@@ -362,6 +371,7 @@ const errors = {
   RequestIDFailed:     { error: true, label: `RequestIDFailed`,      code: -14,  description: `The requestID operation failed for unknown reasons.` },
   ParseFailed:         { error: true, label: `ParseFailed`,          code: -15,  description: `The pgdoc.JSON.parse call failed. Is the argument valid JSON?` },
   BadOptions:          { error: true, label: `BadOptions`,           code: -16,  description: `The options object passed into the function was not valid. It must be an object.` },
+  BadConnectionString: { error: true, label: `BadConnectionString`,  code: -17,  description: `The connectionString object passed into the function was not valid. Please check your configuration.` },
 }
 Object.freeze(errors)
 module.exports.errors = errors
