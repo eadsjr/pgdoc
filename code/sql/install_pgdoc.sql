@@ -10,18 +10,23 @@ CREATE DATABASE pgdoc;
 -- Create a user so the program can access the database without an admin account
 CREATE ROLE pgdoc LOGIN;
 
+CREATE SCHEMA pgdoc;
+GRANT create,usage ON SCHEMA pgdoc TO pgdoc ;
+-- TODO: write a script to do the above 2 lines for an arbitrary schema, an error message that explains the script AND gives these lines for the schema provided
+
+
 -- Create the table that will store all user data
-CREATE TABLE docs (
+CREATE TABLE pgdoc.docs (
   type TEXT, -- Contains the type of document stored
   data JSONB -- Contains the document in JSON form
 );
-ALTER TABLE docs OWNER TO pgdoc;
+ALTER TABLE pgdoc.docs OWNER TO pgdoc;
 
 -- Create role for game servers to register with
-GRANT SELECT,INSERT,UPDATE ON TABLE docs TO pgdoc;
+GRANT SELECT,INSERT,UPDATE ON TABLE pgdoc.docs TO pgdoc;
 
 -- Create a named sequence when an ID is requested for the first time for a given document type.
-CREATE OR REPLACE FUNCTION generateSequence( type TEXT )
+CREATE OR REPLACE FUNCTION pgdoc.generateSequence( type TEXT )
 RETURNS TEXT AS
 $$
 DECLARE seqName TEXT;
@@ -42,7 +47,7 @@ $$
 LANGUAGE plpgsql;
 
 -- Create a named sequence when an ID is requested for the first time for a given document type.
-CREATE OR REPLACE FUNCTION incrementSequence( schemaName TEXT, type TEXT )
+CREATE OR REPLACE FUNCTION pgdoc.incrementSequence( schemaName TEXT, type TEXT )
 RETURNS TEXT AS
 $$
 DECLARE seqName TEXT;
@@ -63,10 +68,7 @@ $$
 LANGUAGE plpgsql;
 
 -- required for the above function to succeed
-GRANT create ON SCHEMA public TO pgdoc ;
+-- GRANT create,usage ON SCHEMA public TO pgdoc ;
 
-CREATE SCHEMA pgdoc;
-GRANT create,usage ON SCHEMA pgdoc TO pgdoc ;
--- TODO: write a script to do the above 2 lines for an arbitrary schema, an error message that explains the script AND gives these lines for the schema provided
 
 -- TODO: all the rest

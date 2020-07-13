@@ -6,6 +6,7 @@ const str = require('fast-safe-stringify')
 console.log(`running tests`)
 
 let playGame = async () => {
+  console.log(`testing store()...`)
   let err = await pgdoc.connect(config.connectionString, {schema: config.schema})
   if( err != null ) {
     console.log(err)
@@ -26,6 +27,7 @@ let playGame = async () => {
     console.log(`pgdoc.store failed for type:'${type}' and data:'${str(data)}'.\n${err}`)
     return
   }
+  console.log(`testing retrieve()...`)
   let search = { id: 0 }
   try {
     let result = await pgdoc.retrieve(type, search)
@@ -35,6 +37,7 @@ let playGame = async () => {
     console.log(`pgdoc.retreive failed for type:'${type}' and data:'${str(search)}'.\n${err}`)
     return
   }
+  console.log(`testing ...()...`)
 }
 playGame()
 

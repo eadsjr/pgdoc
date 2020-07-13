@@ -355,7 +355,7 @@ const pgdocError = (label, args, wrapped=null) => {
 }
 
 /**
- * Provides programmatic access to the error codes as a javascript Object indexed by label.
+ * Provides programmatic access to the error codes as a Javascript Object indexed by label.
  */
 const errors = {
   UnknownError:        { error: true, label: `UnknownError`,         code: -1,   description: `An unknown error has occurred.` },
