@@ -12,7 +12,7 @@ const stringify = require('fast-safe-stringify')
 let config = {
   database: 'pgdoc',
   schema: 'pgdoc',
-  verbose: 'false',
+  verbose: false,
 }
 
 /**

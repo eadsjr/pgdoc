@@ -51,12 +51,12 @@ let testConfigure = async () => {
 // console.log( pgdoc.JSON.parse('cats Wros') )
 
 let test = async () => {
-  let err = await pgdoc.connect(config.connectionString, {schema: config.schema})
+  let err = await pgdoc.connect(config.connectionString, {schema: config.schema, verbose: true})
   if( err != null ) {
     console.log(err)
     return
   }
-  // await testStore()
+  await testStore()
   await testRetrieve()
 }
 test()
