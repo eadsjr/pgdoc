@@ -191,7 +191,9 @@ module.exports.retrieve = async (type, search, tid, options) => {
   let schema = config.schema
 
   let command = `SELECT data FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}';`
-  console.log(command)
+  if(config.verbose) {
+    console.log(command)
+  }
 
   let client
   try {
