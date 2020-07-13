@@ -26,25 +26,28 @@ ALTER TABLE pgdoc.docs OWNER TO pgdoc;
 GRANT SELECT,INSERT,UPDATE ON TABLE pgdoc.docs TO pgdoc;
 
 -- Create a named sequence when an ID is requested for the first time for a given document type.
-CREATE OR REPLACE FUNCTION pgdoc.generateSequence( type TEXT )
+CREATE OR REPLACE FUNCTION pgdoc.generateSequence( schemaName TEXT, type TEXT )
 RETURNS TEXT AS
 $$
 DECLARE seqName TEXT;
 BEGIN
   seqName := type || 'Sequence' ;
   EXECUTE 'CREATE SEQUENCE '
-    || quote_ident(seqName)
+    || schemaName
+    || '.'
+    || seqName
     || ' AS integer '
     || 'START WITH 1 '
     || 'INCREMENT BY 1 '
     || 'MINVALUE 1 '
     || 'NO MAXVALUE '
     || 'CACHE 1;';
-  EXECUTE 'GRANT SELECT,USAGE ON SEQUENCE ' || quote_ident(seqName) || ' TO pgdoc;';
+  EXECUTE 'GRANT SELECT,USAGE ON SEQUENCE ' || schemaName || '.' || seqName || ' TO pgdoc;';
   RETURN seqName;
 END;
 $$
 LANGUAGE plpgsql;
+ALTER FUNCTION pgdoc.generateSequence( TEXT, TEXT ) OWNER TO pgdoc;
 
 -- Create a named sequence when an ID is requested for the first time for a given document type.
 CREATE OR REPLACE FUNCTION pgdoc.incrementSequence( schemaName TEXT, type TEXT )
@@ -55,17 +58,19 @@ DECLARE typeID  TEXT;
 BEGIN
   seqName := schemaName || '.' || type || 'Sequence' ;
   IF
-    (SELECT to_regclass(quote_ident(seqName)))
+    (SELECT to_regclass(seqName))
   IS NULL
   THEN
     -- generate new sequence as needed
-    PERFORM generateSequence(type);
+    PERFORM pgdoc.generateSequence(schemaName, type);
   END IF;
-  typeID  := nextval(quote_ident(seqName))::TEXT ;
+  typeID  := nextval( seqName )::TEXT ;
   RETURN typeID;
 END;
 $$
 LANGUAGE plpgsql;
+
+ALTER FUNCTION pgdoc.incrementSequence( TEXT, TEXT ) OWNER TO pgdoc;
 
 -- required for the above function to succeed
 -- GRANT create,usage ON SCHEMA public TO pgdoc ;

@@ -266,7 +266,7 @@ module.exports.requestID = async (type) => {
   let schema = config.schema
 
   // TODO: THIS IS NOT SQL INJECTION SAFE
-  let command = `SELECT incrementSequence('${schema}', '${type}') ;`
+  let command = `SELECT pgdoc.incrementSequence('${schema}', '${type}') ;`
   //console.log(command)
   // INSERT INTO docs VALUES ('test','{"a":"a", "b":"b", "c":{"test":1}}') ;
 
