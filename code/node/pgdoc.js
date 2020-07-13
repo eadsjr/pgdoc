@@ -185,26 +185,18 @@ module.exports.store = async (type, data, tid, options) => {
  * @returns {list} - A list of javascript objects parsed from the document, or NULL
  */
 module.exports.retrieve = async (type, search, tid, options) => {
-
-  // let result = await module.exports.retrieveString(type, search, tid, options)
-  // if( typeof result == 'number' ) {
-  //   return result
-  // }
-  // else {
-  //   //console.error(result)
-  //   return parse(result)
-  // }
-
-  let schema = config.schema
+  let args = [type, search, tid, options]
 
   search = str(search)
+  let schema = config.schema
 
   let command = `SELECT data FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}';`
-  // console.log(command)
+  console.log(command)
 
-  let client = new pg.Client(config.connectionString);
-  await client.connect();
+  let client
   try {
+    client = new pg.Client(config.connectionString)
+    await client.connect()
     let res = await client.query(command)
     client.end()
     if(res != null) {
@@ -226,15 +218,22 @@ module.exports.retrieve = async (type, search, tid, options) => {
       }
     }
     else {
-      return -1 // ERROR CODE REF HERE
+      console.error(unknownError)
+      return pgdocError('RetrieveFailed', args)
     }
   }
   catch (err) {
-    console.error(err)
-    client.end()
-    return -4 // ERROR CODE REF HERE
+    if(client != null) {
+      client.end()
+    }
+    let pgdErr = connectionErrorHandler(err, args)
+    if( pgdErr.label == 'UnknownError' ) {
+      console.error(err)
+      console.error(unhandledError)
+      return pgdocError('StoreFailed', args)
+    }
+    else return pgdErr
   }
-
 
   // let command = `SELECT docs VALUES ('${type}', '${data}') ;`
   // stringResponse = await retrieveString(type, search, tid, options)
