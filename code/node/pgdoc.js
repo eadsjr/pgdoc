@@ -165,9 +165,13 @@ module.exports.store = async (type, data, tid, options) => {
     if(client != null) {
       client.end()
     }
-    console.error(err)
-    console.error(unhandledError)
-    return pgdocError('StoreFailed', args)
+    let pgdErr = connectionErrorHandler(err, args)
+    if( pgdErr.label == 'UnknownError' ) {
+      console.error(err)
+      console.error(unhandledError)
+      return pgdocError('StoreFailed', args)
+    }
+    else return pgdErr
   }
 }
 

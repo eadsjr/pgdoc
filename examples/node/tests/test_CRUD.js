@@ -17,7 +17,8 @@ let playGame = async () => {
   try {
     let err = await pgdoc.store(type, data)
     if( err != null ) {
-      console.log(`pgdoc.store failed with error:'${err.label}'`)
+      console.log(`pgdoc.store failed with error:\n  ${err.label}: ${err.description}`)
+      // console.log(str(err))
       return
     }
   }
