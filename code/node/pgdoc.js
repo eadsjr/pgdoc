@@ -125,21 +125,15 @@ module.exports.store = async (type, data, tid, options) => {
   }
   /// INSERT INTO docs VALUES ('test','{"a":"a", "b":"b", "c":{"test":1}}') ;
 
-  /// Get connection online.
   let client
+  /// Execute store command
   try {
+    /// Get connection online.
     client = new pg.Client(config.connectionString)
-    // console.log(client)
     if(client == null) {
       return pgdocError('UnknownError',args)
     }
     await client.connect()
-  }
-  catch (err) {
-    return connectionErrorHandler(err, args)
-  }
-  /// Execute store command
-  try {
     let res = await client.query(command)
     client.end()
     if(res != null) {
