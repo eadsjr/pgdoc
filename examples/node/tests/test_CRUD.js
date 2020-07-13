@@ -5,14 +5,9 @@ const str = require('fast-safe-stringify')
 
 console.log(`running tests`)
 
-let playGame = async () => {
-  console.log(`testing store()...`)
-  let err = await pgdoc.connect(config.connectionString, {schema: config.schema})
-  if( err != null ) {
-    console.log(err)
-    return
-  }
 
+let testStore = async () => {
+  console.log(`testing store()...`)
   let type = `CRUD_Test`
   let data = { id: 0, x: 1, y: 3, z: -2 }
   try {
@@ -27,7 +22,11 @@ let playGame = async () => {
     console.log(`pgdoc.store failed for type:'${type}' and data:'${str(data)}'.\n${err}`)
     return
   }
+}
+
+let testRetrieve = async () => {
   console.log(`testing retrieve()...`)
+  let type = `CRUD_Test`
   let search = { id: 0 }
   try {
     let result = await pgdoc.retrieve(type, search)
@@ -37,9 +36,27 @@ let playGame = async () => {
     console.log(`pgdoc.retreive failed for type:'${type}' and data:'${str(search)}'.\n${err}`)
     return
   }
-  console.log(`testing ...()...`)
 }
-playGame()
+
+let testDelete = async () => {
+}
+
+let testRequestID = async () => {
+}
+
+let testConfigure = async () => {
+}
 
 // console.log( pgdoc.JSON.parse(NaN) )
 // console.log( pgdoc.JSON.parse('cats Wros') )
+
+let test = async () => {
+  let err = await pgdoc.connect(config.connectionString, {schema: config.schema})
+  if( err != null ) {
+    console.log(err)
+    return
+  }
+  // await testStore()
+  await testRetrieve()
+}
+test()
