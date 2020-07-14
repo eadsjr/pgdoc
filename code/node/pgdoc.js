@@ -43,7 +43,10 @@ module.exports.JSON = { parse, stringify: str, str }
 const unhandledError = `\n!!!! pg-doc unhandled error! Please report the above object on an issue here: https://github.com/eadsjr/pg-doc/issues !!!!\n`
 const unknownError   = `\n!!!! pg-doc unknown error! Please report any relevant details on an issue here: https://github.com/eadsjr/pg-doc/issues !!!!\n`
 
-const connectionErrorHandler = (err, args) => {
+const connectionErrorHandler = ( client, err, args, fallbackError ) => {
+  if(client != null) {
+    client.end()
+  }
   if( err.code == `ECONNREFUSED` ) {
     /// SYSTEM: net.js: TCPConnectWrap.afterConnect: ECONNREFUSED
     return pgdocError(`DatabaseUnreachable`, args, err)
@@ -63,9 +66,16 @@ const connectionErrorHandler = (err, args) => {
     return pgdocError(`DatabaseNotCreated`, args, err)
   }
   else {
-    console.error(err)
-    console.error(unhandledError)
-    return pgdocError(`UnknownError`, args, err)
+    if( fallback != null ) {
+      console.error(err)
+      console.error(unhandledError)
+      return fallback
+    }
+    else {
+      console.error(err)
+      console.error(unhandledError)
+      return pgdocError(`UnknownError`, args, err)
+    }
   }
 }
 
@@ -95,7 +105,7 @@ module.exports.connect = async (connectionString, options) => {
     client.end()
   }
   catch (err) {
-    return connectionErrorHandler(err, args)
+    return connectionErrorHandler(client, err, args)
   }
   return null /// All is well
 }
@@ -156,16 +166,7 @@ module.exports.store = async (type, data, tid, options) => {
     }
   }
   catch (err) {
-    if(client != null) {
-      client.end()
-    }
-    let pgdErr = connectionErrorHandler(err, args)
-    if( pgdErr.label == 'UnknownError' ) {
-      console.error(err)
-      console.error(unhandledError)
-      return pgdocError('StoreFailed', args)
-    }
-    else return pgdErr
+    return connectionErrorHandler(client, err, args, pgdocError('StoreFailed', args) )
   }
 }
 
@@ -197,8 +198,11 @@ module.exports.retrieve = async (type, search, tid, options) => {
     client.end()
     if(res != null) {
       // TODO: more specific success validation
+      if(config.verbose) {
+        console.log(`received response: ${str(res)}`)
+        console.log(res)
+      }
       if(res.rowCount > 0) {
-        // console.log(res)
         if(res.rowCount == 1) {
           let data = res.rows[0].data
           return data // SUCCESS CODE REF HERE
@@ -219,16 +223,7 @@ module.exports.retrieve = async (type, search, tid, options) => {
     }
   }
   catch (err) {
-    if(client != null) {
-      client.end()
-    }
-    let pgdErr = connectionErrorHandler(err, args)
-    if( pgdErr.label == 'UnknownError' ) {
-      console.error(err)
-      console.error(unhandledError)
-      return pgdocError('StoreFailed', args)
-    }
-    else return pgdErr
+    return connectionErrorHandler(client, err, args, pgdocError('RetrieveFailed', args) )
   }
 
   // let command = `SELECT docs VALUES ('${type}', '${data}') ;`
@@ -257,41 +252,43 @@ module.exports.delete = async (type, search, tid, options) => {
  * @returns {object} - A javascript object parsed from the document, or null
  */
 module.exports.requestID = async (type) => {
-
+  let args = [type]
   let schema = config.schema
 
   // TODO: THIS IS NOT SQL INJECTION SAFE
   let command = `SELECT pgdoc.incrementSequence('${schema}', '${type}') ;`
-  //console.log(command)
-  // INSERT INTO docs VALUES ('test','{"a":"a", "b":"b", "c":{"test":1}}') ;
+  if(config.verbose) {
+    console.log(command)
+  }
 
-  let client = new pg.Client(config.connectionString);
-  await client.connect();
+  let client
   try {
+    client = new pg.Client(config.connectionString)
+    await client.connect()
     let res = await client.query(command)
     client.end()
     if(res != null) {
-      //console.log(res)
-      //console.log(str(res))
+      if(config.verbose) {
+        console.log(`received response: ${str(res)}`)
+        console.log(res)
+      }
       // TODO: more specific success validation
       if(res.rowCount > 0) {
-        //console.log(res)
         let data = res.rows[0].incrementsequence
-        return data // SUCCESS CODE REF HERE
+        return data
       }
       else {
-        // Nothing was stored
-        return -2 // ERROR CODE REF HERE
+        /// Nothing was stored
+        return pgdocError('RequestIDFailed', args)
       }
     }
     else {
-      return -1 // ERROR CODE REF HERE
+      /// Null response
+      return pgdocError('RequestIDFailed', args)
     }
   }
   catch (err) {
-    //console.error(err)
-    client.end()
-    return -1 // ERROR CODE REF HERE
+    return connectionErrorHandler(client, err, args, pgdocError('RequestIDFailed', args) )
   }
 }
 
@@ -371,6 +368,7 @@ const errors = {
   ParseFailed:         { error: true, label: `ParseFailed`,          code: -15,  description: `The pgdoc.JSON.parse call failed. Is the argument valid JSON?` },
   BadOptions:          { error: true, label: `BadOptions`,           code: -16,  description: `The options object passed into the function was not valid. It must be an object.` },
   BadConnectionString: { error: true, label: `BadConnectionString`,  code: -17,  description: `The connectionString object passed into the function was not valid. Please check your configuration.` },
+  ConnectFailed:       { error: true, label: `ConnectFailed`,        code: -18,  description: `The connect operation failed for unknown reasons.` },
 }
 Object.freeze(errors)
 module.exports.errors = errors

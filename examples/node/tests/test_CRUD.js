@@ -42,6 +42,16 @@ let testDelete = async () => {
 }
 
 let testRequestID = async () => {
+  console.log(`testing requestID()...`)
+  let type = `CRUD_Test`
+  try {
+    let result = await pgdoc.requestID(type)
+    console.log(result)
+  }
+  catch (err) {
+    console.log(`pgdoc.requestID() failed for type:'${type}'.\n${err}`)
+    return
+  }
 }
 
 let testConfigure = async () => {
@@ -58,5 +68,6 @@ let test = async () => {
   }
   await testStore()
   await testRetrieve()
+  await testRequestID()
 }
 test()
