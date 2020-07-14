@@ -295,7 +295,13 @@ module.exports.requestID = async (type) => {
  * @returns {number} - errorCode -  negative integer representing the kind of pg-doc error
  */
 module.exports.configure = () => {
-  // TODO
+  if( typeof(options) == 'object' ) {
+    Object.assign(config, options)
+    return
+  }
+  else {
+    return pgdocError(`BadOptions`, args)
+  }
 }
 
 /// This private function creates the error object that is returned.
@@ -325,11 +331,10 @@ const errors = {
   StoreFailed:         { error: true, label: `StoreFailed`,          code: -10,  description: `The create operation failed for unknown reasons.` },
   RetrieveFailed:      { error: true, label: `RetrieveFailed`,       code: -11,  description: `The retrieve operation failed for unknown reasons.` },
   DeleteFailed:        { error: true, label: `DeleteFailed`,         code: -12,  description: `The delete operation failed for unknown reasons.` },
-  ConfigureFailed:     { error: true, label: `ConfigureFailed`,      code: -13,  description: `The configure operation failed for unknown reasons.` },
-  RequestIDFailed:     { error: true, label: `RequestIDFailed`,      code: -14,  description: `The requestID operation failed for unknown reasons.` },
-  ParseFailed:         { error: true, label: `ParseFailed`,          code: -15,  description: `The pgdoc.JSON.parse call failed. Is the argument valid JSON?` },
-  BadOptions:          { error: true, label: `BadOptions`,           code: -16,  description: `The options object passed into the function was not valid. It must be an object.` },
-  BadConnectionString: { error: true, label: `BadConnectionString`,  code: -17,  description: `The connectionString object passed into the function was not valid. Please check your configuration.` },
+  RequestIDFailed:     { error: true, label: `RequestIDFailed`,      code: -13,  description: `The requestID operation failed for unknown reasons.` },
+  ParseFailed:         { error: true, label: `ParseFailed`,          code: -14,  description: `The pgdoc.JSON.parse call failed. Is the argument valid JSON?` },
+  BadOptions:          { error: true, label: `BadOptions`,           code: -15,  description: `The options object passed into the function was not valid. It must be an object.` },
+  BadConnectionString: { error: true, label: `BadConnectionString`,  code: -16,  description: `The connectionString object passed into the function was not valid. Please check your configuration.` },
 }
 Object.freeze(errors)
 module.exports.errors = errors
