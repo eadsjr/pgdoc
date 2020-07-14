@@ -105,7 +105,7 @@ module.exports.connect = async (connectionString, options) => {
     client.end()
   }
   catch (err) {
-    return connectionErrorHandler(client, err, args)
+    return connectionErrorHandler(client, err, args, pgdocError( "ConnectFailed", args) )
   }
   return null /// All is well
 }
@@ -351,7 +351,6 @@ const pgdocError = (label, args, wrapped=null) => {
  */
 const errors = {
   UnknownError:        { error: true, label: `UnknownError`,         code: -1,   description: `An unknown error has occurred.` },
-  InvalidErrorCode:    { error: true, label: `InvalidErrorCode`,     code: -2,   description: `Invalid Error Code: Error code not found. Was it from a newer version of pgdoc?` },
   DatabaseUnreachable: { error: true, label: `DatabaseUnreachable`,  code: -3,   description: `When attempting to connect, the database was not found. Ensure it is online and that your connection configuration is correct.` },
   AccessDenied:        { error: true, label: `AccessDenied`,         code: -4,   description: `When attempting to connect, the database refused your connection due to failed authentication. Ensure your installation completed successfully, and check your login configuration.` },
   DatabaseNotCreated:  { error: true, label: `DatabaseNotCreated`,   code: -5,   description: `When attempting to connect, PostgreSQL connected but the specific database requested was not found. Ensure your installation completed successfully and check your login configuration.` },
