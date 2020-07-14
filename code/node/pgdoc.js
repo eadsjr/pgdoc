@@ -116,12 +116,11 @@ module.exports.connect = async (connectionString, options) => {
  * @todo document sequence integer limits of postgres here
  * @param {string} - type - The type of document. AKA - The name of the document collection
  * @param {string} - data - A javascript object that can be stringified into proper JSON
- * @param {number} - [tid]     - OPTIONAL integer for identifying pg-doc transactions
  * @param {object} - [options] - OPTIONAL object containing options to alter this function call
  * @returns {object} - A pgdoc error object. Null if no error.
  */
-module.exports.store = async (type, data, tid, options) => {
-  let args = [type, data, tid, options]
+module.exports.store = async (type, data, options) => {
+  let args = [type, data, options]
 
   data = str(data)
   let schema = config.schema
@@ -175,12 +174,11 @@ module.exports.store = async (type, data, tid, options) => {
  *
  * @param {string} - type - The type of document. AKA - The name of the collection
  * @param {string} - search - An object with key-value pairs that must be matched to be returned.
- * @param {number} - [tid]     - OPTIONAL integer for identifying pg-doc transactions
  * @param {object} - [options] - OPTIONAL object containing options to alter this function call
  * @returns {list} - A list of javascript objects parsed from the document, or NULL
  */
-module.exports.retrieve = async (type, search, tid, options) => {
-  let args = [type, search, tid, options]
+module.exports.retrieve = async (type, search, options) => {
+  let args = [type, search, options]
 
   search = str(search)
   let schema = config.schema
@@ -225,20 +223,15 @@ module.exports.retrieve = async (type, search, tid, options) => {
   catch (err) {
     return connectionErrorHandler(client, err, args, pgdocError('RetrieveFailed', args) )
   }
-
-  // let command = `SELECT docs VALUES ('${type}', '${data}') ;`
-  // stringResponse = await retrieveString(type, search, tid, options)
-  // return parse(stringResponse)
 }
 
 /**
  * @param {string} - type - The type of document. AKA - The name of the collection
  * @param {string} - search - An object with key-value pairs that must be matched to be returned.
- * @param {number} - [tid]     - OPTIONAL integer for identifying pg-doc transactions
  * @param {object} - [options] - OPTIONAL object containing options to alter this function call
  * @returns {number} - The number of deleted documents, or a negative integer error code
  */
-module.exports.delete = async (type, search, tid, options) => {
+module.exports.delete = async (type, search, options) => {
   // TODO
 
   // let command = `DELETE FROM docs WHERE type = '${type}' AND data @> '${search}';`
@@ -290,36 +283,6 @@ module.exports.requestID = async (type) => {
   catch (err) {
     return connectionErrorHandler(client, err, args, pgdocError('RequestIDFailed', args) )
   }
-}
-
-/**
- * Rollback the changes of the last action, or an action specified by id.
- *
- * WARNING: This may have side effects if multiple databases are using the database, and have already relied on the data you changed.
- * WARNING: This will have side effects if no tid is provided, and another executing function has performed a pg-doc action
- *
- * @todo document clearly the err object in this header
- *
- * @param {number} - [tid]     - OPTIONAL integer for identifying pg-doc transactions
- *
- * @returns {number} - errorCode - negative integer representing the kind of pg-doc error
- */
-module.exports.undo = async (tid) => {
-  // TODO
-}
-
-/**
- * Creates a fresh transaction identifier for use with pg-doc functions.
- *
- * These are simple sequential integers that provide you a means to reference a given action while several are in progress.
- *
- * They are not relevant outside of a given runtime, and are not stored in the database directly.
- *
- * @returns {number} - tid - integer for identifying pg-doc transactions
- */
-let tid_count = 0
-module.exports.tid = () => {
-  return tid_count++
 }
 
 /**
