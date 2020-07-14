@@ -229,13 +229,48 @@ module.exports.retrieve = async (type, search, options) => {
  * @param {string} - type - The type of document. AKA - The name of the collection
  * @param {string} - search - An object with key-value pairs that must be matched to be returned.
  * @param {object} - [options] - OPTIONAL object containing options to alter this function call
- * @returns {number} - The number of deleted documents, or a negative integer error code
+ * @returns {number} - The number of deleted documents, or a pgdoc error
  */
 module.exports.delete = async (type, search, options) => {
-  // TODO
+  let args = [type, search, options]
 
-  // let command = `DELETE FROM docs WHERE type = '${type}' AND data @> '${search}';`
-  // DELETE FROM docs WHERE type = 'test' AND data @> '{"a":"a"}' ;
+  search = str(search)
+  let schema = config.schema
+
+  let command
+  if(search == null) {
+    command = `DELETE FROM ${schema}.docs WHERE type = '${type}';`
+  }
+  else {
+    command = `DELETE FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}';`
+  }
+  /// DELETE FROM pgdocs.docs WHERE type = 'test' AND data @> '{"id":0}' ;
+  if( config.verbose ) {
+    console.log(command)
+  }
+
+  let client
+  try {
+    client = new pg.Client(config.connectionString)
+    await client.connect()
+    let res = await client.query(command)
+    client.end()
+    if(res != null) {
+      // TODO: more specific success validation
+      if(config.verbose) {
+        console.log(`received response: ${str(res)}`)
+        console.log(res)
+      }
+      return res.rowCount
+    }
+    else {
+      console.error(unknownError)
+      return pgdocError('DeleteFailed', args)
+    }
+  }
+  catch (err) {
+    return connectionErrorHandler(client, err, args, pgdocError('DeleteFailed', args) )
+  }
 }
 
 /**

@@ -33,12 +33,23 @@ let testRetrieve = async () => {
     console.log(result)
   }
   catch (err) {
-    console.log(`pgdoc.retreive failed for type:'${type}' and data:'${str(search)}'.\n${err}`)
+    console.log(`pgdoc.retreive failed for type:'${type}' and search:'${str(search)}'.\n${err}`)
     return
   }
 }
 
 let testDelete = async () => {
+  console.log(`testing delete()...`)
+  let type = `CRUD_Test`
+  let search = { id: 0 }
+  try {
+    let result = await pgdoc.delete(type, search)
+    console.log(result)
+  }
+  catch (err) {
+    console.log(`pgdoc.delete() failed for type:'${type}' and search:'${str(search)}'.\n${err}`)
+    return
+  }
 }
 
 let testRequestID = async () => {
@@ -69,5 +80,6 @@ let test = async () => {
   await testStore()
   await testRetrieve()
   await testRequestID()
+  await testDelete()
 }
 test()
