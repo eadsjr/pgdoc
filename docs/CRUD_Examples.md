@@ -21,7 +21,7 @@ const parse = pgdoc.JSON.parse
 
 This gives you access to pgdoc and some handy aliases.
 
-Now you need to connect to postgres. There must be a running postgres server on the local system for this example to work.
+Now you need to connect to postgres. There must be a postgres server with pgdoc installed running on the local system for this example to work.
 
 You should have set up some of connection details during the install script, which you now need to provide to your program.
 
@@ -30,16 +30,17 @@ password = `password` /* the password to access the database */
 domain   = `127.0.0.1` /* database domain path. 127.0.0.1 if local */
 port     = `5432` /* 5432 is postgres default. It's a major security risk not to change this if you put it online! */
 connectionString = `postgres://pgdoc:${password}@${domain}:${port}/pgdoc`
-errorCode = await pgdoc.connect(connectionString)
-if(errorCode == 0 ) {
+rv = await pgdoc.connect(connectionString)
+if(!rv.error) {
   console.log(`pg-doc connected to the database successfully`)
 }
 else {
-  console.error(pgdoc.errorMessage(errorCode))
+  error = rv
+  console.error(`${error.label}: ${error.description}`)
 }
 ```
 
-As you can see, this returns an `errorCode`. This integer can be converted to a printable error message by passing it to `pgdoc.errorMessage()`.
+As you can see, this returns an `error`. This integer can be converted to a printable error message by passing it to `pgdoc.errorMessage()`.
 
 Assuming you were able to connect successfully, you can now start using the methods detailed below.
 
@@ -51,7 +52,7 @@ Now we can store a Javascript object in postgres by simply calling `pgdoc.store(
 // Store a basic object
 docType = "player"
 myDoc = { name:"John Smith", age:42, team:"red" }
-errorCode = await pgdoc.store( docType, myDoc )
+rv = await pgdoc.store( docType, myDoc )
 ````
 
 You can store more complex objects using the same method.
@@ -61,7 +62,7 @@ You can store more complex objects using the same method.
 complexObject = { data: {}, evenMoreData: {} }
 docType = "player"
 myDoc = { name:"John Smith", age:42, team:"red", config:complexObject }
-errorCode = await pgdoc.store( docType, myDoc )
+rv = await pgdoc.store( docType, myDoc )
 ```
 
 You can also store valid JSON strings directly. This can be especially useful when passing stuff through from the client, but it is important that you validate that the incoming data is not malicious, malformed or corrupted.
@@ -71,7 +72,7 @@ You can also store valid JSON strings directly. This can be especially useful wh
 // SECURITY NOTE: Don't forget to verify incoming data from client is not malicious or malformed!
 docType = "player"
 myDoc = `{ name:"John Smith", age:42, team:"red" }`
-errorCode = await pgdoc.store( docType, myDoc )
+rv = await pgdoc.store( docType, myDoc )
 ```
 
 Though `pg-doc` will attempt to error out should you pass it anything too suspicious, it is ultimately your responsibility to ensure that broken or malicious data isn't hi-jacking your server or being passed through to the database.
@@ -84,7 +85,7 @@ This string method is useful if you need some template JSON that will be reused 
 complexObject = { data: {}, evenMoreData: {} }
 docType = "player"
 myDoc = `{ name:"John Smith", age:42, team:"red", config:${str(complexObject)} }`
-errorCode = await pgdoc.store( docType, myDoc )
+rv = await pgdoc.store( docType, myDoc )
 ```
 
 You can request an ID with `pgdoc.requestID` to store inside the object and make finding it again easier. This ID is a simple integer, but every time it is requested from the database by a server it will be incremented by one. A separate counter sequence is used for each document type.
@@ -95,13 +96,13 @@ You should verify you were able to get an ID before using it. Valid IDs will be 
 // Store a basic object with a unique ID
 docType = "player"
 id = await pgdoc.requestID(docType)
-if( id > 0 ) {
-  myDoc = { name:"John Smith", age:42, team:"red", id:id }
-  errorCode = await pgdoc.store( docType, myDoc )
+if( id.error ) {
+  error = id
+  console.error(`${error.label}: ${error.description}`)
 }
 else {
-  errorCode = id
-  console.error(`Unable to collect a valid id. Error Message: ${pgdoc.errorMessage(errorCode)}`)
+  myDoc = { name:"John Smith", age:42, team:"red", id:id }
+  rv = await pgdoc.store( docType, myDoc )
 }
 ```
 
@@ -116,10 +117,14 @@ You can store the id and other metadata outside your data object by nesting them
 docType = "player"
 myData = { name:"John Smith", age:42, team:"red" }
 id = await pgdoc.requestID(docType)
-if( id > 0 ) {
+if( id.error ) {
+  error = id
+  console.error(`${error.label}: ${error.description}`)
+}
+else {
   myMetaData = { timestamp: Date.now(), id: id }
   myDoc = { meta: myMetaData, data: myData }
-  errorCode = await pgdoc.store( docType, myDoc )
+  error = await pgdoc.store( docType, myDoc )
 }
 ```
 
@@ -140,7 +145,7 @@ docType = "player"
 mySearch = { id: 12576 }
 myDoc = null
 myDocs = await pgdoc.retrieve(docType, mySearch)
-if( myDocs != null && myDocs.length == 1 ) {
+if( !myDocs.error && myDocs.length == 1 ) {
   myDoc = myDocs[0]
 }
 ```
@@ -153,7 +158,7 @@ docType = "player"
 mySearch = { name:"John Smith" }
 myDoc = null
 myDocs = await pgdoc.retrieve(docType, mySearch)
-if( myDocs != null && myDocs.length == 1 ) {
+if( !myDocs.error && myDocs.length == 1 ) {
   myDoc = myDocs[0]
 }
 ```
@@ -163,8 +168,8 @@ You can retrieve multiple documents by simply searching a shared member.
 ``` js
 // Multiple object retrieval
 docType = "player"
-mySearch = { team:"red" }
-myDocs = await pgdoc.retrieve(docType, mySearch)
+mySearch = { team: "red" }
+myDocs = await pgdoc.retrieve( docType, mySearch )
 for( doc in myDocs ) {
   // <- application logic here
 }
@@ -179,8 +184,8 @@ It is very simple to overwrite a document.
 // Overwrite a single existing document
 docType = "player"
 newDoc  = `{ name:"John Smith", age:43, team:"red" }`
-errorCode = await pgdoc.store( docType, newDoc )
-if( errorCode == pgdoc.errorCodeFor("CLOBBERED") ) {
+rv = await pgdoc.store( docType, newDoc )
+if( rv.error && rv.label == "Clobber" ) {
   console.warn(`Document was overwritten successfully`)
 }
 ```
@@ -194,20 +199,23 @@ newDoc  = `{ name:"John Smith", age:43, team:"red"} }`
 // Perform a search for the document, returning the string representation
 oldDoc = null
 oldDocs = await pgdoc.retrieve(docType, mySearch)
-if( oldDocs != null && oldDocs.length == 1 ) {
+if( !oldDocs.error ) {
   // React to the returned document
   oldDoc = oldDocs[0]
   if( myDoc == newDoc ) {
     console.log("document already current")
   }
-  else if ( myDocString == null ) {
+  else if ( oldDocs.length < 1 ) {
     console.log("document not found")
+  }
+  else if ( oldDocs.length > 1 ) {
+    console.log("unexpected number of results")
   }
   else {
     let newDocObject = parse(newDoc)
     let oldDocObject = parse(oldDoc)
     // <- application logic here, combine the objects as you see fit and store in newDoc
-    errorCode = await pgdoc.store(docType, newDoc)
+    rv = await pgdoc.store(docType, newDoc)
   }
 }
 ```
@@ -231,10 +239,10 @@ You can limit the number of documents to be deleted, which is especially useful 
 docType = "player"
 mySearch = { id: 12576 }
 options = { "maxMatches": 1 }
-deletedDocCount = await pgdoc.delete(docType, mySearch, null, options)
+deletedDocCount = await pgdoc.delete(docType, mySearch, options)
 if( deletedDocCount != 1 ) {
-  errorCode = deletedDocCount
-  console.error(`${docType} deletion failed for search ${str(mySearch)}. Error: ${pgdoc.errorMessage(errorCode)}.`)
+  error = deletedDocCount
+  console.error(`${docType} deletion failed for search ${str(mySearch)}. Error: ${pgdoc.errorMessage(error)}.`)
 }
 ```
 

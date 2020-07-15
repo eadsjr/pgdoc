@@ -22,7 +22,7 @@ Please provide the version of PostgreSQL your are running, as well as the versio
 All non-administrative communication about pg-doc deveopment should be in the form of code comments, git commit messages, [docs/TODO.md][todo-file] updates and [GitHub issues][search-issues]. Keep project related discussion and decision making out of chat and email to avoid losing context and history.
 
 
-## Developement Goals
+## Development Goals
 
 This project should require as little as possible from the user when it comes to understanding the domain of databases and interfacing with them via SQL or other means. You can expect them to know JSON, their programming language (such as Javascript), and IP address basics.
 
