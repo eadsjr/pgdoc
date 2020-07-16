@@ -56,6 +56,6 @@ The code is available at [Github][license] under the [MIT license][license].
 
 [home]: https://github.com/eadsjr/pgdoc
 [issues]: https://github.com/eadsjr/pgdoc/issues
-[contributing]: https://github.com/eadsjr/pgdoc/blob/master/docs/CONTRIBUTING.md
-[license]: https://github.com/eadsjr/pgdoc/blob/master/LICENSE
+[contributing]: docs/CONTRIBUTING.md
+[license]: LICENSE
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg
