@@ -19,6 +19,14 @@ const str   = pgdoc.JSON.stringify
 const parse = pgdoc.JSON.parse
 ```
 
+You can use a node terminal session started in the root project folder to work through these examples instead. If you are using a node REPL session you can drop the await keyword from the following examples.
+
+``` js
+const pgdoc = require("./code/node/pgdoc")
+const str   = pgdoc.JSON.stringify
+const parse = pgdoc.JSON.parse
+```
+
 This gives you access to pgdoc and some handy aliases.
 
 Now you need to connect to postgres. There must be a postgres server with pgdoc installed running on the local system for this example to work.
@@ -40,7 +48,7 @@ else {
 }
 ```
 
-As you can see, this returns an `error`. This integer can be converted to a printable error message by passing it to `pgdoc.errorMessage()`.
+The return value, here called `rv` will either be an a pgdoc error or a null response indicating success. If it is a pgdoc error, its details can be observed by accessing the appropriate members.
 
 Assuming you were able to connect successfully, you can now start using the methods detailed below.
 
@@ -53,7 +61,7 @@ Now we can store a Javascript object in postgres by simply calling `pgdoc.store(
 docType = "player"
 myDoc = { name:"John Smith", age:42, team:"red" }
 rv = await pgdoc.store( docType, myDoc )
-````
+```
 
 You can store more complex objects using the same method.
 
@@ -71,7 +79,7 @@ You can also store valid JSON strings directly. This can be especially useful wh
 // Store a stringified basic object
 // SECURITY NOTE: Don't forget to verify incoming data from client is not malicious or malformed!
 docType = "player"
-myDoc = `{ name:"John Smith", age:42, team:"red" }`
+myDoc = `{ "name":"John Smith", "age":42, "team":"red" }`
 rv = await pgdoc.store( docType, myDoc )
 ```
 
@@ -84,7 +92,7 @@ This string method is useful if you need some template JSON that will be reused 
 // SECURITY NOTE: Don't forget to verify dynamic data from client is not malicious or malformed!
 complexObject = { data: {}, evenMoreData: {} }
 docType = "player"
-myDoc = `{ name:"John Smith", age:42, team:"red", config:${str(complexObject)} }`
+myDoc = `{ "name":"John Smith", "age":42, "team":"red", "config":${str(complexObject)} }`
 rv = await pgdoc.store( docType, myDoc )
 ```
 
@@ -124,7 +132,7 @@ if( id.error ) {
 else {
   myMetaData = { timestamp: Date.now(), id: id }
   myDoc = { meta: myMetaData, data: myData }
-  error = await pgdoc.store( docType, myDoc )
+  rv = await pgdoc.store( docType, myDoc )
 }
 ```
 
@@ -142,7 +150,7 @@ You get documents back out by performing a search in the form of an Object. `pgd
 ```js
 // Basic object retrieval
 docType = "player"
-mySearch = { id: 12576 }
+mySearch = { id: "1" }
 myDoc = null
 myDocs = await pgdoc.retrieve(docType, mySearch)
 if( !myDocs.error && myDocs.length == 1 ) {
