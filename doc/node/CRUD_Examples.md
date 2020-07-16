@@ -9,7 +9,7 @@ That is, the ability to CREATE, RETRIEVE, UPDATE and DELETE data.
 
 Here are some Javascript examples of how to do this using `pgdoc`.
 
-For these examples to work, you must have first run the install script.
+For these examples to work, you must have first have completed the [install process for you operating system][install].
 
 Then in your Javascript file include the module.
 
@@ -254,5 +254,8 @@ if( deletedDocCount != 1 ) {
 }
 ```
 
+### [Back to start][start]
 
-[CRUD]:https://en.wikipedia.org/wiki/Create,_read,_update_and_delete
+[CRUD]: https://en.wikipedia.org/wiki/Create,_read,_update_and_delete
+[install]: INSTALL.md
+[start]: START.md
