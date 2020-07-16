@@ -240,12 +240,14 @@ module.exports.retrieve = async (type, search, options) => {
       }
       if(res.rowCount > 0) {
         if(res.rowCount == 1) {
+          /// Return a single, naked data item.
           let data = res.rows[0].data
-          return data // SUCCESS CODE REF HERE
+          return data
         }
         else {
+          /// Return a list of data items.
           let data = res.rows
-          return data // SUCCESS CODE REF HERE
+          return data
         }
       }
       else {
