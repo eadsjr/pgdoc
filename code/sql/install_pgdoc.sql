@@ -72,6 +72,28 @@ LANGUAGE plpgsql;
 
 ALTER FUNCTION pgdoc.incrementSequence( TEXT, TEXT ) OWNER TO pgdoc;
 
+
+
+-- Delete a set of documents returned by a search and replace with provided data if the record count to be deleted is under provided maximum
+CREATE OR REPLACE FUNCTION pgdoc.overwriteUnderMax( schemaName TEXT, type TEXT, data TEXT, search TEXT, max NUMBER )
+RETURNS TEXT AS
+$$
+DECLARE recordCount NUMBER;
+BEGIN
+  -- recordCount :=
+  IF
+    -- (SELECT ...)
+  -- IS LESS THAN max
+  -- THEN
+  --   -- generate new sequence as needed
+  -- END IF;
+  -- RETURN recordCount;
+END;
+$$
+LANGUAGE plpgsql;
+ALTER FUNCTION pgdoc.overwriteUnderMax( TEXT, TEXT ) OWNER TO pgdoc;
+
+
 -- required for the above function to succeed
 -- GRANT create,usage ON SCHEMA public TO pgdoc ;
 

@@ -121,7 +121,7 @@ module.exports.connect = async (connectionString, options) => {
  * @param {object} - [options] - OPTIONAL object containing options to alter this function call
  * @returns {object, number} - A pgdoc error object or a number indicating the number of documents deleted in an overwrite. Usually 0.
  */
-module.exports.store = async (type, data, search, options) => {
+module.exports.store = async (type, data, search, maxMatch, options) => {
   let args = [type, data, options]
 
   if( typeof(data) != `string` ) {
@@ -142,7 +142,7 @@ module.exports.store = async (type, data, search, options) => {
   }
   else {
     /// Store command with search. May clobber or fail.
-    if( options == null || ! (`maxMatch` in options) ) {
+    if( maxMatch == null || maxMatch == -1 ) {
       /// Delete any matching records and store the value
       /// Return number of records deleted
       command = `DELETE FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}'; ` +
