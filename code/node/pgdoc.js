@@ -119,7 +119,7 @@ module.exports.connect = async (connectionString, options) => {
  * @param {string} - type - The type of document. AKA - The name of the document collection
  * @param {string} - data - A javascript object that can be stringified into proper JSON
  * @param {object} - [options] - OPTIONAL object containing options to alter this function call
- * @returns {object} - A pgdoc error object. Null if no error.
+ * @returns {object, number} - A pgdoc error object or a number indicating the number of documents deleted in an overwrite. Usually 0.
  */
 module.exports.store = async (type, data, search, options) => {
   let args = [type, data, options]
@@ -188,7 +188,7 @@ module.exports.store = async (type, data, search, options) => {
         }
       }
       else if(res.rowCount > 0) {
-        return null
+        return 0
       }
       else {
         /// Nothing was stored

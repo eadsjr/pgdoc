@@ -65,7 +65,7 @@ let storeBasic = async () => {
   let docType = "player"
   let myDoc = { name:"John Smith", age:42, team:"red" }
   let rv = await pgdoc.store( docType, myDoc )
-  if( rv != null ) {
+  if( rv != 0 ) {
     console.error(`${rv.label}: ${rv.description}`)
   }
   else {
@@ -83,7 +83,7 @@ let storeComplex = async () => {
   let docType = "player"
   let myDoc = { name:"John Smith", age:42, team:"red", config:complexObject }
   let rv = await pgdoc.store( docType, myDoc )
-  if( rv != null ) {
+  if( rv != 0 ) {
     console.error(`${rv.label}: ${rv.description}`)
   }
   else {
@@ -101,7 +101,7 @@ let storeString = async () => {
   let docType = "player"
   let myDoc = `{ "name":"John Smith", "age":42, "team":"red" }`
   let rv = await pgdoc.store( docType, myDoc )
-  if( rv != null ) {
+  if( rv != 0 ) {
     console.error(`${rv.label}: ${rv.description}`)
   }
   else {
@@ -122,7 +122,7 @@ let storeDynamicString = async () => {
   let docType = "player"
   let myDoc = `{ "name":"John Smith", "age":42, "team":"red", "config":${str(complexObject)} }`
   let rv = await pgdoc.store( docType, myDoc )
-  if( rv != null ) {
+  if( rv != 0 ) {
     console.error(`${rv.label}: ${rv.description}`)
   }
   else {
@@ -147,7 +147,7 @@ let storeBasicWithID = async () => {
     console.log(`collected id: ${id}`)
     let myDoc = { name:"John Smith", age:42, team:"red", id:id }
     let rv = await pgdoc.store( docType, myDoc )
-    if( rv != null ) {
+    if( rv != 0 ) {
       console.error(`${rv.label}: ${rv.description}`)
     }
     else {
@@ -177,7 +177,7 @@ let storeWithMetadata = async () => {
     myMetaData = { timestamp: Date.now(), id: id }
     myDoc = { meta: myMetaData, data: myData }
     rv = await pgdoc.store( docType, myDoc )
-    if( rv != null ) {
+    if( rv != 0 ) {
       console.error(`${rv.label}: ${rv.description}`)
     }
     else {
@@ -204,24 +204,22 @@ let retrieveBasic = async ( ID ) => {
   docType = "player"
   mySearch = { id: ID }
   rv = await pgdoc.retrieve(docType, mySearch)
-  if( rv != null ) {
-    if( !rv.error ) {
-      if( `length` in rv ) {
-        if( rv.length < 1 ) {
-          console.log(`No document found...`)
-        }
-        else if ( rv.length == 0 ) {
-          console.log(`Document retrieved.`)
-        }
-        else if ( rv.length > 1 ) {
-          console.log(`Multiple results for given ID!`)
-        }
+  if( !rv.error ) {
+    if( `length` in rv ) {
+      if( rv.length < 1 ) {
+        console.log(`No document found...`)
       }
-      console.log(rv) /// Either the document, an empty list, or a list of documents
+      else if ( rv.length == 0 ) {
+        console.log(`Document retrieved.`)
+      }
+      else if ( rv.length > 1 ) {
+        console.log(`Multiple results for given ID!`)
+      }
     }
-    else {
-      console.error(`${rv.label}: ${rv.description}`)
-    }
+    console.log(rv) /// Either the document, an empty list, or a list of documents
+  }
+  else {
+    console.error(`${rv.label}: ${rv.description}`)
   }
 }
 retrieveBasic("1")
@@ -234,24 +232,22 @@ let retrieveByName = async () => {
   docType = "player"
   mySearch = { name:"John Smith" }
   rv = await pgdoc.retrieve(docType, mySearch)
-  if( rv != null ) {
-    if( !rv.error ) {
-      if( `length` in rv ) {
-        if( rv.length < 1 ) {
-          console.log(`No document found...`)
-        }
-        else if ( rv.length == 0 ) {
-          console.log(`Document retrieved.`)
-        }
-        else if ( rv.length > 1 ) {
-          console.log(`Multiple results for given name!`)
-        }
+  if( !rv.error ) {
+    if( `length` in rv ) {
+      if( rv.length < 1 ) {
+        console.log(`No document found...`)
       }
-      console.log(rv) /// Either the document, an empty list, or a list of documents
+      else if ( rv.length == 0 ) {
+        console.log(`Document retrieved.`)
+      }
+      else if ( rv.length > 1 ) {
+        console.log(`Multiple results for given name!`)
+      }
     }
-    else {
-      console.error(`${rv.label}: ${rv.description}`)
-    }
+    console.log(rv) /// Either the document, an empty list, or a list of documents
+  }
+  else {
+    console.error(`${rv.label}: ${rv.description}`)
   }
 }
 retrieveByName()
@@ -264,16 +260,14 @@ let retrieveMulti = async () => {
   docType = "player"
   mySearch = { team: "red" }
   rv = await pgdoc.retrieve( docType, mySearch )
-  if( rv != null ) {
-    if( !rv.error ) {
-      console.log(rv) /// Either the document, an empty list, or a list of documents
-      for( doc in rv ) {
-        // <- application logic here
-      }
+  if( !rv.error ) {
+    console.log(rv) /// Either the document, an empty list, or a list of documents
+    for( doc in rv ) {
+      // <- application logic here
     }
-    else {
-      console.error(`${rv.label}: ${rv.description}`)
-    }
+  }
+  else {
+    console.error(`${rv.label}: ${rv.description}`)
   }
 }
 retrieveMulti()
@@ -286,21 +280,31 @@ It is very simple to overwrite a document.
 
 ``` js
 let storeOverwrite = async () => {
-  // Overwrite a single existing document
+  /// First perform a simple store
   let docType = "player"
   let oldDoc  = { name: "John Smith", age:43, team: "red", id: "-1" }
   rv = await pgdoc.store( docType, oldDoc )
-  if( rv != null ) {
+  if( rv != 0 ) {
     console.error(`${rv.label}: ${rv.description}`)
   }
   else {
+    // Now overwrite a the stored data with a specific alternative value
     console.log(`document stored with age: 43`)
     let newDoc  = { name: "John Smith", age: 44, team: "red", id: "-1" }
     let mySearch = { id: "-1" }
     rv = await pgdoc.store( docType, newDoc, mySearch )
-    // if(  rv != null  && rv.label == "Clobber" ) {
-    //   console.warn(`Document was overwritten successfully`)
-    // }
+    if( typeof(rv) == `object` ) {
+      console.error(`${rv.label}: ${rv.description}`)
+    }
+    if( rv == 1 ) {
+      console.log(`Document was overwritten successfully`)
+    }
+    else if ( rv == 0 ) {
+      console.warn(`Document was written to database, but previous version not found`)
+    }
+    else {
+      console.error(`Document was written to database, and multiple documents (${rv}) were deleted. Something went wrong.`)
+    }
   }
 }
 storeOverwrite()
