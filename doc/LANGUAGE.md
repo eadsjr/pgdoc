@@ -1,8 +1,8 @@
 
 # pgdoc
 
-## Select programming language
+# Select programming language:
 
-[NodeJS][node]
+## [NodeJS][node]
 
 [node]: node/START.md
