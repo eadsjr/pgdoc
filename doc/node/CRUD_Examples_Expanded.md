@@ -1,0 +1,305 @@
+
+# pgdoc
+
+## CRUD Examples
+
+When working with databases you generally want to have [CRUD Functionality][CRUD].
+
+That is, the ability to CREATE, RETRIEVE, UPDATE and DELETE data.
+
+Here are some Javascript examples of how to do this using `pgdoc`.
+
+For these examples to work, you must have first have completed the [install process for you operating system][install].
+
+Once that is done and the server is running, you can run `node` to drop into a REPL interactive session or put these example lines of code into a Javascript file and run them with `node myFile.js`.
+
+First we need to include the pgdoc module.
+
+``` js
+const pgdoc = require("pgdoc")
+const str   = pgdoc.JSON.stringify
+const parse = pgdoc.JSON.parse
+```
+
+Alternately, if you are in the pgdoc github project, you would load it from the relative path to the pgdoc code.
+
+``` js
+const pgdoc = require("./code/node/pgdoc")
+const str   = pgdoc.JSON.stringify
+const parse = pgdoc.JSON.parse
+```
+
+This gives you access to pgdoc's library interface and some handy aliases.
+
+Now you need to connect to postgres. There must be a [postgres server configured for use with pgdoc][install] running on the local system for this example to work.
+
+You should have set up some of connection details during the install script, which you now need to provide to your program.
+
+``` js
+let connect = async () => {
+  let password = `password` /* the password to access the database */
+  let domain   = `127.0.0.1` /* database domain path. 127.0.0.1 if local */
+  let port     = `5432` /* 5432 is postgres default. It's a major security risk not to change this if you put it online! */
+  let connectionString = `postgres://pgdoc:${password}@${domain}:${port}/pgdoc`
+  let rv = await pgdoc.connect(connectionString)
+  if( rv != null ) {
+    console.error(`${rv.label}: ${rv.description}`)
+  }
+  else {
+    console.log(`pgdoc connected to the database successfully.`)
+  }
+}
+connect()
+```
+
+The return value, here called `rv` will either be an a pgdoc error or a null response indicating success. If it is a pgdoc error, its details can be observed by accessing the appropriate members.
+
+Assuming you were able to connect successfully, you can now start using the methods detailed below.
+
+### CREATE
+
+Now we can store a Javascript object in postgres by simply calling `pgdoc.store()`.
+
+``` js
+let storeBasic = async () => {
+  let docType = "player"
+  let myDoc = { name:"John Smith", age:42, team:"red" }
+  let rv = await pgdoc.store( docType, myDoc )
+  if( rv != null ) {
+    console.error(`${rv.label}: ${rv.description}`)
+  }
+  else {
+    console.log(`record stored`)
+  }
+}
+storeBasic()
+```
+
+You can store more complex objects using the same method.
+
+```js
+let storeComplex = async () => {
+  let complexObject = { data: {}, evenMoreData: {} }
+  let docType = "player"
+  let myDoc = { name:"John Smith", age:42, team:"red", config:complexObject }
+  let rv = await pgdoc.store( docType, myDoc )
+  if( rv != null ) {
+    console.error(`${rv.label}: ${rv.description}`)
+  }
+  else {
+    console.log(`record stored`)
+  }
+}
+storeComplex()
+```
+
+You can also store valid JSON strings directly. This can be especially useful when passing stuff through from the client, but it is important that you validate that the incoming data is not malicious, malformed or corrupted.
+
+``` js
+let storeString = async () => {
+  // SECURITY NOTE: Don't forget to verify incoming data from client is not malicious or malformed!
+  let docType = "player"
+  let myDoc = `{ "name":"John Smith", "age":42, "team":"red" }`
+  let rv = await pgdoc.store( docType, myDoc )
+  if( rv != null ) {
+    console.error(`${rv.label}: ${rv.description}`)
+  }
+  else {
+    console.log(`record stored`)
+  }
+}
+storeString()
+```
+
+Though `pgdoc` will attempt to error out should you pass it anything too suspicious, it is ultimately your responsibility to ensure that broken or malicious data isn't hi-jacking your server or being passed through to the database.
+
+This string method is useful if you need some template JSON that will be reused often. You can embed dynamic information in it pretty easily.
+
+``` js
+let storeDynamicString = async () => {
+  // SECURITY NOTE: Don't forget to verify dynamic data from client is not malicious or malformed!
+  let complexObject = { data: {}, evenMoreData: {} }
+  let docType = "player"
+  let myDoc = `{ "name":"John Smith", "age":42, "team":"red", "config":${str(complexObject)} }`
+  let rv = await pgdoc.store( docType, myDoc )
+  if( rv != null ) {
+    console.error(`${rv.label}: ${rv.description}`)
+  }
+  else {
+    console.log(`record stored`)
+  }
+}
+storeDynamicString()
+```
+
+You can request an ID with `pgdoc.requestID` to store inside the object and make finding it again easier. This ID is a simple integer, but every time it is requested from the database by a server it will be incremented by one. A separate counter sequence is used for each document type.
+
+You should verify you were able to get an ID before using it. Valid IDs will be 1 or greater.
+
+``` js
+let storeBasicWithID = async () => {
+  let docType = "player"
+  let id = await pgdoc.requestID(docType)
+  if( id.error ) {
+    console.error(`${id.label}: ${id.description}`)
+  }
+  else {
+    console.log(`collected id: ${id}`)
+    let myDoc = { name:"John Smith", age:42, team:"red", id:id }
+    let rv = await pgdoc.store( docType, myDoc )
+    if( rv != null ) {
+      console.error(`${rv.label}: ${rv.description}`)
+    }
+    else {
+      console.log(`record stored`)
+    }
+  }
+}
+storeBasicWithID()
+```
+
+Because the ID is sequential and gives insight into your data, you don't want it to be accessible outside your system for security reasons. If you need to pass objects to clients you should rebuild or prune them to remove any data that the client does not need, including the ID number for it in the database.
+
+If you need an ID to coordinate with the client you should generate one yourself and map it to the server ID for the object.
+
+You can store the id and other metadata outside your data object by nesting them inside another object. This way you aren't 'polluting' your data with extra stuff.
+
+``` js
+let storeWithMetadata = async () => {
+  let docType = "player"
+  let myData = { name:"John Smith", age:42, team:"red" }
+  let id = await pgdoc.requestID(docType)
+  if( id.error ) {
+    console.error(`${id.label}: ${id.description}`)
+  }
+  else {
+    console.log(`collected id: ${id}`)
+    myMetaData = { timestamp: Date.now(), id: id }
+    myDoc = { meta: myMetaData, data: myData }
+    rv = await pgdoc.store( docType, myDoc )
+    if( rv != null ) {
+      console.error(`${rv.label}: ${rv.description}`)
+    }
+    else {
+      console.log(`record stored`)
+    }
+  }
+}
+storeWithMetadata()
+```
+
+Of course if you do this, you must also unpack it before use.
+
+``` js
+  myData = docFromDatabase.data
+```
+
+
+### RETRIEVE
+
+You get documents back out by performing a search in the form of an Object. `pgdoc.retrieve()` always returns a list. To get a single document, use something unique like an ID and verify the list size is 1.
+
+```js
+let retrieveBasic = async ( ID ) => {
+  docType = "player"
+  mySearch = { id: ID }
+  rv = await pgdoc.retrieve(docType, mySearch)
+  if( rv != null ) {
+    if( !rv.error ) {
+      if( `length` in rv ) {
+        if( rv.length < 1 ) {
+          console.log(`No document found...`)
+        }
+        else if ( rv.length == 0 ) {
+          console.log(`Document retrieved.`)
+        }
+        else if ( rv.length > 1 ) {
+          console.log(`Multiple results for given ID!`)
+        }
+      }
+      console.log(rv) /// Either the document, an empty list, or a list of documents
+    }
+    else {
+      console.error(`${rv.label}: ${rv.description}`)
+    }
+  }
+}
+retrieveBasic("1")
+```
+
+This works with any information specific to one document.
+
+```js
+let retrieveByName = async () => {
+  docType = "player"
+  mySearch = { name:"John Smith" }
+  rv = await pgdoc.retrieve(docType, mySearch)
+  if( rv != null ) {
+    if( !rv.error ) {
+      if( `length` in rv ) {
+        if( rv.length < 1 ) {
+          console.log(`No document found...`)
+        }
+        else if ( rv.length == 0 ) {
+          console.log(`Document retrieved.`)
+        }
+        else if ( rv.length > 1 ) {
+          console.log(`Multiple results for given name!`)
+        }
+      }
+      console.log(rv) /// Either the document, an empty list, or a list of documents
+    }
+    else {
+      console.error(`${rv.label}: ${rv.description}`)
+    }
+  }
+}
+retrieveByName()
+```
+
+You can retrieve multiple documents by simply searching a shared member.
+
+``` js
+let retrieveMulti = async () => {
+  docType = "player"
+  mySearch = { team: "red" }
+  rv = await pgdoc.retrieve( docType, mySearch )
+  if( rv != null ) {
+    if( !rv.error ) {
+      console.log(rv) /// Either the document, an empty list, or a list of documents
+      for( doc in rv ) {
+        // <- application logic here
+      }
+    }
+    else {
+      console.error(`${rv.label}: ${rv.description}`)
+    }
+  }
+}
+retrieveMulti()
+```
+
+
+### UPDATE
+
+It is very simple to overwrite a document.
+
+``` js
+let storeOverwrite = async () => {
+  // Overwrite a single existing document
+  docType = "player"
+  oldDoc  = { name: "John Smith", age:43, team: "red", id: "-1" }
+  rv = await pgdoc.store( docType, newDoc )
+  if( rv != null ) {
+    console.error(`${rv.label}: ${rv.description}`)
+  }
+  else {
+    console.log(`document stored with age: 43`)
+    newDoc  = { name: "John Smith", age: 44, team: "red", id: "-1" }
+    rv = await pgdoc.store( docType, newDoc )
+    if(  rv != null  && rv.label == "Clobber" ) {
+      console.warn(`Document was overwritten successfully`)
+    }
+  }
+}
+```
