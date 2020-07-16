@@ -1,4 +1,4 @@
-# Contributing to pg-doc
+# Contributing to pgdoc
 
 Thank you for your help! Feedback and suggestions are welcome.
 
@@ -19,7 +19,7 @@ Please provide the version of PostgreSQL your are running, as well as the versio
 
 ## Coordination and Documentation
 
-All non-administrative communication about pg-doc deveopment should be in the form of code comments, git commit messages, [docs/TODO.md][todo-file] updates and [GitHub issues][search-issues]. Keep project related discussion and decision making out of chat and email to avoid losing context and history.
+All non-administrative communication about pgdoc deveopment should be in the form of code comments, git commit messages, [docs/TODO.md][todo-file] updates and [GitHub issues][search-issues]. Keep project related discussion and decision making out of chat and email to avoid losing context and history.
 
 
 ## Development Goals
@@ -44,7 +44,7 @@ Provide a message with every commit describing what the commit did. When appropr
 Branch names should be of the form '001_eadsjr_project_init', with a three digit number indicating the order of the branches you submitted, then username, then branch description in snake case.
 
 
-[todo-file]:https://github.com/eadsjr/pg-doc/docs/TODO.md
-[search-issues]:https://github.com/search?q=repo%3Aeadsjr%2Fpg-doc&type=Issues
-[new-issue]:https://github.com/eadsjr/pg-doc/issues/new
+[todo-file]:https://github.com/eadsjr/pgdoc/docs/TODO.md
+[search-issues]:https://github.com/search?q=repo%3Aeadsjr%2Fpgdoc&type=Issues
+[new-issue]:https://github.com/eadsjr/pgdoc/issues/new
 [contact-project-lead]:mailto:jeads442@gamil.com

@@ -8,7 +8,7 @@ Use stored procs with EXECUTE...USING to prevent injection. SEE: [PostgresQL Doc
 
 add a noClobber option to enhance the store / update function
 
-move pg-doc relations to pgdoc SCHEMA
+move pgdoc relations to pgdoc SCHEMA
 default to pgdoc SCHEMA, but allow custom via configuration
 
 print errors to console by default, option to disable

@@ -1,7 +1,7 @@
 ![License][license-image]
 
 
-# pg-doc
+# pgdoc
 
 #### A dead-simple NoSQL document store using PostgreSQL.
 
@@ -54,8 +54,8 @@ Be sure to state your issue clearly and provide information that can help with r
 The code is available at [Github][license] under the [MIT license][license].
 
 
-[home]: https://github.com/eadsjr/pg-doc
-[issues]: https://github.com/eadsjr/pg-doc/issues
-[contributing]: https://github.com/eadsjr/pg-doc/blob/master/docs/CONTRIBUTING.md
-[license]: https://github.com/eadsjr/pg-doc/blob/master/LICENSE
+[home]: https://github.com/eadsjr/pgdoc
+[issues]: https://github.com/eadsjr/pgdoc/issues
+[contributing]: https://github.com/eadsjr/pgdoc/blob/master/docs/CONTRIBUTING.md
+[license]: https://github.com/eadsjr/pgdoc/blob/master/LICENSE
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg

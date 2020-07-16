@@ -1,5 +1,5 @@
 
-# pg-doc
+# pgdoc
 
 ## CRUD Examples
 
@@ -7,14 +7,14 @@ When working with databases you generally want to have [CRUD Functionality][CRUD
 
 That is, the ability to CREATE, RETRIEVE, UPDATE and DELETE data.
 
-Here are some Javascript examples of how to do this using `pg-doc`.
+Here are some Javascript examples of how to do this using `pgdoc`.
 
 For these examples to work, you must have first run the install script.
 
 Then in your Javascript file include the module.
 
 ``` js
-const pgdoc = require("pg-doc")
+const pgdoc = require("pgdoc")
 const str   = pgdoc.JSON.stringify
 const parse = pgdoc.JSON.parse
 ```
@@ -40,7 +40,7 @@ port     = `5432` /* 5432 is postgres default. It's a major security risk not to
 connectionString = `postgres://pgdoc:${password}@${domain}:${port}/pgdoc`
 rv = await pgdoc.connect(connectionString)
 if(!rv.error) {
-  console.log(`pg-doc connected to the database successfully`)
+  console.log(`pgdoc connected to the database successfully`)
 }
 else {
   error = rv
@@ -83,7 +83,7 @@ myDoc = `{ "name":"John Smith", "age":42, "team":"red" }`
 rv = await pgdoc.store( docType, myDoc )
 ```
 
-Though `pg-doc` will attempt to error out should you pass it anything too suspicious, it is ultimately your responsibility to ensure that broken or malicious data isn't hi-jacking your server or being passed through to the database.
+Though `pgdoc` will attempt to error out should you pass it anything too suspicious, it is ultimately your responsibility to ensure that broken or malicious data isn't hi-jacking your server or being passed through to the database.
 
 This string method is useful if you need some template JSON that will be reused often. You can embed dynamic information in it pretty easily.
 

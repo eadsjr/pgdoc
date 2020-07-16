@@ -1,5 +1,5 @@
 /**
- * The pg-doc core module
+ * The pgdoc core module
  *
  * This file is intended for use by NodeJS as an imported module.
  *
@@ -40,8 +40,8 @@ const parse = (string) => {
 
 module.exports.JSON = { parse, stringify: str, str }
 
-const unhandledError = `\n!!!! pg-doc unhandled error! Please report the above object on an issue here: https://github.com/eadsjr/pg-doc/issues !!!!\n`
-const unknownError   = `\n!!!! pg-doc unknown error! Please report any relevant details on an issue here: https://github.com/eadsjr/pg-doc/issues !!!!\n`
+const unhandledError = `\n!!!! pgdoc unhandled error! Please report the above object on an issue here: https://github.com/eadsjr/pgdoc/issues !!!!\n`
+const unknownError   = `\n!!!! pgdoc unknown error! Please report any relevant details on an issue here: https://github.com/eadsjr/pgdoc/issues !!!!\n`
 
 const connectionErrorHandler = ( client, err, args, fallbackError ) => {
   if(client != null) {
@@ -83,7 +83,7 @@ const connectionErrorHandler = ( client, err, args, fallbackError ) => {
  * Configure connection to postgres
  *
  * @param {string} - connectionString - a URL path to connect to postgres with
- * @param {object} - options - a list of configuration options for pg-doc
+ * @param {object} - options - a list of configuration options for pgdoc
  * @returns {object} - A pgdoc error object. Null if no error.
  */
 module.exports.connect = async (connectionString, options) => {
@@ -335,7 +335,7 @@ module.exports.requestID = async (type) => {
  *
  * @param {object} - options - object containing options to alter default function behavior
  *
- * @returns {number} - errorCode -  negative integer representing the kind of pg-doc error
+ * @returns {number} - errorCode -  negative integer representing the kind of pgdoc error
  */
 module.exports.configure = () => {
   if( typeof(options) == 'object' ) {

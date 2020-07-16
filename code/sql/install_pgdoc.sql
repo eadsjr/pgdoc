@@ -1,5 +1,5 @@
 --
--- This will eventually be the script that is run to set up the database initially for pg-doc
+-- This will eventually be the script that is run to set up the database initially for pgdoc
 --
 
 -- Create the database and connect to it

@@ -1,7 +1,7 @@
 OPTIONS.md
 
 
-# pg-doc
+# pgdoc
 
 ## Options that can passed into the interface
 
