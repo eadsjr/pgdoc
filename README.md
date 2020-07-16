@@ -27,7 +27,7 @@ Partial support for NodeJS
 
 ## Features (Planned)
 
-Complete error handling system, which will capture errors so consistently that an external try-catch is largely redundant OR Pass through and wrap Error subtypes in standard manner.
+Complete error handling system, which will capture errors so consistently that an external try-catch is largely redundant OR Pass through and wrap Error subtypes in the standard manner.
 
 Specific errors for all known cases.
 
