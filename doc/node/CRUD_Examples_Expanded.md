@@ -287,19 +287,21 @@ It is very simple to overwrite a document.
 ``` js
 let storeOverwrite = async () => {
   // Overwrite a single existing document
-  docType = "player"
-  oldDoc  = { name: "John Smith", age:43, team: "red", id: "-1" }
-  rv = await pgdoc.store( docType, newDoc )
+  let docType = "player"
+  let oldDoc  = { name: "John Smith", age:43, team: "red", id: "-1" }
+  rv = await pgdoc.store( docType, oldDoc )
   if( rv != null ) {
     console.error(`${rv.label}: ${rv.description}`)
   }
   else {
     console.log(`document stored with age: 43`)
-    newDoc  = { name: "John Smith", age: 44, team: "red", id: "-1" }
-    rv = await pgdoc.store( docType, newDoc )
-    if(  rv != null  && rv.label == "Clobber" ) {
-      console.warn(`Document was overwritten successfully`)
-    }
+    let newDoc  = { name: "John Smith", age: 44, team: "red", id: "-1" }
+    let mySearch = { id: "-1" }
+    rv = await pgdoc.store( docType, newDoc, mySearch )
+    // if(  rv != null  && rv.label == "Clobber" ) {
+    //   console.warn(`Document was overwritten successfully`)
+    // }
   }
 }
+storeOverwrite()
 ```

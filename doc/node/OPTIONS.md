@@ -17,3 +17,5 @@ options.onlyone = true
 
 When calling retrieve, if 'onlyone' is true then it multiple record matches counts as an error.
 
+
+<!-- pgdoc.configure( { verbose: true } ) -->

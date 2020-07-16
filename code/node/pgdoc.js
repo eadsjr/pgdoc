@@ -121,18 +121,41 @@ module.exports.connect = async (connectionString, options) => {
  * @param {object} - [options] - OPTIONAL object containing options to alter this function call
  * @returns {object} - A pgdoc error object. Null if no error.
  */
-module.exports.store = async (type, data, options) => {
+module.exports.store = async (type, data, search, options) => {
   let args = [type, data, options]
 
   if( typeof(data) != `string` ) {
     data = str(data)
+  }
+  if( search != null && typeof(search) != `string` ) {
+    search = str(search)
   }
   let schema = config.schema
 
   /// TODO: option for NoClobber
 
   /// TODO: THIS IS NOT SQL INJECTION SAFE
-  let command = `INSERT INTO ${schema}.docs VALUES ('${type}', '${data}') ;`
+  let command
+  if( search == null ) {
+    /// Simple store command. May produce duplicates.
+    command = `INSERT INTO ${schema}.docs VALUES ('${type}', '${data}') ;`
+  }
+  else {
+    /// Store command with search. May clobber or fail.
+    if( options == null || ! (`maxMatch` in options) ) {
+      /// Delete any matching records and store the value
+      /// Return number of records deleted
+      command = `DELETE FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}'; ` +
+                `INSERT INTO ${schema}.docs VALUES ('${type}', '${data}') ;`
+    }
+    else {
+      /// If the limit is not reached, delete matching records and store the value
+      /// React if limit is reached.
+      /// TODO
+      console.error(`ERR: maxMatch not implemented`)
+      return null
+    }
+  }
   if(config.verbose) {
     console.log(command)
   }
@@ -155,7 +178,16 @@ module.exports.store = async (type, data, options) => {
         console.log(res)
       }
       /// TODO: more specific success validation
-      if(res.rowCount > 0) {
+      if( search != null ) {
+        /// Update case: expecting at least one result with a rowCount
+        if( `length` in res && res.length > 0 && `rowCount` in res[1] ) {
+          return res[1].rowCount
+        }
+        else {
+          return pgdocError('UpdateFailed', args)
+        }
+      }
+      else if(res.rowCount > 0) {
         return null
       }
       else {
@@ -337,7 +369,8 @@ module.exports.requestID = async (type) => {
  *
  * @returns {number} - errorCode -  negative integer representing the kind of pgdoc error
  */
-module.exports.configure = () => {
+module.exports.configure = ( options ) => {
+  args = [options]
   if( typeof(options) == 'object' ) {
     Object.assign(config, options)
     return
@@ -379,6 +412,7 @@ const errors = {
   ParseFailed:         { error: true, label: `ParseFailed`,          code: -15,  description: `The pgdoc.JSON.parse call failed. Is the argument valid JSON?` },
   BadOptions:          { error: true, label: `BadOptions`,           code: -16,  description: `The options object passed into the function was not valid. It must be an object.` },
   BadConnectionString: { error: true, label: `BadConnectionString`,  code: -17,  description: `The connectionString object passed into the function was not valid. Please check your configuration.` },
+  UpdateFailed:        { error: true, label: `UpdateFailed`,         code: -18,  description: `The store operation returned an unexpected result from the database. Expected 'rowCount' from delete operation, but couldn't find it.` },
 }
 Object.freeze(errors)
 module.exports.errors = errors
