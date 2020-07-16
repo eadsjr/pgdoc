@@ -6,21 +6,13 @@ implement protection as per [OWASP SQL Injection Prevention Cheat Sheet](https:/
 Use stored procs with EXECUTE...USING to prevent injection. SEE: [PostgresQL Docs](https://www.postgresql.org/docs/11/plpgsql-statements.html#PLPGSQL-STATEMENTS-EXECUTING-DYN)
 <pre>
 
-add a noClobber option to enhance the store / update function
-
-move pgdoc relations to pgdoc SCHEMA
-default to pgdoc SCHEMA, but allow custom via configuration
-
-print errors to console by default, option to disable
-
-Major cleanup on error handling
-  Use something more familiar, like an err object that has .id, .message, etc.
-  {err, docs} = await pgdoc.retrieve(...)
+implement the noClobber option to enhance the store / update function
+implement the maxMatch option for select/delete
+print errors to console given the verbose option
 
 retrieveField(type, search, field)
   let command = `SELECT data->>'${field}' FROM ${docs} WHERE name = '${name}' AND meta = '${meta}';`;
 storeField(type, search, field) ??
-
 
 code/node/pgdoc.js: better error message for bad search JSON object, missing quotes on field name
 code/node/pgdoc.js: pass in transaction IDs to allow async polling for return values / error codes
@@ -77,6 +69,11 @@ docs/CRUD_Examples.md: Rewrite all examples to be asyncrounous!
 docs/CRUD_examples.md: configure connection to database
 docs/CRUD_examples.md: wrote out example cases (syncronous)
 code/node/pgdoc.js: determine async method
+move pgdoc relations to pgdoc SCHEMA
+default to pgdoc SCHEMA, but allow custom via configuration
+Major cleanup on error handling
+  Use something more familiar, like an err object that has .id, .message, etc.
+  {err, docs} = await pgdoc.retrieve(...)
 </pre>
 
 # CONSDIER List
@@ -115,6 +112,7 @@ Add a JSON primer? Links?
 <pre>
 code/node/pgdoc.js: implement basic functions with asynchronous execution using callbacks
 code/node/pgdoc.js: implement basic functions with asynchronous execution using (only) promises
+print errors to console by default, option to disable
 </pre>
 
 # FUTURE List
