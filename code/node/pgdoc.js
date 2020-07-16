@@ -124,7 +124,9 @@ module.exports.connect = async (connectionString, options) => {
 module.exports.store = async (type, data, options) => {
   let args = [type, data, options]
 
-  data = str(data)
+  if( typeof(data) != `string` ) {
+    data = str(data)
+  }
   let schema = config.schema
 
   /// TODO: option for NoClobber
@@ -182,7 +184,9 @@ module.exports.store = async (type, data, options) => {
 module.exports.retrieve = async (type, search, options) => {
   let args = [type, search, options]
 
-  search = str(search)
+  if( typeof(search) != `string` ) {
+    search = str(search)
+  }
   let schema = config.schema
 
   let command = `SELECT data FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}';`
@@ -236,7 +240,9 @@ module.exports.retrieve = async (type, search, options) => {
 module.exports.delete = async (type, search, options) => {
   let args = [type, search, options]
 
-  search = str(search)
+  if( typeof(search) != `string` ) {
+    search = str(search)
+  }
   let schema = config.schema
 
   let command
