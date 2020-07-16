@@ -19,7 +19,7 @@ Please provide the version of PostgreSQL your are running, as well as the versio
 
 ## Coordination and Documentation
 
-All non-administrative communication about pgdoc deveopment should be in the form of code comments, git commit messages, [docs/TODO.md][todo-file] updates and [GitHub issues][search-issues]. Keep project related discussion and decision making out of chat and email to avoid losing context and history.
+All non-administrative communication about pgdoc development should be in the form of code comments, git commit messages, [docs/TODO.md][todo-file] updates and [GitHub issues][search-issues]. Keep project related discussion and decision making out of chat and email to avoid losing context and history.
 
 
 ## Development Goals
