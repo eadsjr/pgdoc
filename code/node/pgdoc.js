@@ -91,11 +91,13 @@ module.exports.connect = async (connectionString, options) => {
   if( connectionString == null ) {
     return pgdocError(`BadConnectionString`, args)
   }
-  if( typeof(options) == 'object' ) {
-    Object.assign(config, options)
-  }
-  else {
-    return pgdocError(`BadOptions`, args)
+  if ( options != null ) {
+    if( typeof(options) == 'object' ) {
+      Object.assign(config, options)
+    }
+    else {
+      return pgdocError(`BadOptions`, args)
+    }
   }
   config.connectionString = connectionString
 
