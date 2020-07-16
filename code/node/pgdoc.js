@@ -66,10 +66,10 @@ const connectionErrorHandler = ( client, err, args, fallbackError ) => {
     return pgdocError(`DatabaseNotCreated`, args, err)
   }
   else {
-    if( fallback != null ) {
+    if( fallbackError != null ) {
       console.error(err)
       console.error(unhandledError)
-      return fallback
+      return fallbackError
     }
     else {
       console.error(err)
