@@ -44,7 +44,7 @@ Provide a message with every commit describing what the commit did. When appropr
 Branch names should be of the form '001_eadsjr_project_init', with a three digit number indicating the order of the branches you submitted, then username, then branch description in snake case.
 
 
-[todo-file]:https://github.com/eadsjr/pgdoc/docs/TODO.md
+[todo-file]:https://github.com/eadsjr/pgdoc/doc/TODO.md
 [search-issues]:https://github.com/search?q=repo%3Aeadsjr%2Fpgdoc&type=Issues
 [new-issue]:https://github.com/eadsjr/pgdoc/issues/new
 [contact-project-lead]:mailto:jeads442@gamil.com
