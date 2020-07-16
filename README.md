@@ -16,11 +16,11 @@ To get started, [check out the documentation][start].
 
 A library that allows document storage, retrieval and deletion with a function call.
 
-Document selection via json object subsets. This can be on any part of the data, including an id.
+Document selection via JSON object subsets. This can be on any part of the data, including an explicit id.
 
 Incomplete error handling system, that will reduce but not eliminate the need for try-catch blocks everywhere.
 
-An install script that creates the schema for the library for you.
+An install script that configures PostgreSQL for pgdoc.
 
 A means of requesting unused sequential IDs from the database. `pgdoc.requestID(docType)`
 
@@ -33,7 +33,7 @@ Complete error handling system, which will capture errors so consistently that a
 
 Specific errors for all known cases.
 
-An script to generate install scripts for custom projects.
+A script to generate install scripts for custom projects.
 
 Pass through functions for other useful postgresQL features.
 
