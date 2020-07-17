@@ -142,7 +142,7 @@ module.exports.store = async (type, data, search, maxMatch, options) => {
   }
   else {
     /// Store command with search. May clobber or fail.
-    if( maxMatch == null || maxMatch == -1 ) {
+    if( maxMatch == null || maxMatch < 0 ) {
       /// Delete any matching records and store the value
       /// Return number of records deleted
       command = `DELETE FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}'; ` +
@@ -151,9 +151,7 @@ module.exports.store = async (type, data, search, maxMatch, options) => {
     else {
       /// If the limit is not reached, delete matching records and store the value
       /// React if limit is reached.
-      /// TODO
-      console.error(`ERR: maxMatch not implemented`)
-      return null
+      command = `SELECT pgdoc.overwriteUnderMax('${schema}', '${type}', '${data}', '${search}', ${maxMatch}) ;`
     }
   }
   if(config.verbose) {
