@@ -75,6 +75,7 @@ ALTER FUNCTION pgdoc.incrementSequence( TEXT, TEXT ) OWNER TO pgdoc;
 
 
 -- Delete a set of documents returned by a search and replace with provided data if the record count to be deleted is under provided maximum
+-- If the max is breached, instead return the number of records that would have been deleted as a negative number.
 CREATE OR REPLACE FUNCTION pgdoc.overwriteUnderMax( schemaName TEXT, docType TEXT, newData JSONB, search JSONB, max INTEGER )
 RETURNS INTEGER AS
 $$
@@ -83,12 +84,14 @@ BEGIN
   recordCount := ( SELECT COUNT(*) FROM pgdoc.docs WHERE type = docType AND data @> search ) ;
   RAISE NOTICE 'recordCount: %', recordCount;
   IF
-    recordCount < max
+    recordCount <= max
   THEN
     -- delete, store and return
+    DELETE FROM pgdoc.docs WHERE type = docType AND data @> search;
+    INSERT INTO pgdoc.docs VALUES (docType, newData);
     RETURN recordCount;
   ELSE
-    RETURN -1;
+    RETURN -recordCount;
   END IF;
 END;
 $$
@@ -96,8 +99,9 @@ LANGUAGE plpgsql;
 ALTER FUNCTION pgdoc.overwriteUnderMax( TEXT, TEXT, JSONB, JSONB, INTEGER ) OWNER TO pgdoc;
 -- DROP FUNCTION pgdoc.overwriteUnderMax( TEXT, TEXT, JSONB, JSONB, INTEGER );
 
-SELECT pgdoc.overwriteUnderMax( 'pgdoc', 'player', '{ "name": "John Smith", "age": 44, "team": "red", "id": "-1" }', '{ "id": "-1" }', 1 ) ;
-SELECT pgdoc.overwriteUnderMax( 'pgdoc', 'player', '{ "name": "John Smith", "age": 44, "team": "red", "id": "-1" }', '{ "id": "2" }', 1 ) ;
+-- SELECT pgdoc.overwriteUnderMax( 'pgdoc', 'player', '{ "name": "John Smith", "age": 44, "team": "red", "id": "-1" }', '{ "id": "-1" }', 1 ) ;
+-- SELECT data FROM pgdoc.docs WHERE type = 'player' AND data @> '{"id":"-1"}';
+-- INSERT INTO pgdoc.docs VALUES ('player', '{"name":"John Smith","age":42,"team":"red","id":"-1"}');
 
 
 -- required for the above function to succeed
