@@ -74,6 +74,8 @@ This should result in a series of all caps statements about what the install is 
 
 The [CRUD Examples][crud] should now work. Open up a "Node.js" application window and get try them out.
 
+<br/>
+
 </details>
 <details>
 
@@ -188,6 +190,8 @@ This should result in a series of all caps statements about what the install is 
 ### Now What?
 
 The [CRUD Examples][crud] should now work. Open up a "Node.js" application window and get try them out.
+
+<br/>
 
 </details>
 

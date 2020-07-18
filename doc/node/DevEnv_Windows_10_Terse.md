@@ -49,6 +49,8 @@ Note that the slashes required by psql are backslashes, unlike the forward slash
 
 The [CRUD Examples][crud] should now work. Open up a "Node.js" application window and get try them out.
 
+<br/>
+
 
 </details>
 <details>
@@ -152,6 +154,8 @@ Note that the slashes required by psql are backslashes, unlike the forward slash
 ### Now What?
 
 The [CRUD Examples][crud] should now work. Open up a "Node.js" application window and get try them out.
+
+<br/>
 
 </details>
 
