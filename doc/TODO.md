@@ -34,13 +34,13 @@ SECURITY: Ensure that anything that would break postgres fails with an error cod
 
 docs/: add tutorial on installing postgresql
 
-docs/CRUD_Examples.md: add an example with an option noClobber to prevent overwrites
-docs/CRUD_Examples.md: add a select example using maxMatch option
-docs/CRUD_Examples.md: Update to not use deprecated connectionString
-docs/CRUD_Examples.md: everything in all markdown should not require horizontal scrolling on a normal sized window
-docs/CRUD_Examples.md: add hyperlink to install script reference
-docs/CRUD_Examples.md: convert entire interface to return an object, and previous values stored in a standard member of that object, like .doc.
-docs/CRUD_examples.md: use this file as spec for implemention (once finalized and an async method is decided)
+docs/CRUD_Examples_Terse.md: add an example with an option noClobber to prevent overwrites
+docs/CRUD_Examples_Terse.md: add a select example using maxMatch option
+docs/CRUD_Examples_Terse.md: Update to not use deprecated connectionString
+docs/CRUD_Examples_Terse.md: everything in all markdown should not require horizontal scrolling on a normal sized window
+docs/CRUD_Examples_Terse.md: add hyperlink to install script reference
+docs/CRUD_Examples_Terse.md: convert entire interface to return an object, and previous values stored in a standard member of that object, like .doc.
+docs/CRUD_Examples_Terse.md: use this file as spec for implemention (once finalized and an async method is decided)
 
 docs/CONTRIBUTING.md: Add links to GitHub's instructions on how to submit a pull request
 
@@ -63,11 +63,11 @@ SEE ALSO: README.md Planned features
 
 <pre>
 removing retrieveString(), because 'pg' module returns stored JSONB as an object
-docs/CRUD_Examples.md: add a maxMatch option for select/delete
-docs/CRUD_Examples.md: Change undo() example to instead use options
-docs/CRUD_Examples.md: Rewrite all examples to be asyncrounous!
-docs/CRUD_examples.md: configure connection to database
-docs/CRUD_examples.md: wrote out example cases (syncronous)
+docs/CRUD_Examples_Terse.md: add a maxMatch option for select/delete
+docs/CRUD_Examples_Terse.md: Change undo() example to instead use options
+docs/CRUD_Examples_Terse.md: Rewrite all examples to be asyncrounous!
+docs/CRUD_Examples_Terse.md: configure connection to database
+docs/CRUD_Examples_Terse.md: wrote out example cases (syncronous)
 code/node/pgdoc.js: determine async method
 move pgdoc relations to pgdoc SCHEMA
 default to pgdoc SCHEMA, but allow custom via configuration
@@ -101,8 +101,8 @@ code/node/pgdoc.js: allow disabling of undo via config option
 
 code/node/pgdoc.js: implement alternate basic functions with catchable exceptions?
 
-docs/CRUD_Examples.md: split this into five documents or more, with next/previous/up hyperlink buttons
-docs/CRUD_Examples.md: add examples using tids
+docs/CRUD_Examples_Terse.md: split this into five documents or more, with next/previous/up hyperlink buttons
+docs/CRUD_Examples_Terse.md: add examples using tids
 
 Add a JSON primer? Links?
 </pre>
@@ -119,5 +119,5 @@ print errors to console by default, option to disable
 
 <pre>
 README.md: add a releases notes with link per language
-docs/CRUD_Examples.md: Update CREATE section if it is clear that we have validated everything they might pass us.
+docs/CRUD_Examples_Terse.md: Update CREATE section if it is clear that we have validated everything they might pass us.
 </pre>
