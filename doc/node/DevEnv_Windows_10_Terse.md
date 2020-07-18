@@ -3,7 +3,8 @@
 
 [Click here for a more verbose version of this document.][terse]
 
-## Quickstart on Windows 10 ( For use in existing NodeJS applications )
+<details>
+<summary><h2> Quickstart on Windows 10 ( For use in existing NodeJS applications ) </h2></summary>
 
 ### The npm module
 
@@ -36,8 +37,15 @@ From here you need to import pgdoc's SQL install file. Give it the full path to 
 Note that the slashes required by psql are backslashes, unlike the forward slashes windows commandline normally uses.
 
 
+### Now What?
 
-## Setting up a pgdoc Dev Environment on Windows 10 ( For learning to modify pgdoc )
+The [CRUD Examples][crud] should now work. Open up a "Node.js" application window and get try them out.
+
+
+</details>
+<details>
+
+<summary><h2> Setting up a pgdoc Dev Environment on Windows 10 ( For learning to modify pgdoc ) </h2></summary>
 
 
 ### Installing PostgreSQL
@@ -128,6 +136,8 @@ Note that the slashes required by psql are backslashes, unlike the forward slash
 ### Now What?
 
 The [CRUD Examples][crud] should now work. Open up a "Node.js" application window and get try them out.
+
+</details>
 
 
 [pgdoc]: https://github.com/eadsjr/pgdoc

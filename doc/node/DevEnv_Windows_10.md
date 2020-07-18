@@ -4,9 +4,7 @@
 [Click here for a less verbose version of this document.][terse]
 
 <details>
-<summary>
-## Quickstart on Windows 10 ( For use in existing NodeJS applications )
-</summary>
+<summary><h2> Quickstart on Windows 10 ( For use in existing NodeJS applications ) </h2></summary>
 
 If you have a NodeJS project and want to get started right away keep reading. Otherwise skip ahead to the "Installation on Windows 10" section.
 
@@ -71,9 +69,9 @@ The [CRUD Examples][crud] should now work. Open up a "Node.js" application windo
 </details>
 <details>
 
-<summary>
-## Setting up a pgdoc Dev Environment on Windows 10 ( For learning to modify pgdoc )
-</summary>
+
+<summary><h2> Setting up a pgdoc Dev Environment on Windows 10 ( For learning to modify pgdoc ) </h2></summary>
+
 
 ### Installing NodeJS
 
