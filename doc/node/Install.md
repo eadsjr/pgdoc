@@ -9,6 +9,6 @@
 
 ## [Windows 10][win]
 
-[linux]: INSTALL_LINUX.md
-[osx]: INSTALL_OS_X.md
-[win]: INSTALL_WINDOWS_10.md
+[linux]: Install_Linux.md
+[osx]: Install_OS_X.md
+[win]: Install_Windows_10.md

@@ -62,4 +62,4 @@ The code is available at [Github][license] under the [MIT license][license].
 [license]: LICENSE
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg
 <!-- [start]: doc/LANGUAGE.md     <- FOR WHEN MULTILANGUGE SUPPORT IS AVAILABLE -->
-[start]: doc/node/START.md
+[start]: doc/node/Start.md

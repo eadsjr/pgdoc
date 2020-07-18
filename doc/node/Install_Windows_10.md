@@ -139,6 +139,7 @@ Note that the slashes required by psql are backslashes, unlike the forward slash
 
 This should result in a series of all caps statements about what the install is doing. As long as there are are no errors, your database configuration is is complete.
 
+
 ### Now What?
 
 The [CRUD Examples][crud] should now work. Open up a "Node.js" application window and get try them out.
@@ -149,4 +150,4 @@ The [CRUD Examples][crud] should now work. Open up a "Node.js" application windo
 [node]: https://nodejs.org/en/
 [homebrew]: https://brew.sh/
 [postgresql]: https://www.postgresql.org/
-[crud]: CRUD_Examples_Expanded.md
+[crud]: CRUD_Examples.md

@@ -1,4 +1,5 @@
-ERRORS.md
+
+# pgdoc
 
 All of the exposed functions of pgdoc can return an error object. If the error object is null, then the action completed successfully. Otherwise, it fits the following pattern:
 
