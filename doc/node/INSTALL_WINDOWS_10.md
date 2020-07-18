@@ -62,11 +62,57 @@ Once the install has completed successfully, when you search Windows for "sql" y
 
 > This program psql is an interactive shell that allows you to directly control the database. Using pgdoc allows your Javascript code to interact with the database in a very similar way.
 
-### Installing PostgreSQL
 
-> You need to get pgdoc itself downloaded on to your computer. The broswer on windows sometimes ...
+### Installing the git version control system
 
-On the pgdoc projects main page
+> You need to get pgdoc itself downloaded on to your computer. Your browser on windows may prevent you from downloading the zip file directly. Using git will allow you to get the pgdoc project onto your computer using the same source control system that developers use to build their projects.
+
+Download [the git version control system][https://git-scm.com/download/win] and install it. If you aren't sure about the install options the defaults should be fine for our purposes here.
+
+Once the install has completed successfully, when you search Windows for "git" you should see a new program "Git CMD".
+
+
+### Downloading pgdoc
+
+Run the "Git CMD" application.
+
+Now we need to get to the directory where your pgdoc will live on your computer. Create a "Projects" folder in your home directory "C:\Users\<UserName>\", then change to that directory.
+
+``` bat
+mkdir Projects
+cd Projects
+```
+
+Now you need to download pgdoc to your computer.
+
+``` bat
+git clone https://github.com/eadsjr/pgdoc
+```
+
+Now pgdoc should be situated at this path "C:\Users\<UserName>\Projects\pgdoc"
+
+You can close the "Git CMD" window once this step is finished.
+
+
+### Download dependencies
+
+> Now you need to get the programs that pgdoc relies on downloaded to your computer. There aren't many of them, but they are necessary.
+
+Open the "Node.js command prompt" program.
+
+Navigate to the folder containing the pgdoc Project.
+
+``` bat
+cd Projects\pgdoc
+```
+
+Now download the dependencies for the project using the NodeJS Package Manager (npm).
+
+``` bat
+npm install
+```
+
+This window will be useful for running the examples, so leave it open for now.
 
 
 ### Configuring PostgreSQL
@@ -75,15 +121,15 @@ On the pgdoc projects main page
 
 Open the "SQL shell (psql)" application from Windows search, and go through the process of logging in to the shell.
 
-Unless you are using a remote database, the default options for items up until the username are acceptable. Give it the username and password you set for your PostgreSQL database.
+Unless you are using a remote database or custom port, the default options (localhost/postgres/5432/postgres) for items up until the password are acceptable. Give it the password you chose for your PostgreSQL database.
 
 Once you are logged in you should see a prompt that looks something like this:
 
 ``` sql
-postgres=> _
+postgres=# _
 ```
 
-From here you need to import pgdoc's SQL install file. Type the following into the prompt, replacing <USERNAME> with your own username.
+From here you need to import pgdoc's SQL install file. Type the following into the prompt, replacing <USERNAME> with your own Window's username. This is the exact same name as your home folder.
 
 ``` sql
 \i C:/Users/<USERNAME>/Projects/pgdoc/code/sql/install_pgdoc.sql
@@ -91,11 +137,16 @@ From here you need to import pgdoc's SQL install file. Type the following into t
 
 Note that the slashes required by psql are backslashes, unlike the forward slashes windows commandline normally uses.
 
+This should result in a series of all caps statements about what the install is doing. As long as there are are no errors, your database configuration is is complete.
+
+### Now What?
+
+The [CRUD Examples][crud] should now work. Open up a "Node.js" application window and get try them out.
 
 
-
-
+[pgdoc]: https://github.com/eadsjr/pgdoc
+[git]: https://git-scm.com/download/win
 [node]: https://nodejs.org/en/
 [homebrew]: https://brew.sh/
 [postgresql]: https://www.postgresql.org/
-[crud]: CRUD_Examples.md
+[crud]: CRUD_Examples_Expanded.md
