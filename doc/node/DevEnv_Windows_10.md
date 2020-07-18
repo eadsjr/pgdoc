@@ -1,6 +1,8 @@
 
 # pgdoc
 
+[Click here for a less verbose version of this document.][terse]
+
 ## Quickstart on Windows 10 ( For use in existing NodeJS applications )
 
 If you have a NodeJS project and want to get started right away keep reading. Otherwise skip ahead to the "Installation on Windows 10" section.
@@ -15,17 +17,53 @@ npm install --save pgdoc
 
 ### The PostgreSQL database
 
-Now install [PostgreSQL][postgresql] on your system and get it running on the default port.
+> [The PostgreSQL database][postgresql] stores persistent data for your application, like user accounts, purchases and other application state. 
 
-Once it is running, configure the database for use with pgdoc using psql.
+Go to [the PostgreSQL homepage][postgresql] and click the download button. Once the next page loads, there will be a red "Download the installer" link at the top of the page.
 
-``` bash
-psql -f ./node_modules/pgdoc/code/sql/install_pgdoc.sql
+Clicking that red link takes you to a page with a grid of downloads. If your computer is 64 bit (modern ones will be), download the "Windows x86-64" installer for the most current version of PostgreSQL (version 12.3 as of this writing).
+
+Install it after the download finishes. During the install you will be asked to set a password. Chose something you will remember and write the credentials down somewhere safe, or you will lose access to the database.
+
+When asked use the default port for your install (5432) or you will need to update all examples and configs you use to your custom port number. If your database is on a public server instead of a personal machine you will want to use a custom port number for security reasons.
+
+The installer may try to install additional software after the PostgreSQL install completes. You only need PostgreSQL itself to make use this library.
+
+Once the install has completed successfully, when you search Windows for "sql" you should see a new program "SQL shell (psql)".
+
+> This program psql is an interactive shell that allows you to directly control the database. Using pgdoc allows your Javascript code to interact with the database in a very similar way.
+
+
+### Configuring PostgreSQL
+
+> Both pgdoc and PostgreSQL should be working on your computer now. For pgdoc to interact with the database, you must be configure it to allow your program to log in and accept the commands that make it work.
+
+Open the "SQL shell (psql)" application from Windows search, and go through the process of logging in to the shell.
+
+Unless you are using a remote database or custom port, the default options (localhost/postgres/5432/postgres) for items up until the password are acceptable. Give it the password you chose for your PostgreSQL database.
+
+Once you are logged in you should see a prompt that looks something like this:
+
+``` sql
+postgres=# _
 ```
 
-This should configure the default pgdoc user and enable you to run the examples included in this project.
+From here you need to import pgdoc's SQL install file.
 
-If you still don't know what to do, just keep reading.
+Note that the slashes required by psql are backslashes, unlike the forward slashes windows command prompt normally uses.
+
+Type the path to the installer into the prompt, replacing everything before "node_modules" in the path to your NodeJS application's path.
+
+``` sql
+\i C:/Users/<USERNAME>/Projects/myProject/node_modules/pgdoc/code/sql/install_pgdoc.sql
+```
+
+This should result in a series of all caps statements about what the install is doing. As long as there are are no errors, your database configuration is is complete.
+
+
+### Now What?
+
+The [CRUD Examples][crud] should now work. Open up a "Node.js" application window and get try them out.
 
 
 ## Setting up a pgdoc Dev Environment on Windows 10 ( For learning to modify pgdoc )
@@ -46,21 +84,8 @@ Once the install has completed, when you search the windows bar for "node" you s
 
 ### Installing PostgreSQL
 
-> [The PostgreSQL database][postgresql] stores persistent data for your application, like user accounts, purchases and other application state. 
+Perform the steps outlined above in "The PostgreSQL database" to install PostgreSQL.
 
-Go to [the PostgreSQL homepage][postgresql] and click the download button. Once the next page loads, there will be a red "Download the installer" link at the top of the page.
-
-Clicking that red link takes you to a page with a grid of downloads. If your computer is 64 bit (modern ones will be), download the "Windows x86-64" installer for the most current version of PostgreSQL (version 12.3 as of this writing).
-
-Install it after the download finishes. During the install you will be asked to set a username and password. Chose something you will remember and write the credentials down somewhere safe, or you will lose access to the database. Your username may default to your windows username.
-
-When asked use the default port for your install (5432) or you will need to update all examples and configs you use to your custom port number. If your database is on a public server instead of a personal machine you will want to use a custom port number for security reasons.
-
-The installer may try to install additional software after the PostgreSQL install completes. You only need PostgreSQL itself to make use this library.
-
-Once the install has completed successfully, when you search Windows for "sql" you should see a new program "SQL shell (psql)".
-
-> This program psql is an interactive shell that allows you to directly control the database. Using pgdoc allows your Javascript code to interact with the database in a very similar way.
 
 
 ### Installing the git version control system
@@ -151,3 +176,4 @@ The [CRUD Examples][crud] should now work. Open up a "Node.js" application windo
 [homebrew]: https://brew.sh/
 [postgresql]: https://www.postgresql.org/
 [crud]: CRUD_Examples.md
+[terse]: DevEnv_Windows_10_Terse.md
