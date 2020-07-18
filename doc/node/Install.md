@@ -10,7 +10,8 @@
 
 ## [Mac OS X][osx] - work in progress
 
-## [Windows 10][win] - work in progress
+<!-- ## [Windows 10][win] - work in progress -->
+## [Windows 10][win_dev] - work in progress
 
 > For setting up a pgdoc developer environment
 
