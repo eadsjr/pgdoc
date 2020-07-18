@@ -3,7 +3,10 @@
 
 [Click here for a less verbose version of this document.][terse]
 
+<details>
+<summary>
 ## Quickstart on Windows 10 ( For use in existing NodeJS applications )
+</summary>
 
 If you have a NodeJS project and want to get started right away keep reading. Otherwise skip ahead to the "Installation on Windows 10" section.
 
@@ -65,9 +68,12 @@ This should result in a series of all caps statements about what the install is 
 
 The [CRUD Examples][crud] should now work. Open up a "Node.js" application window and get try them out.
 
+</details>
+<details>
 
+<summary>
 ## Setting up a pgdoc Dev Environment on Windows 10 ( For learning to modify pgdoc )
-
+</summary>
 
 ### Installing NodeJS
 
@@ -168,6 +174,8 @@ This should result in a series of all caps statements about what the install is 
 ### Now What?
 
 The [CRUD Examples][crud] should now work. Open up a "Node.js" application window and get try them out.
+
+</details>
 
 
 [pgdoc]: https://github.com/eadsjr/pgdoc
