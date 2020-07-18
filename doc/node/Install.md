@@ -17,7 +17,8 @@
 ## Linux ( Debian / Ubuntu ) - work in progress
 <!-- ## [Linux ( Debian / Ubuntu )][linux_dev] -->
 
-## [Mac OS X][osx_dev]  - work in progress
+## Mac OS X  - work in progress
+<!-- ## [Mac OS X][osx_dev]  - work in progress -->
 
 ## [Windows 10][win_dev]  - work in progress
 
