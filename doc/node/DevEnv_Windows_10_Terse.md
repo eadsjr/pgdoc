@@ -6,6 +6,8 @@
 <details>
 <summary><h2> Quickstart on Windows 10 ( For use in existing NodeJS applications ) </h2></summary>
 
+<br/>
+
 ### The npm module
 
 If you are simply using pgdoc for an existing NodeJS project, you should be able to access the module by installing it via npm in your local project directory.
@@ -13,6 +15,8 @@ If you are simply using pgdoc for an existing NodeJS project, you should be able
 ``` bash
 npm install --save pgdoc
 ```
+
+<br/>
 
 ### Installing PostgreSQL
 
@@ -22,6 +26,8 @@ Install it after the download finishes. Don't forget to record your password.
 
 Once the install is done, searching "sql" in Windows should show a new program "SQL shell (psql)".
 
+
+<br/>
 
 ### Configuring PostgreSQL
 
@@ -37,6 +43,8 @@ From here you need to import pgdoc's SQL install file. Give it the full path to 
 Note that the slashes required by psql are backslashes, unlike the forward slashes windows commandline normally uses.
 
 
+<br/>
+
 ### Now What?
 
 The [CRUD Examples][crud] should now work. Open up a "Node.js" application window and get try them out.
@@ -48,6 +56,8 @@ The [CRUD Examples][crud] should now work. Open up a "Node.js" application windo
 <summary><h2> Setting up a pgdoc Dev Environment on Windows 10 ( For learning to modify pgdoc ) </h2></summary>
 
 
+<br/>
+
 ### Installing PostgreSQL
 
 Go to [the PostgreSQL homepage][postgresql] and download the most current version for your computer.
@@ -57,6 +67,7 @@ Install it after the download finishes. Don't forget to record your password.
 Once the install is done, searching "sql" in Windows should show a new program "SQL shell (psql)".
 
 
+<br/>
 
 ### Installing NodeJS
 
@@ -64,6 +75,7 @@ Go to [the NodeJS homepage][node] and download the LTS version of NodeJS. Instal
 
 Once the install has completed, when you search the windows bar for "node" you should now see a "Node.js" app and a "Node.js command prompt" app.
 
+<br/>
 
 ### Installing the git version control system
 
@@ -71,6 +83,7 @@ Download [the git version control system][https://git-scm.com/download/win] and 
 
 Once the install has completed successfully, when you search Windows for "git" you should see a new program "Git CMD".
 
+<br/>
 
 ### Downloading pgdoc
 
@@ -93,6 +106,7 @@ Now pgdoc should be situated at this path "C:\Users\<UserName>\Projects\pgdoc"
 
 You can close the "Git CMD" window once this step is finished.
 
+<br/>
 
 ### Download dependencies
 
@@ -110,6 +124,7 @@ Now download the dependencies for the project using the NodeJS Package Manager (
 npm install
 ```
 
+<br/>
 
 ### Configuring PostgreSQL
 
@@ -132,6 +147,7 @@ From here you need to import pgdoc's SQL install file. Type the following into t
 
 Note that the slashes required by psql are backslashes, unlike the forward slashes windows commandline normally uses.
 
+<br/>
 
 ### Now What?
 

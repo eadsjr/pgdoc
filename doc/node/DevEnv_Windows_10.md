@@ -8,6 +8,8 @@
 
 If you have a NodeJS project and want to get started right away keep reading. Otherwise skip ahead to the "Installation on Windows 10" section.
 
+<br/>
+
 ### The npm module
 
 If you are simply using pgdoc for an existing NodeJS project, you should be able to access the module by installing it via npm in your local project directory.
@@ -15,6 +17,8 @@ If you are simply using pgdoc for an existing NodeJS project, you should be able
 ``` bash
 npm install --save pgdoc
 ```
+
+<br/>
 
 ### The PostgreSQL database
 
@@ -34,6 +38,8 @@ Once the install has completed successfully, when you search Windows for "sql" y
 
 > This program psql is an interactive shell that allows you to directly control the database. Using pgdoc allows your Javascript code to interact with the database in a very similar way.
 
+
+<br/>
 
 ### Configuring PostgreSQL
 
@@ -62,6 +68,8 @@ Type the path to the installer into the prompt, replacing everything before "nod
 This should result in a series of all caps statements about what the install is doing. As long as there are are no errors, your database configuration is is complete.
 
 
+<br/>
+
 ### Now What?
 
 The [CRUD Examples][crud] should now work. Open up a "Node.js" application window and get try them out.
@@ -72,6 +80,7 @@ The [CRUD Examples][crud] should now work. Open up a "Node.js" application windo
 
 <summary><h2> Setting up a pgdoc Dev Environment on Windows 10 ( For learning to modify pgdoc ) </h2></summary>
 
+<br/>
 
 ### Installing NodeJS
 
@@ -85,12 +94,14 @@ Once the install has completed, when you search the windows bar for "node" you s
 
 > The "Node.js command prompt" is a specially configured version of the Windows command prompt customized for use with NodeJS. You can use this to download Javascript library modules from the npm repository. It can also be used run scripts on NodeJS. To create a script, you save your Javascript code in a file with the .js extension.
 
+<br/>
 
 ### Installing PostgreSQL
 
 Perform the steps outlined above in "The PostgreSQL database" to install PostgreSQL.
 
 
+<br/>
 
 ### Installing the git version control system
 
@@ -100,6 +111,7 @@ Download [the git version control system][https://git-scm.com/download/win] and 
 
 Once the install has completed successfully, when you search Windows for "git" you should see a new program "Git CMD".
 
+<br/>
 
 ### Downloading pgdoc
 
@@ -122,6 +134,7 @@ Now pgdoc should be situated at this path "C:\Users\<UserName>\Projects\pgdoc"
 
 You can close the "Git CMD" window once this step is finished.
 
+<br/>
 
 ### Download dependencies
 
@@ -143,6 +156,7 @@ npm install
 
 This window will be useful for running the examples, so leave it open for now.
 
+<br/>
 
 ### Configuring PostgreSQL
 
@@ -168,6 +182,8 @@ Note that the slashes required by psql are backslashes, unlike the forward slash
 
 This should result in a series of all caps statements about what the install is doing. As long as there are are no errors, your database configuration is is complete.
 
+
+<br/>
 
 ### Now What?
 
