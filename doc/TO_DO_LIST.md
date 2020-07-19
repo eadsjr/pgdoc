@@ -6,8 +6,6 @@ implement protection as per [OWASP SQL Injection Prevention Cheat Sheet](https:/
 Use stored procs with EXECUTE...USING to prevent injection. SEE: [PostgresQL Docs](https://www.postgresql.org/docs/11/plpgsql-statements.html#PLPGSQL-STATEMENTS-EXECUTING-DYN)
 <pre>
 
-implement the noClobber option to enhance the store / update function
-implement the maxMatch option for select/delete
 print errors to console given the verbose option
 
 retrieveField(type, search, field)
@@ -113,6 +111,8 @@ Add a JSON primer? Links?
 code/node/pgdoc.js: implement basic functions with asynchronous execution using callbacks
 code/node/pgdoc.js: implement basic functions with asynchronous execution using (only) promises
 print errors to console by default, option to disable
+implement the noClobber option to enhance the store / update function
+implement the maxMatch option for select/delete
 </pre>
 
 # FUTURE List
