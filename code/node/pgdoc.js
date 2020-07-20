@@ -24,7 +24,10 @@ let config = {
  * Stringify a javascript object, returning a string
  */
 const str = (object) => {
-  return stringify(object);
+  if( typeof(object) != 'string' ) {
+    return stringify(object);
+  }
+  else return object
 }
 
 /**
@@ -129,10 +132,8 @@ module.exports.connect = async (connectionString, options) => {
 module.exports.store = async (type, data, search, maxMatch, options) => {
   let args = [type, data, options]
 
-  if( typeof(data) != `string` ) {
-    data = str(data)
-  }
-  if( search != null && typeof(search) != `string` ) {
+  data = str(data)
+  if( search != null ) {
     search = str(search)
   }
   let schema = config.schema
@@ -219,9 +220,7 @@ module.exports.store = async (type, data, search, maxMatch, options) => {
 module.exports.retrieve = async (type, search, options) => {
   let args = [type, search, options]
 
-  if( typeof(search) != `string` ) {
-    search = str(search)
-  }
+  search = str(search)
   let schema = config.schema
 
   let command = `SELECT data FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}';`
@@ -277,9 +276,7 @@ module.exports.retrieve = async (type, search, options) => {
 module.exports.delete = async (type, search, options) => {
   let args = [type, search, options]
 
-  if( typeof(search) != `string` ) {
-    search = str(search)
-  }
+  search = str(search)
   let schema = config.schema
 
   let command

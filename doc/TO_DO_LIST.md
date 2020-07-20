@@ -15,7 +15,7 @@ IMPORTANT
 TODO: Write a spec document
 TODO: Link specification once fleshed out PS: doc/node/Start.md
 .
-TODO: Add type check prior to stringifying strings?
+TO DO: Add type check prior to stringifying strings?
 TODO: function specific Options implementation
 TODO: update function header comments
 TODO: clean up and finalize the install script
