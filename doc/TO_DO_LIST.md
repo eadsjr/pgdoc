@@ -13,6 +13,7 @@ TODO.md
 
 IMPORTANT
 TODO: Write a spec document
+TODO: Link specification once fleshed out PS: doc/node/Start.md
 .
 TODO: Add type check prior to stringifying strings?
 TODO: function specific Options implementation

@@ -17,6 +17,8 @@ If you want to see more, the [example projects][examples] show several different
 
 To get a better idea of what pgdoc is doing under the hood, [check out the code][code] and the [SQL scripts][sql].
 
+<!-- TODO: Link specification once fleshed out -->
+
 
 [issues]: https://github.com/eadsjr/pgdoc/issues
 [install]: Install.md
