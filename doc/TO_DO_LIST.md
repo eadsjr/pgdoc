@@ -22,6 +22,7 @@ TODO: clean up and finalize the install script
 NOPE: TO DO: Store should have consistent behavior. Always return list or error.
 TO DO: Store should have consistent behavior. Always return an object or error.
 TO DO: Retrieve should have consistent behavior. Always return a list or error.
+TO DO: Delete() updated to return object
 TODO: Store(): more specific success validation
 TODO: Make sure { error: false } gets passed whenever needed.
 TODO: Make sure rv.error = false is set whenever needed.

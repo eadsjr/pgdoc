@@ -183,7 +183,6 @@ module.exports.retrieve = async (type, search, options) => {
     let res = await client.query(command)
     client.end()
     if(res != null) {
-      // TODO: more specific success validation
       if(options.verbose) {
         console.log(`received response: ${str(res)}`)
         console.log(res)
@@ -245,12 +244,11 @@ module.exports.delete = async (type, search, options) => {
     let res = await client.query(command)
     client.end()
     if(res != null) {
-      // TODO: more specific success validation
       if(options.verbose) {
         console.log(`received response: ${str(res)}`)
         console.log(res)
       }
-      return res.rowCount
+      return { error: false, deleted: res.rowCount }
     }
     else {
       console.error(unknownError)
