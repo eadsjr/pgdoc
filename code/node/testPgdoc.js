@@ -109,7 +109,7 @@ const rl = require('readline').createInterface({
   output: process.stdout
 })
 let interactiveTests = async () => {
-  rl.question(`(E)xit or Test: (A)ll, (C)reate, (R)etrieve, (U)pdate, (D)elete, (C)onfig, (O)ptions, Request(I): `, async (command) => {
+  rl.question(`(E)xit or Test: (A)ll, (C)reate, (R)etrieve, (U)pdate, (D)elete, (C)onfig, (O)ptions, Request(I)D: `, async (command) => {
     console.log(`Command: ${command}`)
     if( command == 'e' || command == 'E' ) {
       process.exit(0)

@@ -63,6 +63,7 @@ TODO: hook into pgdoc.js for direct run case
 TODO: Option to change default config options, manually
 TODO: Option to change default config options, import from file
 TODO: Change examples/tests to a template application example.
+TODO: write unit tests for every error case and code path in pgdoc, put them in testPgdoc.js
 
 STUFF:
 TODO: quiet option - supress all pgdoc output to console (this should only happen in strange edge cases that you might want an error message for)
@@ -108,6 +109,8 @@ TODO: Add limitations section concerning accessing data store in db by other mea
 TODO: Add limitations section concerning lossy stringification around ES 6+ classes
 TODO: Add limitations section concerning lossy stringification around circle references
 TODO: Add a JSON primer? Links?
+TODO: explain reasoning about dev branch separation and deliberate storage in regards to github and small downloads and easily understood commits in CONTRIBUTING.md
+
 
 IMPORTANT LATER:
 TODO: releases for stable versions of pgdoc
