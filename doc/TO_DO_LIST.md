@@ -26,7 +26,7 @@ TO DO: make sure not to mislead advanced users... they need to run the psql scri
 TO DO: Verify and rewrite near this: Your username may default to your windows username.
 TO DO: Verify and flesh out: Once you are logged in you should see a prompt that looks something like this:
 TODO: Console.log("") the above message, instructions and then exit only when script is run directly in node.
-TODO: docs/CONTRIBUTING.md: Add links to GitHub's instructions on how to submit a pull request
+TO DO: docs/CONTRIBUTING.md: Add links to GitHub's instructions on how to submit a pull request
 
 IMPORTANT
 TODO: Write a spec document
