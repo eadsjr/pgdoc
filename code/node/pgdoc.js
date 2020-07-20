@@ -68,12 +68,12 @@ module.exports.connect = async (connectionString, options) => {
  */
 module.exports.store = async (type, data, search, maxMatch, options) => {
   let args = [type, data, options]
-
+  options = optionsOverride(options)
   data = str(data)
   if( search != null ) {
     search = str(search)
   }
-  let schema = config.schema
+  let schema = options.schema
 
   /// TODO: option for NoClobber
 
@@ -97,7 +97,7 @@ module.exports.store = async (type, data, search, maxMatch, options) => {
       command = `SELECT pgdoc.overwriteUnderMax('${schema}', '${type}', '${data}', '${search}', ${maxMatch}) ;`
     }
   }
-  if(config.verbose) {
+  if(options.verbose) {
     console.log(command)
   }
   /// INSERT INTO docs VALUES ('test','{"a":"a", "b":"b", "c":{"test":1}}') ;
@@ -106,7 +106,7 @@ module.exports.store = async (type, data, search, maxMatch, options) => {
   /// Execute store command
   try {
     /// Get connection online.
-    client = new pg.Client(config.connectionString)
+    client = new pg.Client(options.connectionString)
     if(client == null) {
       return pgdocError('UnknownError',args)
     }
@@ -114,7 +114,7 @@ module.exports.store = async (type, data, search, maxMatch, options) => {
     let res = await client.query(command)
     client.end()
     if(res != null) {
-      if(config.verbose) {
+      if(options.verbose) {
         console.log(`received response: ${str(res)}`)
         console.log(res)
       }
@@ -156,24 +156,24 @@ module.exports.store = async (type, data, search, maxMatch, options) => {
  */
 module.exports.retrieve = async (type, search, options) => {
   let args = [type, search, options]
-
+  options = optionsOverride(options)
   search = str(search)
-  let schema = config.schema
+  let schema = options.schema
 
   let command = `SELECT data FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}';`
-  if(config.verbose) {
+  if(options.verbose) {
     console.log(command)
   }
 
   let client
   try {
-    client = new pg.Client(config.connectionString)
+    client = new pg.Client(options.connectionString)
     await client.connect()
     let res = await client.query(command)
     client.end()
     if(res != null) {
       // TODO: more specific success validation
-      if(config.verbose) {
+      if(options.verbose) {
         console.log(`received response: ${str(res)}`)
         console.log(res)
       }
@@ -212,9 +212,9 @@ module.exports.retrieve = async (type, search, options) => {
  */
 module.exports.delete = async (type, search, options) => {
   let args = [type, search, options]
-
+  options = optionsOverride(options)
   search = str(search)
-  let schema = config.schema
+  let schema = options.schema
 
   let command
   if(search == null) {
@@ -224,19 +224,19 @@ module.exports.delete = async (type, search, options) => {
     command = `DELETE FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}';`
   }
   /// DELETE FROM pgdocs.docs WHERE type = 'test' AND data @> '{"id":0}' ;
-  if( config.verbose ) {
+  if( options.verbose ) {
     console.log(command)
   }
 
   let client
   try {
-    client = new pg.Client(config.connectionString)
+    client = new pg.Client(options.connectionString)
     await client.connect()
     let res = await client.query(command)
     client.end()
     if(res != null) {
       // TODO: more specific success validation
-      if(config.verbose) {
+      if(options.verbose) {
         console.log(`received response: ${str(res)}`)
         console.log(res)
       }
@@ -258,24 +258,25 @@ module.exports.delete = async (type, search, options) => {
  * @param {string} - type - The type of document. AKA - The name of the collection
  * @returns {object} - A javascript object parsed from the document, or null
  */
-module.exports.requestID = async (type) => {
+module.exports.requestID = async (type, options) => {
   let args = [type]
-  let schema = config.schema
+  options = optionsOverride(options)
+  let schema = options.schema
 
   // TODO: THIS IS NOT SQL INJECTION SAFE
   let command = `SELECT pgdoc.incrementSequence('${schema}', '${type}') ;`
-  if(config.verbose) {
+  if(options.verbose) {
     console.log(command)
   }
 
   let client
   try {
-    client = new pg.Client(config.connectionString)
+    client = new pg.Client(options.connectionString)
     await client.connect()
     let res = await client.query(command)
     client.end()
     if(res != null) {
-      if(config.verbose) {
+      if(options.verbose) {
         console.log(`received response: ${str(res)}`)
         console.log(res)
       }
@@ -347,6 +348,17 @@ const parse = (string) => {
     /// Triggers on NaN, invalid JSON strings and possibly other strange input
     return pgdocError(`ParseFailed`, args)
   }
+}
+
+const optionsOverride = ( options ) => {
+  /// Explicit options override existing config
+  if( options == null ) {
+    options = {}
+  }
+  let o = {}
+  Object.assign( o, config )
+  Object.assign( options, o )
+  return options
 }
 
 module.exports.JSON = { parse, stringify: str, str }
