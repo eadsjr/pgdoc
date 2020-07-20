@@ -129,6 +129,12 @@ module.exports.store = async (type, data, search, maxMatch, options) => {
       if( search != null ) {
         /// Update case: expecting at least one result with a rowCount
         if( `length` in res && res.length > 0 && `rowCount` in res[1] ) {
+          if( res[1].rowCount < 0 ) {
+            err = pgdocError('MaxExceeded', args)
+            err.description += ` Max: ${maxMatch}, Found: ${-res[1].rowCount}`
+            return err
+          }
+          /// Deleted 0 or more rows based on search.
           return { error: false, deleted: res[1].rowCount }
         }
         else {
@@ -467,6 +473,7 @@ const errors = {
   BadOptions:          { error: true, label: `BadOptions`,           code: -16,  description: `The options object passed into the function was not valid. It must be an object.` },
   BadConnectionString: { error: true, label: `BadConnectionString`,  code: -17,  description: `The connectionString object passed into the function was not valid. Please check your configuration.` },
   UpdateFailed:        { error: true, label: `UpdateFailed`,         code: -18,  description: `The store operation returned an unexpected result from the database. Expected 'rowCount' from delete operation, but couldn't find it.` },
+  MaxExceeded:         { error: true, label: `MaxExceeded`,          code: -19,  description: `The store operation failed due to the search filter finding more items then allowed by maxMatch.` },
 }
 Object.freeze(errors)
 module.exports.errors = errors

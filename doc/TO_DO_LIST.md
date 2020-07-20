@@ -23,11 +23,12 @@ NOPE: TO DO: Store should have consistent behavior. Always return list or error.
 TO DO: Store should have consistent behavior. Always return an object or error.
 TO DO: Retrieve should have consistent behavior. Always return a list or error.
 TO DO: Delete() updated to return object
+TO DO: convert entire interface to return an object, and previous values stored in a standard member of that object, like .doc. PS: Not including requestID()
 TODO: Store(): more specific success validation
-TODO: Make sure { error: false } gets passed whenever needed.
-TODO: Make sure rv.error = false is set whenever needed.
+TO DO: Make sure { error: false } gets passed whenever needed.
+TO DO: Make sure rv.error = false is set whenever needed.
 TODO: document sequence integer limits of postgres here PS: store()
-TODO: MaxExceeded Error
+TO DO: MaxExceeded Error
 TODO: Determine the state of non-first level searches like this { o: 1, j:{ x: 1 } }... does { o: 1, j:{ x: 1, y:2 } } match?
 
 OPTIONS:
@@ -130,7 +131,6 @@ SEE ALSO: README.md Planned features
 # CONSDIER List
 
 <pre>
-TODO: convert entire interface to return an object, and previous values stored in a standard member of that object, like .doc.
 
 HARD BUT GOOD
 TODO: Python support
