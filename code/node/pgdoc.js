@@ -72,7 +72,7 @@ module.exports.connect = async (connectionString, options) => {
  * @param {object, string} - search - Object to filter results by. A non-circular javascript object that can be stringified OR a string containing valid JSON
  * @param {number} - maxMatch - An integer. If the search finds more then this many records, error out with MaxExceeded.
  * @param {object} - [options] - OPTIONAL object containing options to alter this function call
- * @returns {object, number} - A pgdoc error object or a number indicating the number of documents deleted in an overwrite. Usually 0.
+ * @returns {object, number} - A pgdoc error object or an object indicating the number of documents deleted in an overwrite. { error: false, deleted: <Integer> }
  */
 module.exports.store = async (type, data, search, maxMatch, options) => {
   let args = [type, data, options]
@@ -96,14 +96,12 @@ module.exports.store = async (type, data, search, maxMatch, options) => {
   else {
     /// Store command with search. May clobber or fail.
     if( maxMatch == null || maxMatch < 0 ) {
-      /// Delete any matching records and store the value
-      /// Return number of records deleted
+      /// Delete any matching records and store the value. Reports number of records deleted.
       command = `DELETE FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}'; ` +
                 `INSERT INTO ${schema}.docs VALUES ('${type}', '${data}') ;`
     }
     else {
-      /// If the limit is not reached, delete matching records and store the value
-      /// React if limit is reached.
+      /// If the limit is not exceeded, delete matching records and store the value. Reports number of records deleted.
       command = `SELECT pgdoc.overwriteUnderMax('${schema}', '${type}', '${data}', '${search}', ${maxMatch}) ;`
     }
   }
@@ -131,14 +129,15 @@ module.exports.store = async (type, data, search, maxMatch, options) => {
       if( search != null ) {
         /// Update case: expecting at least one result with a rowCount
         if( `length` in res && res.length > 0 && `rowCount` in res[1] ) {
-          return res[1].rowCount
+          return { error: false, deleted: res[1].rowCount }
         }
         else {
           return pgdocError('UpdateFailed', args)
         }
       }
       else if(res.rowCount > 0) {
-        return 0
+        /// No search performed
+        return { error: false, deleted: 0 }
       }
       else {
         /// Nothing was stored

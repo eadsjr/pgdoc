@@ -19,7 +19,9 @@ TO DO: Add type check prior to stringifying strings?
 TO DO: function specific Options implementation
 TO DO: update function header comments
 TODO: clean up and finalize the install script
-TODO: Store should have consistent behavior. Always return list or error.
+NOPE: TO DO: Store should have consistent behavior. Always return list or error.
+TO DO: Store should have consistent behavior. Always return an object or error.
+TODO: Retrieve should have consistent behavior. Always return a list or error.
 TODO: Store(): more specific success validation
 TODO: Make sure { error: false } gets passed whenever needed.
 TODO: Make sure rv.error = false is set whenever needed.
