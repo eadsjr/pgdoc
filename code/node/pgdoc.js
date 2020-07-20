@@ -160,7 +160,7 @@ module.exports.store = async (type, data, search, maxMatch, options) => {
  * @param {string} - type - The type of document. AKA - The name of the collection
  * @param {string} - search - An object with key-value pairs that must be matched to be returned.
  * @param {object} - [options] - OPTIONAL object containing options to alter this function call
- * @returns {list} - A list of Javascript objects parsed from the document, or NULL
+ * @returns {list} - A list of Javascript objects parsed from the document, or an error object.
  */
 module.exports.retrieve = async (type, search, options) => {
   let args = [type, search, options]
@@ -189,20 +189,16 @@ module.exports.retrieve = async (type, search, options) => {
         console.log(res)
       }
       if(res.rowCount > 0) {
-        if(res.rowCount == 1) {
-          /// Return a single, naked data item.
-          let data = res.rows[0].data
-          return data
-        }
-        else {
-          /// Return a list of data items.
-          let data = res.rows
-          return data
-        }
+        /// Return a list of data items.
+        let data = res.rows
+        data.error = false
+        return data
       }
       else {
         // Nothing was found
-        return []
+        let data = []
+        data.error = false
+        return data
       }
     }
     else {
