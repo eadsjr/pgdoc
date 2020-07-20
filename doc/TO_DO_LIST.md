@@ -23,9 +23,8 @@ TO DO: ...THIS IS NOT TRUE FOR VALUES RETURNED: "If you are using a node REPL se
 TO DO: Make documentation link more prominent
 NOPE: TO DO: Make more instances of the documentation link
 TO DO: make sure not to mislead advanced users... they need to run the psql script! PS: in Start.md
-TODO: Verify and rewrite near this: Your username may default to your windows username.
-TODO: Verify and flesh out: Once you are logged in you should see a prompt that looks something like this:
-TODO: INSTALL doc: Add 'node ./examples/' after the "Download dependencies"
+TO DO: Verify and rewrite near this: Your username may default to your windows username.
+TO DO: Verify and flesh out: Once you are logged in you should see a prompt that looks something like this:
 TODO: Console.log("") the above message, instructions and then exit only when script is run directly in node.
 TODO: docs/CONTRIBUTING.md: Add links to GitHub's instructions on how to submit a pull request
 
@@ -38,6 +37,8 @@ TODO: update function header comments
 TODO: clean up and finalize the install script
 TODO: Store should have consistent behavior. Always return list or error.
 TODO: Store(): more specific success validation
+TODO: Make sure { error: false } gets passed whenever needed.
+TODO: Make sure rv.error = false is set whenever needed.
 
 OPTIONS:
 TODO: need to respect options!
@@ -53,6 +54,7 @@ TODO: REPL example can't handle if/else multiline
 TODO: Make note of record duplication in CRUD Examples
 TODO: clean up terse CRUD Examples
 TODO: Make note of record duplication during unlimited store() in CRUD Examples
+TODO: Finish writing CRUD examples
 
 ERROR HANDLING
 TODO: Sort and clean up error codes.
@@ -81,6 +83,8 @@ TODO: TEST: ensure basic functions work for objects, strings
 STUFF:
 TODO: quiet option - supress all pgdoc output to console (this should only happen in strange edge cases that you might want an error message for)
 TODO: better error message for bad search JSON object, missing quotes on field name
+TODO: INSTALL doc: Add 'node ./examples/' after the "Download dependencies"
+TODO: 
 
 SQL SCRIPT
 TODO: Script to generate schema specific config.js and install_*.sql
