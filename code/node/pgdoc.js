@@ -27,9 +27,9 @@ let config = {
 /**
  * Configure connection to postgres
  *
- * @param {string} - connectionString - a URL path to connect to postgres with
- * @param {object} - options - a list of configuration options for pgdoc
- * @returns {object} - A pgdoc error object. Null if no error.
+ * @param {string} - connectionString - a URL path to connect to PostgreSQL with
+ * @param {object} - options - a list of configuration options for pgdoc, made persistent with this call
+ * @returns {object} - A pgdoc error object or { error: false }
  */
 module.exports.connect = async (connectionString, options) => {
   let args = [connectionString, options]
@@ -50,15 +50,27 @@ module.exports.connect = async (connectionString, options) => {
   catch (err) {
     return connectionErrorHandler(client, err, args, pgdocError( "ConnectFailed", args) )
   }
-  return null /// All is well
+  return { error: false }
 }
 
 /**
  * Store a document in the database.
- *
+ * 
+ * Stores the provided object in the database filed under the given type.
+ * 
+ * This will create duplicate records if not further constrained.
+ * 
+ * Optionally, a search can be provided. This will delete any records founds, allowing for updates.
+ * 
+ * This search can be constrained by a maxMatch integer, which if exceeded instead returns a MaxExceeded error.
+ * 
+ * Setting maxMatch to 0 effectively requires the record to not already exist, and stores only in that case.
+ * 
  * @todo document sequence integer limits of postgres here
  * @param {string} - type - The type of document. AKA - The name of the document collection
- * @param {string} - data - A javascript object that can be stringified into proper JSON
+ * @param {object, string} - data - Data to be stored. A non-circular javascript object that can be stringified OR a string containing valid JSON
+ * @param {object, string} - search - Object to filter results by. A non-circular javascript object that can be stringified OR a string containing valid JSON
+ * @param {number} - maxMatch - An integer. If the search finds more then this many records, error out with MaxExceeded.
  * @param {object} - [options] - OPTIONAL object containing options to alter this function call
  * @returns {object, number} - A pgdoc error object or a number indicating the number of documents deleted in an overwrite. Usually 0.
  */
@@ -74,13 +86,12 @@ module.exports.store = async (type, data, search, maxMatch, options) => {
   }
   let schema = options.schema
 
-  /// TODO: option for NoClobber
-
   /// TODO: THIS IS NOT SQL INJECTION SAFE
   let command
   if( search == null ) {
     /// Simple store command. May produce duplicates.
     command = `INSERT INTO ${schema}.docs VALUES ('${type}', '${data}') ;`
+    /// ex: INSERT INTO docs VALUES ('test','{"a":"a", "b":"b", "c":{"test":1}}') ;
   }
   else {
     /// Store command with search. May clobber or fail.
@@ -99,7 +110,6 @@ module.exports.store = async (type, data, search, maxMatch, options) => {
   if(options.verbose) {
     console.log(command)
   }
-  /// INSERT INTO docs VALUES ('test','{"a":"a", "b":"b", "c":{"test":1}}') ;
 
   let client
   /// Execute store command
@@ -151,7 +161,7 @@ module.exports.store = async (type, data, search, maxMatch, options) => {
  * @param {string} - type - The type of document. AKA - The name of the collection
  * @param {string} - search - An object with key-value pairs that must be matched to be returned.
  * @param {object} - [options] - OPTIONAL object containing options to alter this function call
- * @returns {list} - A list of javascript objects parsed from the document, or NULL
+ * @returns {list} - A list of Javascript objects parsed from the document, or NULL
  */
 module.exports.retrieve = async (type, search, options) => {
   let args = [type, search, options]
@@ -258,9 +268,12 @@ module.exports.delete = async (type, search, options) => {
 }
 
 /**
- * Get a new ID from the database, unique and unused for given document type
- *
+ * Get a new ID from the database, unique and unused for given document type.
+ * 
+ * The ID is always a string, and ID's from this function are sequential integers (in string form).
+ * 
  * @param {string} - type - The type of document. AKA - The name of the collection
+ * @param {object} - [options] - OPTIONAL object containing options to alter this function call
  * @returns {object} - A javascript object parsed from the document, or null
  */
 module.exports.requestID = async (type, options) => {
@@ -311,17 +324,16 @@ module.exports.requestID = async (type, options) => {
 /**
  * Changes default options for all actions starting after this change takes effect.
  *
- * They can be overridden on a per-method-call basis
+ * They can also be overridden on a per-function-call basis.
  *
- * @param {object} - options - object containing options to alter default function behavior
- *
- * @returns {number} - errorCode -  negative integer representing the kind of pgdoc error
+ * @param {object} - options - a list of configuration options for pgdoc, made persistent with this call
+ * @returns {object} - A pgdoc error object or { error: false }
  */
 module.exports.configure = ( options ) => {
   args = [options]
   if( typeof(options) == 'object' ) {
     Object.assign(config, options)
-    return
+    return { error: false }
   }
   else {
     return pgdocError(`BadOptions`, args)
@@ -333,7 +345,14 @@ module.exports.configure = ( options ) => {
  */
 
 /**
- * Stringify a javascript object, returning a string
+ * Stringify a Javascript object, returning a string.
+ * 
+ * If it is already a string, it is returned unmodified.
+ *
+ * NOTE: The object may lose circular or complex references, such as functions.
+ * 
+ * @param {object} - object - A Javascript object to be stringified.
+ * @returns {string} - A JSON string representation of the object passed in.
  */
 const str = (object) => {
   if( typeof(object) != 'string' ) {
@@ -344,6 +363,9 @@ const str = (object) => {
 
 /**
  * Parse JSON string to a javascript object
+ * 
+ * @param {string} - string - A JSON string to be parsed into a Javascript object.
+ * @returns {object} - A Javascript object represented by the string passed in.
  */
 const parse = (string) => {
   args = [string]
@@ -358,6 +380,9 @@ const parse = (string) => {
   }
 }
 
+module.exports.JSON = { parse, stringify: str, str }
+
+/// A code snippet useful for most core functions. Allows one-time config override.
 const optionsOverride = ( options ) => {
   /// Explicit options override existing config
   if( options == null ) {
@@ -371,8 +396,6 @@ const optionsOverride = ( options ) => {
   Object.assign( options, o )
   return options
 }
-
-module.exports.JSON = { parse, stringify: str, str }
 
 /**
  * SECTION: Error handling
@@ -392,6 +415,7 @@ const pgdocError = (label, args, wrapped=null) => {
 const unhandledError = `\n!!!! pgdoc unhandled error! Please report the above object on an issue here: https://github.com/eadsjr/pgdoc/issues !!!!\n`
 const unknownError   = `\n!!!! pgdoc unknown error! Please report any relevant details on an issue here: https://github.com/eadsjr/pgdoc/issues !!!!\n`
 
+/// Handle common error cases
 const connectionErrorHandler = ( client, err, args, fallbackError ) => {
   if(client != null) {
     client.end()
