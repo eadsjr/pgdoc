@@ -51,8 +51,11 @@ TODO: test NothingChanged
 TODO: test StoreFailed
 TODO: DeleteFailed error case
 TODO: Clobber error case
+TODO: List all errors that are returned by function in Errors.md
 
 TESTING:
+TODO: Clean up tests
+TODO: migrate tests to code/
 TODO: better test coverage
 TODO: test for delete() all of type case
 TODO: unit tests?
@@ -63,7 +66,10 @@ STUFF:
 TODO: quiet option - supress all pgdoc output to console (this should only happen in strange edge cases that you might want an error message for)
 TODO: better error message for bad search JSON object, missing quotes on field name
 TODO: INSTALL doc: Add 'node ./examples/' after the "Download dependencies"
-TODO: 
+TODO: VERIFY: else if(res.rowCount > 0) No search performed, so returned rowCount indicates operations performed. : store()
+TODO: VERIFY: /// Nothing was stored : store()
+TODO: Make sure unknownError and unhandledError are used consistently
+
 
 SQL SCRIPT
 TODO: Script to generate schema specific config.js and install_*.sql
@@ -129,6 +135,9 @@ TODO: CONSIDER: Interactive testing via different module?
 TODO: pass in transaction IDs to allow async polling for return values / error codes
 TODO: Add an "exclude" as well as "search"
 TODO: implement alternate basic functions with catchable exceptions?
+
+HARD BUT MAYBE
+TODO: MAJOR: option to throw errors instead of returning them.
 
 STUFF MAYBE
 TODO: Example Game: Tic-Tac-Toe
