@@ -10,11 +10,10 @@ TODO: Use stored procs with EXECUTE...USING to prevent injection. SEE: [Postgres
 
 
 DOCUMENTATION QUICK STUFF
-TODO: PGDOC: in CONTRIBUTING.md, specify use of a dev branch in more detail
-TODO: Make note of record duplication during unlimited store() in CRUD Examples
-TODO: Mention postgresql more clearly in README
-TODO: PGDOC: ...THIS IS NOT TRUE FOR VALUES RETURNED: "If you are using a node REPL session you can drop the await keyword from the following examples."
-TODO: PGDOC: Make documentation link more prominent
+TO DO: PGDOC: in CONTRIBUTING.md, specify use of a dev branch in more detail
+TO DO: Mention postgresql more clearly in README
+TO DO: PGDOC: ...THIS IS NOT TRUE FOR VALUES RETURNED: "If you are using a node REPL session you can drop the await keyword from the following examples."
+TO DO: PGDOC: Make documentation link more prominent
 TODO: PGDOC: Make more instances of the documentation link
 TODO: make sure not to mislead advanced users... they need to run the psql script!
 TODO: Verify and rewrite near this: Your username may default to your windows username.
@@ -22,7 +21,6 @@ TODO: Verify and flesh out: Once you are logged in you should see a prompt that 
 TODO: INSTALL doc: Add 'node ./examples/' after the "Download dependencies"
 TODO: Console.log("") the above message, instructions and then exit only when script is run directly in node.
 TODO: docs/CONTRIBUTING.md: Add links to GitHub's instructions on how to submit a pull request
-TODO: Mention postgresql more clearly in README
 
 IMPORTANT
 TODO: Write a spec document
@@ -47,6 +45,7 @@ TODO: Rewrite CRUD Examples if( rv != 0 ) to instead explicitly check rv.error i
 TODO: PGDOC: REPL example can't handle if/else multiline
 TODO: Make note of record duplication in CRUD Examples
 TODO: clean up terse CRUD Examples
+TODO: Make note of record duplication during unlimited store() in CRUD Examples
 
 ERROR HANDLING
 TODO: Sort and clean up error codes.

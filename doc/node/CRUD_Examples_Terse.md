@@ -19,7 +19,7 @@ const str   = pgdoc.JSON.stringify
 const parse = pgdoc.JSON.parse
 ```
 
-You can use a node terminal session started in the root project folder to work through these examples instead. If you are using a node REPL session you can drop the await keyword from the following examples.
+You can use a node terminal session started in the root project folder to work through these examples instead.
 
 ``` js
 const pgdoc = require("./code/node/pgdoc")

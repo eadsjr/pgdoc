@@ -9,8 +9,9 @@ This project is intended to allow you to get a simple JSON document store databa
 
 Using this you can store and search JSON documents, a generic format for data structures popular in web programming, with simple function calls (or other language specific methods). All application logic is handled server-side, in the cozy confines of your programming language of choice. If it is supported.
 
-To get started, [check out the documentation][start].
+# To get started, [check out the documentation][start].
 
+</break>
 
 ## Features
 
