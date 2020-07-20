@@ -11,23 +11,6 @@ TODO.md
 
 <pre>
 
-TODO: implement protection as per [OWASP SQL Injection Prevention Cheat Sheet](https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.md)
-
-TODO: Use stored procs with EXECUTE...USING to prevent injection. SEE: [PostgresQL Docs](https://www.postgresql.org/docs/11/plpgsql-statements.html#PLPGSQL-STATEMENTS-EXECUTING-DYN)
-
-
-DOCUMENTATION QUICK STUFF
-TO DO: in CONTRIBUTING.md, specify use of a dev branch in more detail
-TO DO: Mention postgresql more clearly in README
-TO DO: ...THIS IS NOT TRUE FOR VALUES RETURNED: "If you are using a node REPL session you can drop the await keyword from the following examples."
-TO DO: Make documentation link more prominent
-NOPE: TO DO: Make more instances of the documentation link
-TO DO: make sure not to mislead advanced users... they need to run the psql script! PS: in Start.md
-TO DO: Verify and rewrite near this: Your username may default to your windows username.
-TO DO: Verify and flesh out: Once you are logged in you should see a prompt that looks something like this:
-TO DO: Console.log("") the above message, instructions and then exit only when script is run directly in node.
-TO DO: docs/CONTRIBUTING.md: Add links to GitHub's instructions on how to submit a pull request
-
 IMPORTANT
 TODO: Write a spec document
 .
@@ -99,6 +82,8 @@ TODO: Example Game: Rouge-like Simple
 TODO: make use of the incrementor for ids in griddungeon.
 
 SECURITY:
+TODO: implement protection as per [OWASP SQL Injection Prevention Cheat Sheet](https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.md)
+TODO: Use stored procs with EXECUTE...USING to prevent injection. SEE: [PostgresQL Docs](https://www.postgresql.org/docs/11/plpgsql-statements.html#PLPGSQL-STATEMENTS-EXECUTING-DYN)
 TODO: ensure no security hole here in case of compromised database / database connection
 TODO: SEC: THIS IS NOT SQL INJECTION SAFE
 TODO: SECURITY: SANITIZATION: Ensure that anything that would break postgres fails with an error code. Validate everything that would be passed through.
@@ -136,11 +121,6 @@ WORK: TODO: Fix up pg-doc for use as code sample.
 SEE ALSO: README.md Planned features
 </pre>
 
-# DONE List
-
-<pre>
-</pre>
-
 # CONSDIER List
 
 <pre>
@@ -168,9 +148,27 @@ TODO: Add 'See Also' section concerning other relevant projects and modules
 
 </pre>
 
+
+# DONE List
+
+<pre>
+DOCUMENTATION QUICK STUFF
+TO DO: in CONTRIBUTING.md, specify use of a dev branch in more detail
+TO DO: Mention postgresql more clearly in README
+TO DO: ...THIS IS NOT TRUE FOR VALUES RETURNED: "If you are using a node REPL session you can drop the await keyword from the following examples."
+TO DO: Make documentation link more prominent
+TO DO: make sure not to mislead advanced users... they need to run the psql script! PS: in Start.md
+TO DO: Verify and rewrite near this: Your username may default to your windows username.
+TO DO: Verify and flesh out: Once you are logged in you should see a prompt that looks something like this:
+TO DO: Console.log("") the above message, instructions and then exit only when script is run directly in node.
+TO DO: docs/CONTRIBUTING.md: Add links to GitHub's instructions on how to submit a pull request
+</pre>
+
 # REJECT List
 
 <pre>
+DOCUMENTATION QUICK STUFF
+NOPE: TO DO: Make more instances of the documentation link
 </pre>
 
 # FUTURE List
