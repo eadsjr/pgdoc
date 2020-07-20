@@ -25,7 +25,7 @@ NOPE: TO DO: Make more instances of the documentation link
 TO DO: make sure not to mislead advanced users... they need to run the psql script! PS: in Start.md
 TO DO: Verify and rewrite near this: Your username may default to your windows username.
 TO DO: Verify and flesh out: Once you are logged in you should see a prompt that looks something like this:
-TODO: Console.log("") the above message, instructions and then exit only when script is run directly in node.
+TO DO: Console.log("") the above message, instructions and then exit only when script is run directly in node.
 TO DO: docs/CONTRIBUTING.md: Add links to GitHub's instructions on how to submit a pull request
 
 IMPORTANT
@@ -151,6 +151,7 @@ TODO: Python support
 TODO: connect(): verify back-end configuration with a query / sever proc
 TODO: CONSIDER: update to use non-connection string method?
 TODO: when pgdoc is run directly, instead run a standalone terminal that can execute tests via interactive interface
+TODO: CONSIDER: Interactive testing via different module?
 TODO: pass in transaction IDs to allow async polling for return values / error codes
 TODO: Add an "exclude" as well as "search"
 TODO: implement alternate basic functions with catchable exceptions?

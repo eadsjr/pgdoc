@@ -1,12 +1,15 @@
-/**
- * The pgdoc core module.
- *
- * This provides a NoSQL interface to a PostgreSQL database.
- *
- * This file is intended for use by NodeJS as an imported module.
- *
- * @todo TODO: Console.log("") the above message, instructions and then exit only when script is run directly in node.
- */ 
+if( require.main === module ) { console.log(
+`
+The pgdoc core module. This NodeJS library provides a NoSQL interface to a PostgreSQL database.
+
+This file is intended for use by NodeJS as an imported module. Interactive testing is not yet implemented.
+
+Source & documentation available on Github:
+
+https://github.com/eadsjr/pgdoc/
+`
+) ; process.exit(1) }
+
 
 const pg = require('pg')
 const stringify = require('fast-safe-stringify')
