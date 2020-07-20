@@ -33,16 +33,12 @@ let config = {
  */
 module.exports.connect = async (connectionString, options) => {
   let args = [connectionString, options]
+  options = optionsOverride(options)
+  if( options == null ) {
+    return pgdocError(`BadOptions`, args)
+  }
   if( connectionString == null ) {
     return pgdocError(`BadConnectionString`, args)
-  }
-  if ( options != null ) {
-    if( typeof(options) == 'object' ) {
-      Object.assign(config, options)
-    }
-    else {
-      return pgdocError(`BadOptions`, args)
-    }
   }
   config.connectionString = connectionString
 
@@ -69,6 +65,9 @@ module.exports.connect = async (connectionString, options) => {
 module.exports.store = async (type, data, search, maxMatch, options) => {
   let args = [type, data, options]
   options = optionsOverride(options)
+  if( options == null ) {
+    return pgdocError(`BadOptions`, args)
+  }
   data = str(data)
   if( search != null ) {
     search = str(search)
@@ -157,6 +156,9 @@ module.exports.store = async (type, data, search, maxMatch, options) => {
 module.exports.retrieve = async (type, search, options) => {
   let args = [type, search, options]
   options = optionsOverride(options)
+  if( options == null ) {
+    return pgdocError(`BadOptions`, args)
+  }
   search = str(search)
   let schema = options.schema
 
@@ -213,6 +215,9 @@ module.exports.retrieve = async (type, search, options) => {
 module.exports.delete = async (type, search, options) => {
   let args = [type, search, options]
   options = optionsOverride(options)
+  if( options == null ) {
+    return pgdocError(`BadOptions`, args)
+  }
   search = str(search)
   let schema = options.schema
 
@@ -261,6 +266,9 @@ module.exports.delete = async (type, search, options) => {
 module.exports.requestID = async (type, options) => {
   let args = [type]
   options = optionsOverride(options)
+  if( options == null ) {
+    return pgdocError(`BadOptions`, args)
+  }
   let schema = options.schema
 
   // TODO: THIS IS NOT SQL INJECTION SAFE
@@ -354,6 +362,9 @@ const optionsOverride = ( options ) => {
   /// Explicit options override existing config
   if( options == null ) {
     options = {}
+  }
+  else if ( typeof(options) != 'object' ) {
+    return null
   }
   let o = {}
   Object.assign( o, config )

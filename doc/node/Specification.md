@@ -5,11 +5,11 @@
 
 ### Design Rules
 
-RULE: Non-degenerate cases should never return null in this library.
+RULE: With external facing core functions, non-degenerate cases should never return null.
 
-RULE: Default to returning objects, and document what to expect from them clearly.
+RULE: With external facing core functions, default to returning objects, and document what to expect from them clearly.
 
-RULE: The returned object always has a boolean .error, including lists
+RULE: With external facing core functions, the returned object always has a boolean .error, including lists
 
 ### Expected return value ( assuming no error )
 

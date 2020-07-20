@@ -16,7 +16,7 @@ TODO: Write a spec document
 TODO: Link specification once fleshed out PS: doc/node/Start.md
 .
 TO DO: Add type check prior to stringifying strings?
-TODO: function specific Options implementation
+TO DO: function specific Options implementation
 TODO: update function header comments
 TODO: clean up and finalize the install script
 TODO: Store should have consistent behavior. Always return list or error.
