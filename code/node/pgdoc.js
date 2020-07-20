@@ -1,5 +1,7 @@
 /**
- * The pgdoc core module
+ * The pgdoc core module.
+ *
+ * This provides a NoSQL interface to a PostgreSQL database.
  *
  * This file is intended for use by NodeJS as an imported module.
  *
