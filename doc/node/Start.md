@@ -5,7 +5,11 @@
 
 If you find a bug or get stuck somehow, please [mention it in an existing issue][issues] or make a new one if needed.
 
-If you are going to use pgdoc in an existing project, you need to have a [properly configured PostgreSQL server running][install].
+#### [Install pgdoc][install].
+
+If you are going to use pgdoc in a new or existing project, you need to have a [properly configured PostgreSQL server running][install].
+
+#### [Learning pgdoc][crud]
 
 Once you have that all set up, take a look at the [CRUD Examples][crud] that walk you through the basic interactions you can do with the database.
 

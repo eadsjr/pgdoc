@@ -5,6 +5,7 @@ TODO.md
 'TODO:' - An unfinished task, searchable tag
 'TO DO:' - A task that no longer needs attention
 'NOPE: TO DO:' - A task that was not performed as stated for any reason
+'TODO: .... PS: ...' - "Post script" details added after to prevent breaking search.
 
 # TODO List
 
@@ -21,7 +22,7 @@ TO DO: Mention postgresql more clearly in README
 TO DO: ...THIS IS NOT TRUE FOR VALUES RETURNED: "If you are using a node REPL session you can drop the await keyword from the following examples."
 TO DO: Make documentation link more prominent
 NOPE: TO DO: Make more instances of the documentation link
-TODO: make sure not to mislead advanced users... they need to run the psql script!
+TO DO: make sure not to mislead advanced users... they need to run the psql script! PS: in Start.md
 TODO: Verify and rewrite near this: Your username may default to your windows username.
 TODO: Verify and flesh out: Once you are logged in you should see a prompt that looks something like this:
 TODO: INSTALL doc: Add 'node ./examples/' after the "Download dependencies"
