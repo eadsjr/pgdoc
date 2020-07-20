@@ -57,6 +57,12 @@ TODO: test for delete() all of type case
 TODO: unit tests?
 TODO: TEST: ensure basic functions with strings provided instead
 TODO: TEST: ensure basic functions work for objects, strings
+.
+TODO: interactive terminal test thing, selection options via numbers
+TODO: hook into pgdoc.js for direct run case
+TODO: Option to change default config options, manually
+TODO: Option to change default config options, import from file
+TODO: Change examples/tests to a template application example.
 
 STUFF:
 TODO: quiet option - supress all pgdoc output to console (this should only happen in strange edge cases that you might want an error message for)

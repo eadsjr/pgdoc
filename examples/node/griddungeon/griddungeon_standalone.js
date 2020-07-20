@@ -1,7 +1,7 @@
 
 const pgdoc = require(`../../../code/node/pgdoc.js`)
 const config = require(`./config`)
-const str = require('fast-safe-stringify')
+const str = require(`fast-safe-stringify`)
 
 console.log(`starting griddungeon standalone server`)
 
