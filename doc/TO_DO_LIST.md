@@ -15,26 +15,14 @@ IMPORTANT
 TODO: Write a spec document
 TODO: Link specification once fleshed out PS: doc/node/Start.md
 .
-TO DO: Add type check prior to stringifying strings?
-TO DO: function specific Options implementation
-TO DO: update function header comments
 TODO: clean up and finalize the install script
-NOPE: TO DO: Store should have consistent behavior. Always return list or error.
-TO DO: Store should have consistent behavior. Always return an object or error.
-TO DO: Retrieve should have consistent behavior. Always return a list or error.
-TO DO: Delete() updated to return object
-TO DO: convert entire interface to return an object, and previous values stored in a standard member of that object, like .doc. PS: Not including requestID()
 TODO: Store(): more specific success validation
-TO DO: Make sure { error: false } gets passed whenever needed.
-TO DO: Make sure rv.error = false is set whenever needed.
 TODO: document sequence integer limits of postgres here PS: store()
-TO DO: MaxExceeded Error
 TODO: Determine the state of non-first level searches like this { o: 1, j:{ x: 1 } }... does { o: 1, j:{ x: 1, y:2 } } match?
 
 OPTIONS:
 TODO: need to respect options!
 TODO: function specific Options implementation
-
 
 CRUD:
 TODO: Update the CRUD Examples to use the new version of the library
@@ -168,6 +156,20 @@ TO DO: Verify and rewrite near this: Your username may default to your windows u
 TO DO: Verify and flesh out: Once you are logged in you should see a prompt that looks something like this:
 TO DO: Console.log("") the above message, instructions and then exit only when script is run directly in node.
 TO DO: docs/CONTRIBUTING.md: Add links to GitHub's instructions on how to submit a pull request
+
+IMPORTANT
+TO DO: Add type check prior to stringifying strings?
+TO DO: function specific Options implementation
+TO DO: update function header comments
+NOPE: TO DO: Store should have consistent behavior. Always return list or error.
+TO DO: Store should have consistent behavior. Always return an object or error.
+TO DO: Retrieve should have consistent behavior. Always return a list or error.
+TO DO: Delete() updated to return object
+TO DO: convert entire interface to return an object, and previous values stored in a standard member of that object, like .doc. PS: Not including requestID()
+TO DO: Make sure { error: false } gets passed whenever needed.
+TO DO: Make sure rv.error = false is set whenever needed.
+TO DO: MaxExceeded Error
+
 </pre>
 
 # REJECT List

@@ -78,8 +78,8 @@ let test = async () => {
     return
   }
   await testStore()
-  await testRetrieve()
-  await testRequestID()
-  await testDelete()
+  // await testRetrieve()
+  // await testRequestID()
+  // await testDelete()
 }
 test()
