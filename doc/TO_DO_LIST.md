@@ -23,6 +23,9 @@ TODO: Store should have consistent behavior. Always return list or error.
 TODO: Store(): more specific success validation
 TODO: Make sure { error: false } gets passed whenever needed.
 TODO: Make sure rv.error = false is set whenever needed.
+TODO: document sequence integer limits of postgres here PS: store()
+TODO: MaxExceeded Error
+TODO: Determine the state of non-first level searches like this { o: 1, j:{ x: 1 } }... does { o: 1, j:{ x: 1, y:2 } } match?
 
 OPTIONS:
 TODO: need to respect options!
@@ -90,7 +93,6 @@ TODO: SEC: THIS IS NOT SQL INJECTION SAFE
 TODO: SECURITY: SANITIZATION: Ensure that anything that would break postgres fails with an error code. Validate everything that would be passed through.
 TODO: implement protection as per [OWASP SQL Injection Prevention Cheat Sheet](https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.md)
 TODO: Use stored procs with EXECUTE...USING to prevent injection. SEE: [PostgresQL Docs](https://www.postgresql.org/docs/11/plpgsql-statements.html#PLPGSQL-STATEMENTS-EXECUTING-DYN)
-
 
 DOCUMENTATION:
 TODO: Windows 10 install instructions ( npm / node / pgdoc )
