@@ -10,10 +10,10 @@ https://github.com/eadsjr/pgdoc/
 `
 ) ; process.exit(1) }
 
-
 const pg = require('pg')
 const stringify = require('fast-safe-stringify')
 
+/// Default configuration
 let config = {
   database: 'pgdoc',
   schema: 'pgdoc',
@@ -21,71 +21,8 @@ let config = {
 }
 
 /**
- * Stringify a javascript object, returning a string
+ * SECTION: Core Functions
  */
-const str = (object) => {
-  if( typeof(object) != 'string' ) {
-    return stringify(object);
-  }
-  else return object
-}
-
-/**
- * Parse JSON string to a javascript object
- */
-const parse = (string) => {
-  args = [string]
-  try {
-    object = JSON.parse(string)
-    /// TODO: ensure no security hole here in case of compromised database / database connection
-    return object
-  }
-  catch (err) {
-    /// Triggers on NaN, invalid JSON strings and possibly other strange input
-    return pgdocError(`ParseFailed`, args)
-  }
-}
-
-module.exports.JSON = { parse, stringify: str, str }
-
-const unhandledError = `\n!!!! pgdoc unhandled error! Please report the above object on an issue here: https://github.com/eadsjr/pgdoc/issues !!!!\n`
-const unknownError   = `\n!!!! pgdoc unknown error! Please report any relevant details on an issue here: https://github.com/eadsjr/pgdoc/issues !!!!\n`
-
-const connectionErrorHandler = ( client, err, args, fallbackError ) => {
-  if(client != null) {
-    client.end()
-  }
-  if( err.code == `ECONNREFUSED` ) {
-    /// SYSTEM: net.js: TCPConnectWrap.afterConnect: ECONNREFUSED
-    return pgdocError(`DatabaseUnreachable`, args, err)
-  }
-  else if( err.code == `28000` ) {
-    /// POSTGRES: error: role {} does not exist
-    /// POSTGRES: error: role {} is not permitted to log in
-    return pgdocError(`AccessDenied`, args, err)
-  }
-  else if( err.code == `42501` ) {
-    /// POSTGRES: error: permission denied for schema {}
-    /// POSTGRES: error: permission denied for table docs
-    return pgdocError(`BadPermissions`, args, err)
-  }
-  else if( err.code == `3D000` ) {
-    /// POSTGRES: error: database {} does not exist
-    return pgdocError(`DatabaseNotCreated`, args, err)
-  }
-  else {
-    if( fallbackError != null ) {
-      console.error(err)
-      console.error(unhandledError)
-      return fallbackError
-    }
-    else {
-      console.error(err)
-      console.error(unhandledError)
-      return pgdocError(`UnknownError`, args, err)
-    }
-  }
-}
 
 /**
  * Configure connection to postgres
@@ -382,6 +319,42 @@ module.exports.configure = ( options ) => {
   }
 }
 
+/**
+ * SECTION: Utility functions
+ */
+
+/**
+ * Stringify a javascript object, returning a string
+ */
+const str = (object) => {
+  if( typeof(object) != 'string' ) {
+    return stringify(object);
+  }
+  else return object
+}
+
+/**
+ * Parse JSON string to a javascript object
+ */
+const parse = (string) => {
+  args = [string]
+  try {
+    object = JSON.parse(string)
+    /// TODO: ensure no security hole here in case of compromised database / database connection
+    return object
+  }
+  catch (err) {
+    /// Triggers on NaN, invalid JSON strings and possibly other strange input
+    return pgdocError(`ParseFailed`, args)
+  }
+}
+
+module.exports.JSON = { parse, stringify: str, str }
+
+/**
+ * SECTION: Error handling
+ */
+
 /// This private function creates the error object that is returned.
 const pgdocError = (label, args, wrapped=null) => {
   err = {}
@@ -391,6 +364,45 @@ const pgdocError = (label, args, wrapped=null) => {
     err.wrapped = wrapped
   }
   return err
+}
+
+const unhandledError = `\n!!!! pgdoc unhandled error! Please report the above object on an issue here: https://github.com/eadsjr/pgdoc/issues !!!!\n`
+const unknownError   = `\n!!!! pgdoc unknown error! Please report any relevant details on an issue here: https://github.com/eadsjr/pgdoc/issues !!!!\n`
+
+const connectionErrorHandler = ( client, err, args, fallbackError ) => {
+  if(client != null) {
+    client.end()
+  }
+  if( err.code == `ECONNREFUSED` ) {
+    /// SYSTEM: net.js: TCPConnectWrap.afterConnect: ECONNREFUSED
+    return pgdocError(`DatabaseUnreachable`, args, err)
+  }
+  else if( err.code == `28000` ) {
+    /// POSTGRES: error: role {} does not exist
+    /// POSTGRES: error: role {} is not permitted to log in
+    return pgdocError(`AccessDenied`, args, err)
+  }
+  else if( err.code == `42501` ) {
+    /// POSTGRES: error: permission denied for schema {}
+    /// POSTGRES: error: permission denied for table docs
+    return pgdocError(`BadPermissions`, args, err)
+  }
+  else if( err.code == `3D000` ) {
+    /// POSTGRES: error: database {} does not exist
+    return pgdocError(`DatabaseNotCreated`, args, err)
+  }
+  else {
+    if( fallbackError != null ) {
+      console.error(err)
+      console.error(unhandledError)
+      return fallbackError
+    }
+    else {
+      console.error(err)
+      console.error(unhandledError)
+      return pgdocError(`UnknownError`, args, err)
+    }
+  }
 }
 
 /**
