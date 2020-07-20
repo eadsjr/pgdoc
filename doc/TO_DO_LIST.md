@@ -20,10 +20,6 @@ TODO: Store(): more specific success validation
 TODO: document sequence integer limits of postgres here PS: store()
 TODO: Determine the state of non-first level searches like this { o: 1, j:{ x: 1 } }... does { o: 1, j:{ x: 1, y:2 } } match?
 
-OPTIONS:
-TODO: need to respect options!
-TODO: function specific Options implementation
-
 CRUD:
 TODO: Update the CRUD Examples to use the new version of the library
 TODO: Update CRUD examples to allow for terminal only test. async commands might confuse people.
@@ -178,6 +174,10 @@ TO DO: convert entire interface to return an object, and previous values stored 
 TO DO: Make sure { error: false } gets passed whenever needed.
 TO DO: Make sure rv.error = false is set whenever needed.
 TO DO: MaxExceeded Error
+
+OPTIONS:
+TO DO: need to respect options!
+TO DO: function specific Options implementation
 
 </pre>
 
