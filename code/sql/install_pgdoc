@@ -104,6 +104,32 @@ ALTER FUNCTION pgdoc.overwriteUnderMax( TEXT, TEXT, JSONB, JSONB, INTEGER ) OWNE
 -- INSERT INTO pgdoc.docs VALUES ('player', '{"name":"John Smith","age":42,"team":"red","id":"-1"}');
 
 
+-- Delete a set of documents returned by a search and replace with provided data if the record count to be deleted is under provided maximum
+-- Refine the search with a second exclude search
+-- If the max is breached, instead return the number of records that would have been deleted as a negative number.
+CREATE OR REPLACE FUNCTION pgdoc.overwriteUnderMaxExcluding( schemaName TEXT, docType TEXT, newData JSONB, search JSONB, max INTEGER, exclude JSONB )
+RETURNS INTEGER AS
+$$
+DECLARE recordCount INTEGER;
+BEGIN
+  recordCount := ( SELECT COUNT(*) FROM pgdoc.docs WHERE type = docType AND data @> search ) ;
+  RAISE NOTICE 'recordCount: %', recordCount;
+  IF
+    recordCount <= max
+  THEN
+    -- delete, store and return
+    DELETE FROM pgdoc.docs WHERE type = docType AND data @> search AND NOT data @> exclude;
+    INSERT INTO pgdoc.docs VALUES (docType, newData);
+    RETURN recordCount;
+  ELSE
+    RETURN -recordCount;
+  END IF;
+END;
+$$
+LANGUAGE plpgsql;
+ALTER FUNCTION pgdoc.overwriteUnderMaxExcluding( TEXT, TEXT, JSONB, JSONB, INTEGER, JSONB ) OWNER TO pgdoc;
+
+
 -- required for the above function to succeed
 -- GRANT create,usage ON SCHEMA public TO pgdoc ;
 

@@ -12,7 +12,8 @@ TODO.md
 <pre>
 
 IMPORTANT
-TODO: Add an "exclude" as well as "search"
+TO DO: Add an "exclude" as well as "search"
+TODO: Need a wildcard for matching... so like a search for documents that have ANY value under 'id'.
 TODO: Write a spec document
 TODO: Link specification once fleshed out PS: doc/node/Start.md
 .
@@ -194,6 +195,9 @@ TO DO: function specific Options implementation
 # REJECT List
 
 <pre>
+IMPORTANT
+NOPE: TO DO: CONSIDER: convert to more extensible object destructuring method of invocation? No... that makes it more complex to use...
+
 DOCUMENTATION QUICK STUFF
 NOPE: TO DO: Make more instances of the documentation link
 </pre>

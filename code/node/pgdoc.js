@@ -60,21 +60,26 @@ module.exports.connect = async (connectionString, options) => {
  * 
  * This will create duplicate records if not further constrained.
  * 
- * Optionally, a search can be provided. This will delete any records founds, allowing for updates.
+ * Optionally, a search filter object can be provided. This will delete any records found, allowing for updates to existing files.
  * 
  * This search can be constrained by a maxMatch integer, which if exceeded instead returns a MaxExceeded error.
+ * 
+ * You can exclude objects from the deletion event with an additional filter object.
+ * 
+ * Objects passed in as data/search/exclude will be in the form of non-circular javascript objects that can be stringified OR strings containing valid JSON
  * 
  * Setting maxMatch to 0 effectively requires the record to not already exist, and stores only in that case.
  * 
  * @todo document sequence integer limits of postgres here
  * @param {string} - type - The type of document. AKA - The name of the document collection
- * @param {object, string} - data - Data to be stored. A non-circular javascript object that can be stringified OR a string containing valid JSON
- * @param {object, string} - search - Object to filter results by. A non-circular javascript object that can be stringified OR a string containing valid JSON
+ * @param {object, string} - data - Object to be stored.
+ * @param {object, string} - search - Object to filter results by, for which matches will be deleted.
  * @param {number} - maxMatch - An integer. If the search finds more then this many records, error out with MaxExceeded.
+ * @param {object, string} - exclude - Object to filter results by, for which matches will be saved from deletion.
  * @param {object} - [options] - OPTIONAL object containing options to alter this function call
  * @returns {object, number} - A pgdoc error object or an object indicating the number of documents deleted in an overwrite. { error: false, deleted: <Integer> }
  */
-module.exports.store = async (type, data, search, maxMatch, options) => {
+module.exports.store = async (type, data, search, maxMatch, exclude, options) => {
   let args = [type, data, options]
   options = optionsOverride(options)
   if( options == null ) {
@@ -99,6 +104,18 @@ module.exports.store = async (type, data, search, maxMatch, options) => {
       /// Delete any matching records and store the value. Reports number of records deleted.
       command = `DELETE FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}'; ` +
                 `INSERT INTO ${schema}.docs VALUES ('${type}', '${data}') ;`
+    }
+    else if ( exclude != null ) {
+      if( maxMatch == null || maxMatch < 0 ) {
+        /// Delete any matching records that are not excluded and store the value. Reports number of records deleted.
+        command = `DELETE FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}' ` +
+                  `AND NOT data @> '${exclude}'; ` +
+                  `INSERT INTO ${schema}.docs VALUES ('${type}', '${data}') ;`
+      }
+      else {
+        /// If the limit is not exceeded, delete matching records that are not excluded and store the value. Reports number of records deleted.
+        command = `SELECT pgdoc.overwriteUnderMaxExcluding('${schema}', '${type}', '${data}', '${search}', ${maxMatch}, ${exclude}) ;`
+      }
     }
     else {
       /// If the limit is not exceeded, delete matching records and store the value. Reports number of records deleted.
