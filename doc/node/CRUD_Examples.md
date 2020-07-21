@@ -392,5 +392,68 @@ let storeUnique = async () => {
 storeUnique()
 ```
 
-You can exclude from store deletion searches in the same way you would with retrieve.
+You can exclude from pgdoc.store() deletion searches in the same way you would with retrieve.
 
+``` js
+let storeOverwriteMaxExcluding = async () => {
+  /// First perform a simple store
+  let docType = "player"
+  let oldDoc  = { name: "Sandy Smith", age:23, team: "red", id: "-4" }
+  rv = await pgdoc.store( docType, oldDoc )
+  if( rv.error ) {
+    console.error(`${rv.label}: ${rv.description}`)
+    return
+  }
+  /// Now an overlapping store...
+  oldDoc  = { name: "Samuel Doe", age:19, team: "red", id: "-4" } /// ID CONFLICT!
+  rv = await pgdoc.store( docType, oldDoc )
+  if( rv.error ) {
+    console.error(`${rv.label}: ${rv.description}`)
+    return
+  }
+  /// Now precisely ignore the conflicting data... ( Why would you ever do this? )
+  console.log(`documents with conflicting ids stored.`)
+  let newDoc  = { name: "Samuel Doe", age: 20, team: "red", id: "-4" }
+  let mySearch = { id: "-4" }
+  let myExclusions = { name: "Sandy Smith" }
+  let maxMatch = 1
+  rv = await pgdoc.store( docType, newDoc, mySearch, maxMatch, myExclusions )
+  if( rv.error ) {
+    console.error(`${rv.label}: ${rv.description}`)
+  }
+  else {
+    if( rv.length == 1 ) {
+      console.log( `Joan Doe's age record updated non-destructively despite conflicting ID` )
+    }
+    else {
+      console.error( `Error: Something prevented the update...\nrv: ${rv}` )
+    }
+  }
+}
+storeOverwriteMaxExcluding()
+```
+
+### DELETE
+
+Deletion is handled using the same search method as `pgdoc.retrieve()`, but the matched documents are deleted instead of being retrieved.
+
+``` js
+// Multiple object deletion
+docType = "player"
+mySearch = { team: "red" }
+deletedDocCount = await pgdoc.delete(docType, mySearch)
+```
+
+You can limit the number of documents to be deleted, which is especially useful if you only want your search to match one document.
+
+``` js
+// Single object deletion
+docType = "player"
+mySearch = { id: 12576 }
+options = { "maxMatches": 1 }
+deletedDocCount = await pgdoc.delete(docType, mySearch, options)
+if( deletedDocCount != 1 ) {
+  error = deletedDocCount
+  console.error(`${docType} deletion failed for search ${str(mySearch)}. Error: ${pgdoc.errorMessage(error)}.`)
+}
+```
