@@ -181,11 +181,12 @@ module.exports.store = async (type, data, search, maxMatch, exclude, options) =>
  * Retrieve a list of objects built from JSON documents matching the fields of a JSON object.
  *
  * @param {string} - type - The type of document. AKA - The name of the collection
- * @param {string} - search - An object with key-value pairs that must be matched to be returned.
+ * @param {object, string} - search - An object with key-value pairs that must be matched to be returned.
+ * @param {object, string} - exclude - An object with key-value pairs that must NOT be matched to be returned.
  * @param {object} - [options] - OPTIONAL object containing options to alter this function call
  * @returns {list} - A list of Javascript objects parsed from the document, or an error object.
  */
-module.exports.retrieve = async (type, search, options) => {
+module.exports.retrieve = async (type, search, exclude, options) => {
   let args = [type, search, options]
   options = optionsOverride(options)
   if( options == null ) {
@@ -194,7 +195,14 @@ module.exports.retrieve = async (type, search, options) => {
   search = str(search)
   let schema = options.schema
 
-  let command = `SELECT data FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}';`
+  let command
+  if( exclude == null ) {
+    command = `SELECT data FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}';`
+  }
+  else {
+    command = `SELECT data FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}' ` +
+              `AND NOT data @> '${exclude}';`
+  }
   if(options.verbose) {
     console.log(command)
   }
