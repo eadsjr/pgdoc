@@ -42,7 +42,7 @@ let connect = async () => {
   let port     = `5432` /* 5432 is postgres default. It's a major security risk not to change this if you put it online! */
   let connectionString = `postgres://pgdoc:${password}@${domain}:${port}/pgdoc`
   let rv = await pgdoc.connect(connectionString)
-  if( rv != null ) {
+  if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
   }
   else {
@@ -52,7 +52,7 @@ let connect = async () => {
 connect()
 ```
 
-The return value, here called `rv` will either be an a pgdoc error or a null response indicating success. If it is a pgdoc error, its details can be observed by accessing the appropriate members.
+The return value, here called `rv` will either be an a pgdoc error or a simple object indicating success. If it is a pgdoc error, its details can be observed by accessing the appropriate members.
 
 Assuming you were able to connect successfully, you can now start using the methods detailed below.
 
@@ -63,9 +63,9 @@ Now we can store a Javascript object in postgres by simply calling `pgdoc.store(
 ``` js
 let storeBasic = async () => {
   let docType = "player"
-  let myDoc = { name:"John Smith", age:42, team:"red" }
+  let myDoc = { name: "John Smith", age: 42, team: "red" }
   let rv = await pgdoc.store( docType, myDoc )
-  if( rv != 0 ) {
+  if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
   }
   else {
@@ -83,7 +83,7 @@ let storeComplex = async () => {
   let docType = "player"
   let myDoc = { name:"John Smith", age:42, team:"red", config:complexObject }
   let rv = await pgdoc.store( docType, myDoc )
-  if( rv != 0 ) {
+  if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
   }
   else {
@@ -101,7 +101,7 @@ let storeString = async () => {
   let docType = "player"
   let myDoc = `{ "name":"John Smith", "age":42, "team":"red" }`
   let rv = await pgdoc.store( docType, myDoc )
-  if( rv != 0 ) {
+  if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
   }
   else {
@@ -122,7 +122,7 @@ let storeDynamicString = async () => {
   let docType = "player"
   let myDoc = `{ "name":"John Smith", "age":42, "team":"red", "config":${str(complexObject)} }`
   let rv = await pgdoc.store( docType, myDoc )
-  if( rv != 0 ) {
+  if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
   }
   else {
@@ -147,7 +147,7 @@ let storeBasicWithID = async () => {
     console.log(`collected id: ${id}`)
     let myDoc = { name:"John Smith", age:42, team:"red", id:id }
     let rv = await pgdoc.store( docType, myDoc )
-    if( rv != 0 ) {
+    if( rv.error ) {
       console.error(`${rv.label}: ${rv.description}`)
     }
     else {
@@ -177,7 +177,7 @@ let storeWithMetadata = async () => {
     myMetaData = { timestamp: Date.now(), id: id }
     myDoc = { meta: myMetaData, data: myData }
     rv = await pgdoc.store( docType, myDoc )
-    if( rv != 0 ) {
+    if( rv.error ) {
       console.error(`${rv.label}: ${rv.description}`)
     }
     else {
@@ -204,22 +204,22 @@ let retrieveBasic = async ( ID ) => {
   docType = "player"
   mySearch = { id: ID }
   rv = await pgdoc.retrieve(docType, mySearch)
-  if( !rv.error ) {
+  if( rv.error ) {
+    console.error(`${rv.label}: ${rv.description}`)
+  }
+  else {
     if( `length` in rv ) {
       if( rv.length < 1 ) {
         console.log(`No document found...`)
       }
-      else if ( rv.length == 0 ) {
+      else if ( rv.length == 1 ) {
         console.log(`Document retrieved.`)
       }
       else if ( rv.length > 1 ) {
         console.log(`Multiple results for given ID!`)
       }
     }
-    console.log(rv) /// Either the document, an empty list, or a list of documents
-  }
-  else {
-    console.error(`${rv.label}: ${rv.description}`)
+    console.log(rv) /// A list of zero or more documents
   }
 }
 retrieveBasic("1")
@@ -232,22 +232,22 @@ let retrieveByName = async () => {
   docType = "player"
   mySearch = { name:"John Smith" }
   rv = await pgdoc.retrieve(docType, mySearch)
-  if( !rv.error ) {
+  if( rv.error ) {
+    console.error(`${rv.label}: ${rv.description}`)
+  }
+  else {
     if( `length` in rv ) {
       if( rv.length < 1 ) {
         console.log(`No document found...`)
       }
-      else if ( rv.length == 0 ) {
+      else if ( rv.length == 1 ) {
         console.log(`Document retrieved.`)
       }
       else if ( rv.length > 1 ) {
         console.log(`Multiple results for given name!`)
       }
     }
-    console.log(rv) /// Either the document, an empty list, or a list of documents
-  }
-  else {
-    console.error(`${rv.label}: ${rv.description}`)
+    console.log(rv) /// A list of zero or more documents
   }
 }
 retrieveByName()
@@ -260,14 +260,14 @@ let retrieveMulti = async () => {
   docType = "player"
   mySearch = { team: "red" }
   rv = await pgdoc.retrieve( docType, mySearch )
-  if( !rv.error ) {
-    console.log(rv) /// Either the document, an empty list, or a list of documents
+  if( rv.error ) {
+    console.error(`${rv.label}: ${rv.description}`)
+  }
+  else {
+    console.log(rv) /// A list of zero or more documents
     for( doc in rv ) {
       // <- application logic here
     }
-  }
-  else {
-    console.error(`${rv.label}: ${rv.description}`)
   }
 }
 retrieveMulti()
@@ -284,7 +284,7 @@ let storeOverwrite = async () => {
   let docType = "player"
   let oldDoc  = { name: "John Smith", age:43, team: "red", id: "-1" }
   rv = await pgdoc.store( docType, oldDoc )
-  if( rv != 0 ) {
+  if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
   }
   else {
@@ -293,17 +293,19 @@ let storeOverwrite = async () => {
     let newDoc  = { name: "John Smith", age: 44, team: "red", id: "-1" }
     let mySearch = { id: "-1" }
     rv = await pgdoc.store( docType, newDoc, mySearch )
-    if( typeof(rv) == `object` ) {
+    if( rv.error ) {
       console.error(`${rv.label}: ${rv.description}`)
     }
-    if( rv == 1 ) {
-      console.log(`Document was overwritten successfully`)
-    }
-    else if ( rv == 0 ) {
-      console.warn(`Document was written to database, but previous version not found`)
-    }
     else {
-      console.error(`Document was written to database, and multiple documents (${rv}) were deleted. Something went wrong.`)
+      if( rv.deleted == 1 ) {
+        console.log(`Document was overwritten successfully`)
+      }
+      else if ( rv.deleted == 0 ) {
+        console.warn(`Document was written to database, but previous version not found`)
+      }
+      else {
+        console.error(`Document was written to database, and ${rv.deleted} documents were deleted. Something went wrong.`)
+      }
     }
   }
 }

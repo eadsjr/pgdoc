@@ -12,6 +12,7 @@ TODO.md
 <pre>
 
 IMPORTANT
+TODO: Add an "exclude" as well as "search"
 TODO: Write a spec document
 TODO: Link specification once fleshed out PS: doc/node/Start.md
 .
@@ -30,6 +31,7 @@ TODO: Make note of record duplication in CRUD Examples
 TODO: clean up terse CRUD Examples
 TODO: Make note of record duplication during unlimited store() in CRUD Examples
 TODO: Finish writing CRUD examples
+TODO: redo the CRUD store() example data so that if each is run in order, the database examples work out nicely. Multiple players on the team, etc.
 
 ERROR HANDLING
 TODO: Sort and clean up error codes.
@@ -138,7 +140,6 @@ TODO: CONSIDER: update to use non-connection string method?
 TODO: when pgdoc is run directly, instead run a standalone terminal that can execute tests via interactive interface
 TODO: CONSIDER: Interactive testing via different module?
 TODO: pass in transaction IDs to allow async polling for return values / error codes
-TODO: Add an "exclude" as well as "search"
 TODO: implement alternate basic functions with catchable exceptions?
 
 HARD BUT MAYBE
