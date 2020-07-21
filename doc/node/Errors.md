@@ -1,7 +1,7 @@
 
 # pgdoc
 
-All of the exposed functions of pgdoc can return an error object. If the error object is null, then the action completed successfully. Otherwise, it fits the following pattern:
+All of the exposed functions of pgdoc can return an error object. If the error object has a member error that is `false`, then the action completed successfully. Otherwise, it fits the following pattern:
 
 ``` js
 err.error         // This is true for all error objects. Allows a quick check for functions that don't return separate objects.
@@ -21,3 +21,13 @@ err = {
 ```
 
 The types of errors can be seen in the object pgdoc.errors or in code/node/pgdoc.js
+
+## General errors
+
+These are errors that might be returned by any function that is attempting to contact the database.
+
+
+
+
+## Errors by function
+
