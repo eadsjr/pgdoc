@@ -3,6 +3,7 @@ TODO.md
 # KEY
 
 'TODO:' - An unfinished task, searchable tag
+'CONSIDER: TODO:' - An unfinished task, searchable tag. The author is not confident that it should be done.
 'TO DO:' - A task that no longer needs attention
 'NOPE: TO DO:' - A task that was not performed as stated for any reason
 'TODO: .... PS: ...' - "Post script" details added after to prevent breaking search.
@@ -16,6 +17,7 @@ TO DO: Add an "exclude" as well as "search"
 TO DO: support exclude in retrieve()
 TODO: support exclude in delete()
 TODO: Need a wildcard for matching... so like a search for documents that have ANY value under 'id'.
+TODO: in addition to wildcards for matching, math logic for things like age <, > given #
 TODO: Write a spec document
 TODO: Link specification once fleshed out PS: doc/node/Start.md
 .
@@ -35,11 +37,12 @@ TODO: clean up terse CRUD Examples
 TO DO: Make note of record duplication during unlimited store() in CRUD Examples
 TODO: Finish writing CRUD examples
 TO DO: redo the CRUD store() example data so that if each is run in order, the database examples work out nicely. Multiple players on the team, etc.
+TO DO: CRUD RETRIEVE case for exclude usage
 TODO: CRUD UPDATE case for exclude usage
 TO DO: CRUD UPDATE case for maxMatch usage
-TODO: CRUD UPDATE case for search usage
-TODO: CRUD UPDATE example for maxMatch 0
-TODO: CONSIDER: Drop str/parse from CRUD examples
+TO DO: CRUD UPDATE case for search usage
+TO DO: CRUD UPDATE example for maxMatch 0
+NOPE: TO DO: CONSIDER: Drop str/parse from CRUD examples
 TODO: Adjust CRUD examples so they are not dependent on each other... each should work fine in isolation
 TODO: Add a quickstart that is less thorough and more to the point then the CRUD examples. It uses final case type stuff only, rather then building up. Making use of IDs, maxMatch 0/1.
 

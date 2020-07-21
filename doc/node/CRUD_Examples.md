@@ -275,6 +275,26 @@ let retrieveMulti = async () => {
 retrieveMulti()
 ```
 
+If you want to further refine your search, you can use a second filter to exclude something from the search.
+
+``` js
+let retrieveExcluding = async () => {
+  docType = "player"
+  mySearch = { team: "red" }
+  myExclusions = { age: "42" }
+  rv = await pgdoc.retrieve( docType, mySearch, myExclusions )
+  if( rv.error ) {
+    console.error(`${rv.label}: ${rv.description}`)
+  }
+  else {
+    console.log(rv) /// A list of zero or more documents
+    for( doc in rv ) {
+      // <- application logic here
+    }
+  }
+}
+retrieveExcluding()
+```
 
 ### UPDATE
 
@@ -371,4 +391,6 @@ let storeUnique = async () => {
 }
 storeUnique()
 ```
+
+You can exclude from store deletion searches in the same way you would with retrieve.
 
