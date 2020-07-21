@@ -3,11 +3,11 @@
 
 ## CRUD Examples
 
-When working with databases you generally want to have [CRUD Functionality][CRUD].
+> When working with databases you generally want to have [CRUD Functionality][CRUD].
 
-That is, the ability to CREATE, RETRIEVE, UPDATE and DELETE data.
+> That is, the ability to CREATE, RETRIEVE, UPDATE and DELETE data.
 
-Here are some Javascript examples of how to do this using `pgdoc`.
+> Here are some Javascript examples of how to do this using `pgdoc`.
 
 For these examples to work, you must have first have completed the [install process for you operating system][install].
 
@@ -74,6 +74,8 @@ let storeBasic = async () => {
 }
 storeBasic()
 ```
+
+> Note that if you run this code twice it will create two identical records in the database. Methods to avoid this are explored in the UPDATE section.
 
 You can store more complex objects using the same method.
 

@@ -23,16 +23,21 @@ TODO: document sequence integer limits of postgres here PS: store()
 TODO: Determine the state of non-first level searches like this { o: 1, j:{ x: 1 } }... does { o: 1, j:{ x: 1, y:2 } } match?
 
 CRUD:
-TODO: Update the CRUD Examples to use the new version of the library
-TODO: Update CRUD examples to allow for terminal only test. async commands might confuse people.
-TODO: Seprate CRUD examples versions for node REPL and async use in program.
-TODO: Rewrite CRUD Examples if( rv != 0 ) to instead explicitly check rv.error in a safe way.
+TO DO: Update the CRUD Examples to use the new version of the library
+TO DO: Update CRUD examples to allow for terminal only test. async commands might confuse people.
+TO DO: Seprate CRUD examples versions for node REPL and async use in program.
+TO DO: Rewrite CRUD Examples if( rv != 0 ) to instead explicitly check rv.error in a safe way.
 TODO: REPL example can't handle if/else multiline
-TODO: Make note of record duplication in CRUD Examples
+TO DO: Make note of record duplication in CRUD Examples
 TODO: clean up terse CRUD Examples
-TODO: Make note of record duplication during unlimited store() in CRUD Examples
+TO DO: Make note of record duplication during unlimited store() in CRUD Examples
 TODO: Finish writing CRUD examples
 TO DO: redo the CRUD store() example data so that if each is run in order, the database examples work out nicely. Multiple players on the team, etc.
+TODO: CRUD UPDATE case for exclude usage
+TODO: CRUD UPDATE case for maxMatch usage
+TODO: CRUD UPDATE case for search usage
+TODO: CRUD UPDATE example for maxMatch 0
+TODO: CONSIDER: Drop str/parse from CRUD examples
 
 ERROR HANDLING
 TODO: Sort and clean up error codes.
