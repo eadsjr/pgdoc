@@ -278,7 +278,7 @@ retrieveMulti()
 
 ### UPDATE
 
-It is very simple to overwrite a document.
+By adding a search filter unique to the document you are updating, you can overwrite a document.
 
 ``` js
 let storeOverwrite = async () => {
@@ -290,7 +290,7 @@ let storeOverwrite = async () => {
     console.error(`${rv.label}: ${rv.description}`)
   }
   else {
-    // Now overwrite a the stored data with a specific alternative value
+    // Now overwrite the stored data with a specific alternative value
     console.log(`document stored with age: 43`)
     let newDoc  = { name: "Bill Smith", age: 44, team: "red", id: "-1" }
     let mySearch = { id: "-1" }
@@ -313,3 +313,62 @@ let storeOverwrite = async () => {
 }
 storeOverwrite()
 ```
+
+If you want to avoid deleting too much you can specify the number of documents you expect to be deleted in the event.
+
+``` js
+let storeOverwriteMax = async () => {
+  /// First perform a simple store
+  let docType = "player"
+  let oldDoc  = { name: "Jill Smith", age:23, team: "red", id: "-2" }
+  rv = await pgdoc.store( docType, oldDoc )
+  if( rv.error ) {
+    console.error(`${rv.label}: ${rv.description}`)
+    return
+  }
+  /// Now an overlapping store...
+  oldDoc  = { name: "Joan Doe", age:19, team: "red", id: "-2" } /// ID CONFLICT!
+  rv = await pgdoc.store( docType, oldDoc )
+  if( rv.error ) {
+    console.error(`${rv.label}: ${rv.description}`)
+    return
+  }
+  // Now attempt to overwrite the stored data with a specific alternative value
+  console.log(`documents with conflicting ids stored.`)
+  let newDoc  = { name: "Joan Doe", age: 20, team: "red", id: "-2" }
+  let mySearch = { id: "-2" }
+  let maxMatch = 1
+  rv = await pgdoc.store( docType, newDoc, mySearch, maxMatch )
+  if( rv.error ) {
+    console.error(`${rv.label}: ${rv.description}`)
+  }
+  else {
+    /// This won't happen.
+    console.error(`pgdoc.store() failed to catch the conflicting IDs somehow?`)
+  }
+}
+storeOverwriteMax()
+```
+
+You can also use this maxMatch feature to ensure a unique value in the first place.
+
+> IDs provided by pgdoc.requestID() will be unique for that database, so this should not be necessary for them.
+
+``` js
+let storeUnique = async () => {
+  /// Store a document with a unique player name if and only if it is unique
+  let docType = "player"
+  let doc  = { name: "Jimmy Smith", age:23, team: "red", id: "-3" }
+  let mySearch = { name: "Jimmy Smith" }
+  let maxMatch = 0
+  rv = await pgdoc.store( docType, oldDoc, mySearch, maxMatch )
+  if( rv.error ) {
+    console.error(`${rv.label}: ${rv.description}`)
+  }
+  else {
+    console.error(`record stored with no duplicate player name`)
+  }
+}
+storeUnique()
+```
+
