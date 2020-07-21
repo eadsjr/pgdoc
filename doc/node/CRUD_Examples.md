@@ -63,7 +63,7 @@ Now we can store a Javascript object in postgres by simply calling `pgdoc.store(
 ``` js
 let storeBasic = async () => {
   let docType = "player"
-  let myDoc = { name: "John Smith", age: 42, team: "red" }
+  let myDoc = { name: "John Smith", age: 42, team: "red", id: "-7" }
   let rv = await pgdoc.store( docType, myDoc )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
@@ -81,7 +81,7 @@ You can store more complex objects using the same method.
 let storeComplex = async () => {
   let complexObject = { data: {}, evenMoreData: {} }
   let docType = "player"
-  let myDoc = { name:"John Smith", age:42, team:"red", config:complexObject }
+  let myDoc = { name:"Jane Doe", age:25, team:"red", config:complexObject, id: "-8" }
   let rv = await pgdoc.store( docType, myDoc )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
@@ -99,7 +99,7 @@ You can also store valid JSON strings directly. This can be especially useful wh
 let storeString = async () => {
   // SECURITY NOTE: Don't forget to verify incoming data from client is not malicious or malformed!
   let docType = "player"
-  let myDoc = `{ "name":"John Smith", "age":42, "team":"red" }`
+  let myDoc = `{ "name":"Bob Smith", "age":42, "team":"red", id: "-9" }`
   let rv = await pgdoc.store( docType, myDoc )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
@@ -120,7 +120,7 @@ let storeDynamicString = async () => {
   // SECURITY NOTE: Don't forget to verify dynamic data from client is not malicious or malformed!
   let complexObject = { data: {}, evenMoreData: {} }
   let docType = "player"
-  let myDoc = `{ "name":"John Smith", "age":42, "team":"red", "config":${str(complexObject)} }`
+  let myDoc = `{ "name":"Tammy Smith", "age":25, "team":"blue", "config":${str(complexObject)}, id: "-10" }`
   let rv = await pgdoc.store( docType, myDoc )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
@@ -145,7 +145,7 @@ let storeBasicWithID = async () => {
   }
   else {
     console.log(`collected id: ${id}`)
-    let myDoc = { name:"John Smith", age:42, team:"red", id:id }
+    let myDoc = { name:"John Smith", age:33, team:"red", id:id }
     let rv = await pgdoc.store( docType, myDoc )
     if( rv.error ) {
       console.error(`${rv.label}: ${rv.description}`)
@@ -167,7 +167,7 @@ You can store the id and other metadata outside your data object by nesting them
 ``` js
 let storeWithMetadata = async () => {
   let docType = "player"
-  let myData = { name:"John Smith", age:42, team:"red" }
+  let myData = { name:"John Calhoun", age:22, team:"blue" }
   let id = await pgdoc.requestID(docType)
   if( id.error ) {
     console.error(`${id.label}: ${id.description}`)
@@ -228,9 +228,9 @@ retrieveBasic("1")
 This works with any information specific to one document.
 
 ```js
-let retrieveByName = async () => {
+let retrieveByName = async ( name ) => {
   docType = "player"
-  mySearch = { name:"John Smith" }
+  mySearch = { name }
   rv = await pgdoc.retrieve(docType, mySearch)
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
@@ -250,7 +250,7 @@ let retrieveByName = async () => {
     console.log(rv) /// A list of zero or more documents
   }
 }
-retrieveByName()
+retrieveByName("Jane Doe")
 ```
 
 You can retrieve multiple documents by simply searching a shared member.
@@ -282,7 +282,7 @@ It is very simple to overwrite a document.
 let storeOverwrite = async () => {
   /// First perform a simple store
   let docType = "player"
-  let oldDoc  = { name: "John Smith", age:43, team: "red", id: "-1" }
+  let oldDoc  = { name: "Bill Smith", age:43, team: "red", id: "-1" }
   rv = await pgdoc.store( docType, oldDoc )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
@@ -290,7 +290,7 @@ let storeOverwrite = async () => {
   else {
     // Now overwrite a the stored data with a specific alternative value
     console.log(`document stored with age: 43`)
-    let newDoc  = { name: "John Smith", age: 44, team: "red", id: "-1" }
+    let newDoc  = { name: "Bill Smith", age: 44, team: "red", id: "-1" }
     let mySearch = { id: "-1" }
     rv = await pgdoc.store( docType, newDoc, mySearch )
     if( rv.error ) {

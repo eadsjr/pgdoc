@@ -31,7 +31,7 @@ TODO: Make note of record duplication in CRUD Examples
 TODO: clean up terse CRUD Examples
 TODO: Make note of record duplication during unlimited store() in CRUD Examples
 TODO: Finish writing CRUD examples
-TODO: redo the CRUD store() example data so that if each is run in order, the database examples work out nicely. Multiple players on the team, etc.
+TO DO: redo the CRUD store() example data so that if each is run in order, the database examples work out nicely. Multiple players on the team, etc.
 
 ERROR HANDLING
 TODO: Sort and clean up error codes.
