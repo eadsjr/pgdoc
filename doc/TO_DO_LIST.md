@@ -17,7 +17,7 @@ IMPORTANT
 TO DO: Add an "exclude" as well as "search"
 TO DO: support exclude in retrieve()
 TO DO: Change interface in CRUD examples to use single param object input
-TODO: Change interface in pgdoc to use single param object input
+TO DO: Change interface in pgdoc to use single param object input
 TODO: support exclude in delete()
 TODO: delete() maxMatch implementation
 TODO: retrieve() maxMatch implementation

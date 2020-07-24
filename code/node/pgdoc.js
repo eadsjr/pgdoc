@@ -31,8 +31,8 @@ let config = {
  * @param {object} - options - a list of configuration options for pgdoc, made persistent with this call
  * @returns {object} - A pgdoc error object or { error: false }
  */
-module.exports.connect = async (connectionString, options) => {
-  let params = [connectionString, options]
+module.exports.connect = async (params) => {
+  ({connectionString, options} = params)
   options = optionsOverride(options)
   if( options == null ) {
     return pgdocError(`BadOptions`, params)
@@ -79,8 +79,8 @@ module.exports.connect = async (connectionString, options) => {
  * @param {object} - [options] - OPTIONAL object containing options to alter this function call
  * @returns {object, number} - A pgdoc error object or an object indicating the number of documents deleted in an overwrite. { error: false, deleted: <Integer> }
  */
-module.exports.store = async (type, data, search, maxMatch, exclude, options) => {
-  let params = [type, data, options]
+module.exports.store = async (params) => {
+  ({type, data, search, maxMatch, exclude, options} = params)
   options = optionsOverride(options)
   if( options == null ) {
     return pgdocError(`BadOptions`, params)
@@ -186,8 +186,8 @@ module.exports.store = async (type, data, search, maxMatch, exclude, options) =>
  * @param {object} - [options] - OPTIONAL object containing options to alter this function call
  * @returns {list} - A list of Javascript objects parsed from the document, or an error object.
  */
-module.exports.retrieve = async (type, search, exclude, options) => {
-  let params = [type, search, options]
+module.exports.retrieve = async (params) => {
+  ({type, search, maxMatch, exclude, options} = params)
   options = optionsOverride(options)
   if( options == null ) {
     return pgdocError(`BadOptions`, params)
@@ -247,8 +247,8 @@ module.exports.retrieve = async (type, search, exclude, options) => {
  * @param {object} - [options] - OPTIONAL object containing options to alter this function call
  * @returns {number} - An object with the number of deleted documents under '.deleted', or a pgdoc error
  */
-module.exports.delete = async (type, search, options) => {
-  let params = [type, search, options]
+module.exports.delete = async (params) => {
+  ({type, search, maxMatch, exclude, options} = params)
   options = optionsOverride(options)
   if( options == null ) {
     return pgdocError(`BadOptions`, params)
@@ -300,8 +300,8 @@ module.exports.delete = async (type, search, options) => {
  * @param {object} - [options] - OPTIONAL object containing options to alter this function call
  * @returns {object} - A javascript object parsed from the document, or null
  */
-module.exports.requestID = async (type, options) => {
-  let params = [type]
+module.exports.requestID = async (params) => {
+  ({type, options} = params)
   options = optionsOverride(options)
   if( options == null ) {
     return pgdocError(`BadOptions`, params)
@@ -353,8 +353,8 @@ module.exports.requestID = async (type, options) => {
  * @param {object} - options - a list of configuration options for pgdoc, made persistent with this call
  * @returns {object} - A pgdoc error object or { error: false }
  */
-module.exports.configure = ( options ) => {
-  params = [options]
+module.exports.configure = ( params ) => {
+  ({options} = params)
   if( typeof(options) == 'object' ) {
     Object.assign(config, options)
     return { error: false }
