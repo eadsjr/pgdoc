@@ -43,6 +43,10 @@ module.exports.connect = async (params) => {
   if( typeof(options) == 'object' ) {
     Object.assign(config, options)
   }
+  else if( options != null ) {
+    return pgdocError(`BadOptions`, params)
+  }
+
   config.connectionString = connectionString
 
   try {

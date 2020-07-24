@@ -8,7 +8,7 @@ err.error         // This is true for all error objects. Allows a quick check fo
 err.code          // An error code that should be unique for this kind of pgdoc error.
 err.label         // A brief label that indicates the kind of error.
 err.description   // A detailed description of the error.
-err.args          // The parameters passed into the function call that failed.
+err.params        // The parameters passed into the function call that failed.
 err.wrapped       // This is null, or contains a wrapped error object from another source.
 
 err = {
@@ -16,7 +16,7 @@ err = {
   code: -8,
   label: `NoClobber`,
   description: `The store operation was rejected because it would overwrite existing data`,
-  args: { type, data, tid, options }
+  params: { type, doc }
 }
 ```
 
