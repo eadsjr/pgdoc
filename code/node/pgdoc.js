@@ -36,12 +36,15 @@ let config = {
  */
 module.exports.connect = async (params) => {
   ({connectionString, options} = params)
-  options = optionsOverride(options)
   if( options == null ) {
     return pgdocError(`BadOptions`, params)
   }
   if( typeof(connectionString) != `string` ) {
     return pgdocError(`BadConnectionString`, params)
+  }
+  if( typeof(options) == 'object' ) {
+    Object.assign(config, options)
+    return { error: false }
   }
   config.connectionString = connectionString
 
@@ -78,12 +81,12 @@ module.exports.connect = async (params) => {
  * @returns {object} - A pgdoc error object or an object indicating the number of documents deleted in an overwrite. { error: false, deleted: <Integer> }
  */
 module.exports.store = async (params) => {
-  ({type, data, search, maxMatch, exclude, options} = params)
+  ({type, doc, search, maxMatch, exclude, options} = params)
   options = optionsOverride(options)
   if( options == null ) {
     return pgdocError(`BadOptions`, params)
   }
-  data = str(data)
+  doc = str(doc)
   if( search != null ) {
     search = str(search)
   }
@@ -93,7 +96,7 @@ module.exports.store = async (params) => {
   let command
   if( search == null ) {
     /// Simple store command. May produce duplicates.
-    command = `INSERT INTO ${schema}.docs VALUES ('${type}', '${data}') ;`
+    command = `INSERT INTO ${schema}.docs VALUES ('${type}', '${doc}') ;`
     /// ex: INSERT INTO docs VALUES ('test','{"a":"a", "b":"b", "c":{"test":1}}') ;
   }
   else {
@@ -101,23 +104,23 @@ module.exports.store = async (params) => {
     if( maxMatch == null || maxMatch < 0 ) {
       /// Delete any matching records and store the value. Reports number of records deleted.
       command = `DELETE FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}'; ` +
-                `INSERT INTO ${schema}.docs VALUES ('${type}', '${data}') ;`
+                `INSERT INTO ${schema}.docs VALUES ('${type}', '${doc}') ;`
     }
     else if ( exclude != null ) {
       if( maxMatch == null || maxMatch < 0 ) {
         /// Delete any matching records that are not excluded and store the value. Reports number of records deleted.
         command = `DELETE FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}' ` +
                   `AND NOT data @> '${exclude}'; ` +
-                  `INSERT INTO ${schema}.docs VALUES ('${type}', '${data}') ;`
+                  `INSERT INTO ${schema}.docs VALUES ('${type}', '${doc}') ;`
       }
       else {
         /// If the limit is not exceeded, delete matching records that are not excluded and store the value. Reports number of records deleted.
-        command = `SELECT pgdoc.overwriteUnderMaxExcluding('${schema}', '${type}', '${data}', '${search}', ${maxMatch}, ${exclude}) ;`
+        command = `SELECT pgdoc.overwriteUnderMaxExcluding('${schema}', '${type}', '${doc}', '${search}', ${maxMatch}, ${exclude}) ;`
       }
     }
     else {
       /// If the limit is not exceeded, delete matching records and store the value. Reports number of records deleted.
-      command = `SELECT pgdoc.overwriteUnderMax('${schema}', '${type}', '${data}', '${search}', ${maxMatch}) ;`
+      command = `SELECT pgdoc.overwriteUnderMax('${schema}', '${type}', '${doc}', '${search}', ${maxMatch}) ;`
     }
   }
   if(options.verbose) {
