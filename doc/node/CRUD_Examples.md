@@ -419,7 +419,7 @@ let storeOverwriteMaxExcluding = async () => {
   /// First perform a simple store
   let params = {}
   params.type = `player`
-  params.doc  = { name: `Sandy Smith`, age:23, team: `red`, id: `-4` }
+  params.doc  = { name: `Sandy Smith`, position: `pitcher`, age:23, team: `red`, id: `-4` }
   rv = await pgdoc.store( params )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
@@ -428,18 +428,18 @@ let storeOverwriteMaxExcluding = async () => {
   /// Now an overlapping store...
   params = {}
   params.type = `player`
-  params.doc  = { name: `Samuel Doe`, age:19, team: `red`, id: `-4` } /// ID CONFLICT!
+  params.doc  = { name: `Samuel Doe`, position: `pitcher`, age:19, team: `red`, id: `-5` } /// position CONFLICT!
   rv = await pgdoc.store( docType, oldDoc )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
     return
   }
-  /// Now precisely ignore the conflicting data... ( You probably would not do this with an ID )
+  /// Now precisely ignore the conflicting data...
   console.log(`documents with conflicting ids stored.`)
   params = {}
   params.type = `player`
-  params.doc  = { name: `Samuel Doe`, age: 20, team: `red`, id: `-4` }
-  params.search = { id: `-4` }
+  params.doc  = { name: `Samuel Doe`, age: 20, team: `red`, id: `-5` }
+  params.search = { position: `pitcher` }
   params.exclude = { name: `Sandy Smith` }
   params.maxMatch = 1
   rv = await pgdoc.store( params )
@@ -448,10 +448,10 @@ let storeOverwriteMaxExcluding = async () => {
   }
   else {
     if( rv.length == 1 ) {
-      console.log( `Joan Doe's age record updated non-destructively despite conflicting ID` )
+      console.log( `Samuel Doe's age updated non-destructively despite conflicting position.` )
     }
     else {
-      console.error( `Error: Something prevented the update...\nrv: ${rv}` )
+      console.error( `Error: Something prevented a proper update...\nrv: ${rv}` )
     }
   }
 }
