@@ -50,19 +50,19 @@ let testBasic = async () => {
   rv = await pgdoc.requestID( { type } )
   assert( !rv.error )
   let id = rv
-  rl.write(`passed.\nID: ${id}\n`)
+  rl.write(`passed.\n  ID: ${id}\n`)
 
   rl.write(`ensuring no conflicting records in database via delete()...    `)
   rv = await pgdoc.delete( { type: `pgdocTest` } )
   assert( !rv.error )
-  rl.write(`passed.\nDeleted ${rv.deleted} documents.\n`)
+  rl.write(`passed.\n  Deleted ${rv.deleted} documents.\n`)
 
   let doc = { id, x: 1, y: 2, z: 3 }
 
   rl.write(`store()...                                                     `)
   rv = await pgdoc.store( { type, doc } )
   assert( !rv.error )
-  rl.write(`passed.\nStored: ${str(doc)}\n`)
+  rl.write(`passed.\n  Stored: ${str(doc)}\n`)
 
   let search = { id }
 
@@ -70,13 +70,13 @@ let testBasic = async () => {
   rv = await pgdoc.retrieve( { type, search } )
   // rv = await pgdoc.retrieve( { type, search, options: { verbose: true, quiet: true } } )
   assert( rv.length == 1 )
-  rl.write(`passed.\nRetrieved: ${str(rv[0])}\n`)
+  rl.write(`passed.\n  Retrieved: ${str(rv[0])}\n`)
 
   rl.write(`delete()...                                                    `)
   rv = await pgdoc.delete( { type, search } )
   assert( !rv.error )
   assert( rv.deleted == 1 )
-  rl.write(`passed.\nDeleted ${rv.deleted} documents.\n`)
+  rl.write(`passed.\n  Deleted ${rv.deleted} documents.\n`)
 
   rl.write(`Testing Basic Use Cases...                                     passed.\n\n`)
 
