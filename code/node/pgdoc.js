@@ -26,9 +26,12 @@ let config = {
 
 /**
  * Configure connection to postgres
- *
- * @param {string} - connectionString - a URL path to connect to PostgreSQL with
- * @param {object} - options - a list of configuration options for pgdoc, made persistent with this call
+ * 
+ * This verifies that a connection to the database is in working order.
+ * 
+ * You should call it when starting your application.
+ * 
+ * @param {object} - params - all parameters, including a PostgreSQL 'connectionString'
  * @returns {object} - A pgdoc error object or { error: false }
  */
 module.exports.connect = async (params) => {
@@ -37,7 +40,7 @@ module.exports.connect = async (params) => {
   if( options == null ) {
     return pgdocError(`BadOptions`, params)
   }
-  if( connectionString == null ) {
+  if( typeof(connectionString) != `string` ) {
     return pgdocError(`BadConnectionString`, params)
   }
   config.connectionString = connectionString
@@ -68,16 +71,11 @@ module.exports.connect = async (params) => {
  * 
  * Objects passed in as data/search/exclude will be in the form of non-circular javascript objects that can be stringified OR strings containing valid JSON
  * 
- * Setting maxMatch to 0 effectively requires the record to not already exist, and stores only in that case.
+ * Setting maxMatch to 0 effectively requires the record to not already exist in the database, and stores only in that case.
  * 
  * @todo document sequence integer limits of postgres here
- * @param {string} - type - The type of document. AKA - The name of the document collection
- * @param {object, string} - data - Object to be stored.
- * @param {object, string} - search - Object to filter results by, for which matches will be deleted.
- * @param {number} - maxMatch - An integer. If the search finds more then this many records, error out with MaxExceeded.
- * @param {object, string} - exclude - Object to filter results by, for which matches will be saved from deletion.
- * @param {object} - [options] - OPTIONAL object containing options to alter this function call
- * @returns {object, number} - A pgdoc error object or an object indicating the number of documents deleted in an overwrite. { error: false, deleted: <Integer> }
+ * @param {object} - params - all parameters, including the document to be stored.
+ * @returns {object} - A pgdoc error object or an object indicating the number of documents deleted in an overwrite. { error: false, deleted: <Integer> }
  */
 module.exports.store = async (params) => {
   ({type, data, search, maxMatch, exclude, options} = params)
@@ -180,10 +178,7 @@ module.exports.store = async (params) => {
 /**
  * Retrieve a list of objects built from JSON documents matching the fields of a JSON object.
  *
- * @param {string} - type - The type of document. AKA - The name of the collection
- * @param {object, string} - search - An object with key-value pairs that must be matched to be returned.
- * @param {object, string} - exclude - An object with key-value pairs that must NOT be matched to be returned.
- * @param {object} - [options] - OPTIONAL object containing options to alter this function call
+ * @param {object} - params - all parameters, including a search object to seek matches with.
  * @returns {list} - A list of Javascript objects parsed from the document, or an error object.
  */
 module.exports.retrieve = async (params) => {
@@ -242,9 +237,9 @@ module.exports.retrieve = async (params) => {
 }
 
 /**
- * @param {string} - type - The type of document. AKA - The name of the collection
- * @param {string} - search - An object with key-value pairs that must be matched to be returned.
- * @param {object} - [options] - OPTIONAL object containing options to alter this function call
+ * Delete zero or more documents from the database given a type and constraints.
+ * 
+ * @param {object} - params - all parameters, optionally including a search to narrow down results.
  * @returns {number} - An object with the number of deleted documents under '.deleted', or a pgdoc error
  */
 module.exports.delete = async (params) => {
@@ -296,9 +291,8 @@ module.exports.delete = async (params) => {
  * 
  * The ID is always a string, and ID's from this function are sequential integers (in string form).
  * 
- * @param {string} - type - The type of document. AKA - The name of the collection
- * @param {object} - [options] - OPTIONAL object containing options to alter this function call
- * @returns {object} - A javascript object parsed from the document, or null
+ * @param {object} - params - all parameters, including the type of the document to get an ID for
+ * @returns {object} - A string containing an integer value, starting at 1 or a pgdoc error
  */
 module.exports.requestID = async (params) => {
   ({type, options} = params)
@@ -350,7 +344,7 @@ module.exports.requestID = async (params) => {
  *
  * They can also be overridden on a per-function-call basis.
  *
- * @param {object} - options - a list of configuration options for pgdoc, made persistent with this call
+ * @param {object} - params - all parameters, including 
  * @returns {object} - A pgdoc error object or { error: false }
  */
 module.exports.configure = ( params ) => {
