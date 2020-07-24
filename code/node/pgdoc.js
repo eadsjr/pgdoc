@@ -32,13 +32,13 @@ let config = {
  * @returns {object} - A pgdoc error object or { error: false }
  */
 module.exports.connect = async (connectionString, options) => {
-  let args = [connectionString, options]
+  let params = [connectionString, options]
   options = optionsOverride(options)
   if( options == null ) {
-    return pgdocError(`BadOptions`, args)
+    return pgdocError(`BadOptions`, params)
   }
   if( connectionString == null ) {
-    return pgdocError(`BadConnectionString`, args)
+    return pgdocError(`BadConnectionString`, params)
   }
   config.connectionString = connectionString
 
@@ -48,7 +48,7 @@ module.exports.connect = async (connectionString, options) => {
     client.end()
   }
   catch (err) {
-    return connectionErrorHandler(client, err, args, pgdocError( "ConnectFailed", args) )
+    return connectionErrorHandler(client, err, params, pgdocError( "ConnectFailed", params) )
   }
   return { error: false }
 }
@@ -80,10 +80,10 @@ module.exports.connect = async (connectionString, options) => {
  * @returns {object, number} - A pgdoc error object or an object indicating the number of documents deleted in an overwrite. { error: false, deleted: <Integer> }
  */
 module.exports.store = async (type, data, search, maxMatch, exclude, options) => {
-  let args = [type, data, options]
+  let params = [type, data, options]
   options = optionsOverride(options)
   if( options == null ) {
-    return pgdocError(`BadOptions`, args)
+    return pgdocError(`BadOptions`, params)
   }
   data = str(data)
   if( search != null ) {
@@ -132,7 +132,7 @@ module.exports.store = async (type, data, search, maxMatch, exclude, options) =>
     /// Get connection online.
     client = new pg.Client(options.connectionString)
     if(client == null) {
-      return pgdocError('UnknownError',args)
+      return pgdocError('UnknownError',params)
     }
     await client.connect()
     let res = await client.query(command)
@@ -147,7 +147,7 @@ module.exports.store = async (type, data, search, maxMatch, exclude, options) =>
         /// Update case: expecting at least one result with a rowCount
         if( `length` in res && res.length > 0 && `rowCount` in res[1] ) {
           if( res[1].rowCount < 0 ) {
-            err = pgdocError('MaxExceeded', args)
+            err = pgdocError('MaxExceeded', params)
             err.description += ` Max: ${maxMatch}, Found: ${-res[1].rowCount}`
             return err
           }
@@ -155,7 +155,7 @@ module.exports.store = async (type, data, search, maxMatch, exclude, options) =>
           return { error: false, deleted: res[1].rowCount }
         }
         else {
-          return pgdocError('UpdateFailed', args)
+          return pgdocError('UpdateFailed', params)
         }
       }
       else if(res.rowCount > 0) {
@@ -164,16 +164,16 @@ module.exports.store = async (type, data, search, maxMatch, exclude, options) =>
       }
       else {
         /// Nothing was stored
-        return pgdocError('NothingChanged', args)
+        return pgdocError('NothingChanged', params)
       }
     }
     else {
       console.error(unknownError)
-      return pgdocError('StoreFailed', args)
+      return pgdocError('StoreFailed', params)
     }
   }
   catch (err) {
-    return connectionErrorHandler(client, err, args, pgdocError('StoreFailed', args) )
+    return connectionErrorHandler(client, err, params, pgdocError('StoreFailed', params) )
   }
 }
 
@@ -187,10 +187,10 @@ module.exports.store = async (type, data, search, maxMatch, exclude, options) =>
  * @returns {list} - A list of Javascript objects parsed from the document, or an error object.
  */
 module.exports.retrieve = async (type, search, exclude, options) => {
-  let args = [type, search, options]
+  let params = [type, search, options]
   options = optionsOverride(options)
   if( options == null ) {
-    return pgdocError(`BadOptions`, args)
+    return pgdocError(`BadOptions`, params)
   }
   search = str(search)
   let schema = options.schema
@@ -233,11 +233,11 @@ module.exports.retrieve = async (type, search, exclude, options) => {
     }
     else {
       console.error(unknownError)
-      return pgdocError('RetrieveFailed', args)
+      return pgdocError('RetrieveFailed', params)
     }
   }
   catch (err) {
-    return connectionErrorHandler(client, err, args, pgdocError('RetrieveFailed', args) )
+    return connectionErrorHandler(client, err, params, pgdocError('RetrieveFailed', params) )
   }
 }
 
@@ -248,10 +248,10 @@ module.exports.retrieve = async (type, search, exclude, options) => {
  * @returns {number} - An object with the number of deleted documents under '.deleted', or a pgdoc error
  */
 module.exports.delete = async (type, search, options) => {
-  let args = [type, search, options]
+  let params = [type, search, options]
   options = optionsOverride(options)
   if( options == null ) {
-    return pgdocError(`BadOptions`, args)
+    return pgdocError(`BadOptions`, params)
   }
   search = str(search)
   let schema = options.schema
@@ -283,11 +283,11 @@ module.exports.delete = async (type, search, options) => {
     }
     else {
       console.error(unknownError)
-      return pgdocError('DeleteFailed', args)
+      return pgdocError('DeleteFailed', params)
     }
   }
   catch (err) {
-    return connectionErrorHandler(client, err, args, pgdocError('DeleteFailed', args) )
+    return connectionErrorHandler(client, err, params, pgdocError('DeleteFailed', params) )
   }
 }
 
@@ -301,10 +301,10 @@ module.exports.delete = async (type, search, options) => {
  * @returns {object} - A javascript object parsed from the document, or null
  */
 module.exports.requestID = async (type, options) => {
-  let args = [type]
+  let params = [type]
   options = optionsOverride(options)
   if( options == null ) {
-    return pgdocError(`BadOptions`, args)
+    return pgdocError(`BadOptions`, params)
   }
   let schema = options.schema
 
@@ -332,16 +332,16 @@ module.exports.requestID = async (type, options) => {
       }
       else {
         /// Nothing was stored
-        return pgdocError('RequestIDFailed', args)
+        return pgdocError('RequestIDFailed', params)
       }
     }
     else {
       /// Null response
-      return pgdocError('RequestIDFailed', args)
+      return pgdocError('RequestIDFailed', params)
     }
   }
   catch (err) {
-    return connectionErrorHandler(client, err, args, pgdocError('RequestIDFailed', args) )
+    return connectionErrorHandler(client, err, params, pgdocError('RequestIDFailed', params) )
   }
 }
 
@@ -354,13 +354,13 @@ module.exports.requestID = async (type, options) => {
  * @returns {object} - A pgdoc error object or { error: false }
  */
 module.exports.configure = ( options ) => {
-  args = [options]
+  params = [options]
   if( typeof(options) == 'object' ) {
     Object.assign(config, options)
     return { error: false }
   }
   else {
-    return pgdocError(`BadOptions`, args)
+    return pgdocError(`BadOptions`, params)
   }
 }
 
@@ -392,7 +392,7 @@ const str = (object) => {
  * @returns {object} - A Javascript object represented by the string passed in.
  */
 const parse = (string) => {
-  args = [string]
+  params = [string]
   try {
     object = JSON.parse(string)
     /// TODO: ensure no security hole here in case of compromised database / database connection
@@ -400,7 +400,7 @@ const parse = (string) => {
   }
   catch (err) {
     /// Triggers on NaN, invalid JSON strings and possibly other strange input
-    return pgdocError(`ParseFailed`, args)
+    return pgdocError(`ParseFailed`, params)
   }
 }
 
@@ -426,10 +426,10 @@ const optionsOverride = ( options ) => {
  */
 
 /// This private function creates the error object that is returned.
-const pgdocError = (label, args, wrapped=null) => {
+const pgdocError = (label, params, wrapped=null) => {
   err = {}
   Object.assign( err, errors[label] )
-  err.args = args
+  err.params = params
   if( wrapped != null ) {
     err.wrapped = wrapped
   }
@@ -440,27 +440,27 @@ const unhandledError = `\n!!!! pgdoc unhandled error! Please report the above ob
 const unknownError   = `\n!!!! pgdoc unknown error! Please report any relevant details on an issue here: https://github.com/eadsjr/pgdoc/issues !!!!\n`
 
 /// Handle common error cases
-const connectionErrorHandler = ( client, err, args, fallbackError ) => {
+const connectionErrorHandler = ( client, err, params, fallbackError ) => {
   if(client != null) {
     client.end()
   }
   if( err.code == `ECONNREFUSED` ) {
     /// SYSTEM: net.js: TCPConnectWrap.afterConnect: ECONNREFUSED
-    return pgdocError(`DatabaseUnreachable`, args, err)
+    return pgdocError(`DatabaseUnreachable`, params, err)
   }
   else if( err.code == `28000` ) {
     /// POSTGRES: error: role {} does not exist
     /// POSTGRES: error: role {} is not permitted to log in
-    return pgdocError(`AccessDenied`, args, err)
+    return pgdocError(`AccessDenied`, params, err)
   }
   else if( err.code == `42501` ) {
     /// POSTGRES: error: permission denied for schema {}
     /// POSTGRES: error: permission denied for table docs
-    return pgdocError(`BadPermissions`, args, err)
+    return pgdocError(`BadPermissions`, params, err)
   }
   else if( err.code == `3D000` ) {
     /// POSTGRES: error: database {} does not exist
-    return pgdocError(`DatabaseNotCreated`, args, err)
+    return pgdocError(`DatabaseNotCreated`, params, err)
   }
   else {
     if( fallbackError != null ) {
@@ -471,7 +471,7 @@ const connectionErrorHandler = ( client, err, args, fallbackError ) => {
     else {
       console.error(err)
       console.error(unhandledError)
-      return pgdocError(`UnknownError`, args, err)
+      return pgdocError(`UnknownError`, params, err)
     }
   }
 }
