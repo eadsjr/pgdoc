@@ -16,7 +16,7 @@ Once that is done and the server is running, you can run `node` to drop into a R
 First we need to include the pgdoc module.
 
 ``` js
-const pgdoc = require("pgdoc")
+const pgdoc = require(`pgdoc`)
 const str   = pgdoc.JSON.stringify
 const parse = pgdoc.JSON.parse
 ```
@@ -24,7 +24,7 @@ const parse = pgdoc.JSON.parse
 Alternately, if you are in the pgdoc github project, you would load it from the relative path to the pgdoc code.
 
 ``` js
-const pgdoc = require("./code/node/pgdoc")
+const pgdoc = require(`./code/node/pgdoc`)
 const str   = pgdoc.JSON.stringify
 const parse = pgdoc.JSON.parse
 ```
@@ -41,7 +41,7 @@ let connect = async () => {
   let domain   = `127.0.0.1` /* database domain path. 127.0.0.1 if local */
   let port     = `5432` /* 5432 is postgres default. It's a major security risk not to change this if you put it online! */
   let connectionString = `postgres://pgdoc:${password}@${domain}:${port}/pgdoc`
-  let rv = await pgdoc.connect(connectionString)
+  let rv = await pgdoc.connect( { connectionString } )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
   }
@@ -62,9 +62,10 @@ Now we can store a Javascript object in postgres by simply calling `pgdoc.store(
 
 ``` js
 let storeBasic = async () => {
-  let docType = "player"
-  let myDoc = { name: "John Smith", age: 42, team: "red", id: "-7" }
-  let rv = await pgdoc.store( docType, myDoc )
+  let params = {}
+  params.type = `player`
+  params.doc = { name: `John Smith`, age: 42, team: `red`, id: `-7` }
+  let rv = await pgdoc.store( params )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
   }
@@ -81,10 +82,11 @@ You can store more complex objects using the same method.
 
 ```js
 let storeComplex = async () => {
+  let params = {}
   let complexObject = { data: {}, evenMoreData: {} }
-  let docType = "player"
-  let myDoc = { name:"Jane Doe", age:25, team:"red", config:complexObject, id: "-8" }
-  let rv = await pgdoc.store( docType, myDoc )
+  params.type = `player`
+  params.doc = { name:`Jane Doe`, age:25, team:`red`, config:complexObject, id: `-8` }
+  let rv = await pgdoc.store( params )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
   }
@@ -100,9 +102,10 @@ You can also store valid JSON strings directly. This can be especially useful wh
 ``` js
 let storeString = async () => {
   // SECURITY NOTE: Don't forget to verify incoming data from client is not malicious or malformed!
-  let docType = "player"
-  let myDoc = `{ "name":"Bob Smith", "age":42, "team":"red", id: "-9" }`
-  let rv = await pgdoc.store( docType, myDoc )
+  let params = {}
+  params.type = `player`
+  params.doc = `{ "name": "Bob Smith", "age":42, "team": "red", "id": "-9" }`
+  let rv = await pgdoc.store( params )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
   }
@@ -120,10 +123,11 @@ This string method is useful if you need some template JSON that will be reused 
 ``` js
 let storeDynamicString = async () => {
   // SECURITY NOTE: Don't forget to verify dynamic data from client is not malicious or malformed!
+  let params = {}
   let complexObject = { data: {}, evenMoreData: {} }
-  let docType = "player"
-  let myDoc = `{ "name":"Tammy Smith", "age":25, "team":"blue", "config":${str(complexObject)}, id: "-10" }`
-  let rv = await pgdoc.store( docType, myDoc )
+  params.type = `player`
+  params.doc = `{ "name":"Tammy Smith", "age":25, "team":"blue", "config": ${str(complexObject)}, id: "-10" }`
+  let rv = await pgdoc.store( params )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
   }
@@ -140,15 +144,16 @@ You should verify you were able to get an ID before using it. Valid IDs will be 
 
 ``` js
 let storeBasicWithID = async () => {
-  let docType = "player"
-  let id = await pgdoc.requestID(docType)
+  let id = await pgdoc.requestID( { type: `player`} )
   if( id.error ) {
     console.error(`${id.label}: ${id.description}`)
   }
   else {
     console.log(`collected id: ${id}`)
-    let myDoc = { name:"John Smith", age:33, team:"red", id:id }
-    let rv = await pgdoc.store( docType, myDoc )
+    let params = {}
+    params.type = `player`
+    params.doc = { name:`John Smith`, age:33, team:`red`, id:id }
+    let rv = await pgdoc.store( params )
     if( rv.error ) {
       console.error(`${rv.label}: ${rv.description}`)
     }
@@ -168,17 +173,20 @@ You can store the id and other metadata outside your data object by nesting them
 
 ``` js
 let storeWithMetadata = async () => {
-  let docType = "player"
-  let myData = { name:"John Calhoun", age:22, team:"blue" }
-  let id = await pgdoc.requestID(docType)
+  let params = {}
+  params.type = `player`
+  params.doc = { name:`John Calhoun`, age:22, team:`blue` }
+  let id = await pgdoc.requestID( params )
   if( id.error ) {
     console.error(`${id.label}: ${id.description}`)
   }
   else {
     console.log(`collected id: ${id}`)
-    myMetaData = { timestamp: Date.now(), id: id }
-    myDoc = { meta: myMetaData, data: myData }
-    rv = await pgdoc.store( docType, myDoc )
+    let myMetaData = { timestamp: Date.now(), id: id }
+    let params = {}
+    params.type = `player`
+    params.doc = { meta: myMetaData, data: myData }
+    rv = await pgdoc.store( params )
     if( rv.error ) {
       console.error(`${rv.label}: ${rv.description}`)
     }
@@ -203,9 +211,10 @@ You get documents back out by performing a search in the form of an Object. `pgd
 
 ```js
 let retrieveBasic = async ( ID ) => {
-  docType = "player"
-  mySearch = { id: ID }
-  rv = await pgdoc.retrieve(docType, mySearch)
+  let params = {}
+  params.type = `player`
+  params.search = { id: ID }
+  let rv = await pgdoc.retrieve(params)
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
   }
@@ -224,16 +233,17 @@ let retrieveBasic = async ( ID ) => {
     console.log(rv) /// A list of zero or more documents
   }
 }
-retrieveBasic("1")
+retrieveBasic(`1`)
 ```
 
 This works with any information specific to one document.
 
 ```js
 let retrieveByName = async ( name ) => {
-  docType = "player"
-  mySearch = { name }
-  rv = await pgdoc.retrieve(docType, mySearch)
+  let params = {}
+  params.type = `player`
+  params.search = { name }
+  rv = await pgdoc.retrieve(params)
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
   }
@@ -252,16 +262,17 @@ let retrieveByName = async ( name ) => {
     console.log(rv) /// A list of zero or more documents
   }
 }
-retrieveByName("Jane Doe")
+retrieveByName(`Jane Doe`)
 ```
 
 You can retrieve multiple documents by simply searching a shared member.
 
 ``` js
 let retrieveMulti = async () => {
-  docType = "player"
-  mySearch = { team: "red" }
-  rv = await pgdoc.retrieve( docType, mySearch )
+  let params = {}
+  params.type = `player`
+  params.search = { team: `red` }
+  rv = await pgdoc.retrieve( params )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
   }
@@ -279,10 +290,11 @@ If you want to further refine your search, you can use a second filter to exclud
 
 ``` js
 let retrieveExcluding = async () => {
-  docType = "player"
-  mySearch = { team: "red" }
-  myExclusions = { age: "42" }
-  rv = await pgdoc.retrieve( docType, mySearch, myExclusions )
+  let params = {}
+  params.type = `player`
+  params.search = { team: `red` }
+  params.exclude = { age: `42` }
+  rv = await pgdoc.retrieve( params )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
   }
@@ -303,18 +315,20 @@ By adding a search filter unique to the document you are updating, you can overw
 ``` js
 let storeOverwrite = async () => {
   /// First perform a simple store
-  let docType = "player"
-  let oldDoc  = { name: "Bill Smith", age:43, team: "red", id: "-1" }
-  rv = await pgdoc.store( docType, oldDoc )
+  let params = {}
+  params.type = `player`
+  params.doc  = { name: `Bill Smith`, age:43, team: `red`, id: `-1` }
+  rv = await pgdoc.store( params )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
   }
   else {
     // Now overwrite the stored data with a specific alternative value
     console.log(`document stored with age: 43`)
-    let newDoc  = { name: "Bill Smith", age: 44, team: "red", id: "-1" }
-    let mySearch = { id: "-1" }
-    rv = await pgdoc.store( docType, newDoc, mySearch )
+    let params = {}
+    params.doc  = { name: `Bill Smith`, age: 44, team: `red`, id: `-1` }
+    params.search = { id: `-1` }
+    rv = await pgdoc.store( params )
     if( rv.error ) {
       console.error(`${rv.label}: ${rv.description}`)
     }
@@ -339,26 +353,31 @@ If you want to avoid deleting too much you can specify the number of documents y
 ``` js
 let storeOverwriteMax = async () => {
   /// First perform a simple store
-  let docType = "player"
-  let oldDoc  = { name: "Jill Smith", age:23, team: "red", id: "-2" }
-  rv = await pgdoc.store( docType, oldDoc )
+  let params = {}
+  params.type = `player`
+  params.doc  = { name: `Jill Smith`, age:23, team: `red`, id: `-2` }
+  rv = await pgdoc.store( params )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
     return
   }
   /// Now an overlapping store...
-  oldDoc  = { name: "Joan Doe", age:19, team: "red", id: "-2" } /// ID CONFLICT!
-  rv = await pgdoc.store( docType, oldDoc )
+  params = {}
+  params.type = `player`
+  params.doc  = { name: `Joan Doe`, age:19, team: `red`, id: `-2` } /// ID CONFLICT!
+  rv = await pgdoc.store( params )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
     return
   }
   // Now attempt to overwrite the stored data with a specific alternative value
   console.log(`documents with conflicting ids stored.`)
-  let newDoc  = { name: "Joan Doe", age: 20, team: "red", id: "-2" }
-  let mySearch = { id: "-2" }
-  let maxMatch = 1
-  rv = await pgdoc.store( docType, newDoc, mySearch, maxMatch )
+  params = {}
+  params.type = `player`
+  params.doc  = { name: `Joan Doe`, age: 20, team: `red`, id: `-2` }
+  params.search = { id: `-2` }
+  params.maxMatch = 1
+  rv = await pgdoc.store( params )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
   }
@@ -377,11 +396,12 @@ You can also use this maxMatch feature to ensure a unique value in the first pla
 ``` js
 let storeUnique = async () => {
   /// Store a document with a unique player name if and only if it is unique
-  let docType = "player"
-  let doc  = { name: "Jimmy Smith", age:23, team: "red", id: "-3" }
-  let mySearch = { name: "Jimmy Smith" }
-  let maxMatch = 0
-  rv = await pgdoc.store( docType, oldDoc, mySearch, maxMatch )
+  let params = {}
+  params.type = `player`
+  params.doc  = { name: `Jimmy Smith`, age:23, team: `red`, id: `-3` }
+  params.search = { name: `Jimmy Smith` }
+  params.maxMatch = 0
+  rv = await pgdoc.store( params )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
   }
@@ -397,27 +417,32 @@ You can exclude from pgdoc.store() deletion searches in the same way you would w
 ``` js
 let storeOverwriteMaxExcluding = async () => {
   /// First perform a simple store
-  let docType = "player"
-  let oldDoc  = { name: "Sandy Smith", age:23, team: "red", id: "-4" }
-  rv = await pgdoc.store( docType, oldDoc )
+  let params = {}
+  params.type = `player`
+  params.doc  = { name: `Sandy Smith`, age:23, team: `red`, id: `-4` }
+  rv = await pgdoc.store( params )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
     return
   }
   /// Now an overlapping store...
-  oldDoc  = { name: "Samuel Doe", age:19, team: "red", id: "-4" } /// ID CONFLICT!
+  params = {}
+  params.type = `player`
+  params.doc  = { name: `Samuel Doe`, age:19, team: `red`, id: `-4` } /// ID CONFLICT!
   rv = await pgdoc.store( docType, oldDoc )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
     return
   }
-  /// Now precisely ignore the conflicting data... ( Why would you ever do this? )
+  /// Now precisely ignore the conflicting data... ( You probably would not do this with an ID )
   console.log(`documents with conflicting ids stored.`)
-  let newDoc  = { name: "Samuel Doe", age: 20, team: "red", id: "-4" }
-  let mySearch = { id: "-4" }
-  let myExclusions = { name: "Sandy Smith" }
-  let maxMatch = 1
-  rv = await pgdoc.store( docType, newDoc, mySearch, maxMatch, myExclusions )
+  params = {}
+  params.type = `player`
+  params.doc  = { name: `Samuel Doe`, age: 20, team: `red`, id: `-4` }
+  params.search = { id: `-4` }
+  params.exclude = { name: `Sandy Smith` }
+  params.maxMatch = 1
+  rv = await pgdoc.store( params )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
   }
@@ -439,9 +464,10 @@ Deletion is handled using the same search method as `pgdoc.retrieve()`, but the 
 
 ``` js
 let deleteBasic = async ( ID ) => {
-  docType = "player"
-  mySearch = { id: ID }
-  rv = await pgdoc.delete(docType, mySearch)
+  let params = {}
+  params.type = `player`
+  params.search = { id: ID }
+  rv = await pgdoc.delete( params )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
   }
@@ -449,17 +475,18 @@ let deleteBasic = async ( ID ) => {
     console.log(`Deleted ${rv.deleted} document(s)`)
   }
 }
-deleteBasic("1")
+deleteBasic(`1`)
 ```
 
 You can limit the number of documents to be deleted, which is especially useful if you only want your search to match one document.
 
 ``` js
 let deleteLimited = async ( ID ) => {
-  docType = "player"
-  mySearch = { id: ID }
-  maxMatch = 1
-  rv = await pgdoc.delete(docType, mySearch, maxMatch)
+  let params = {}
+  params.type = `player`
+  params.search = { id: ID }
+  params.maxMatch = 1
+  rv = await pgdoc.delete(params)
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
   }
@@ -467,7 +494,7 @@ let deleteLimited = async ( ID ) => {
     console.log(`Deleted ${rv.deleted} document(s)`)
   }
 }
-deleteLimited("-4")
+deleteLimited(`-4`)
 ```
 
 ### [Back to getting started page][start]
