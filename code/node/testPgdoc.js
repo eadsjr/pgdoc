@@ -20,64 +20,70 @@ module.exports = config
 let testStore = async () => {
   console.log(`testing store()...`)
   let type = `CRUD_Test`
-  let data = { id: 0, x: 1, y: 3, z: -2 }
+  let doc = { id: 0, x: 1, y: 3, z: -2 }
   try {
-    let err = await pgdoc.store(type, data)
-    if( err != null ) {
+    let rv = await pgdoc.store({type, doc})
+    if( rv.error ) {
       console.log(`pgdoc.store failed with error:\n  ${err.label}: ${err.description}`)
-      // console.log(str(err))
-      return
     }
   }
   catch (err) {
-    console.log(`pgdoc.store failed for type:'${type}' and data:'${str(data)}'.\n${err}`)
-    return
+    console.log(`pgdoc.store failed for type:'${type}' and doc:'${str(doc)}'.\n${err}`)
   }
 }
+// testStore()
 
 let testRetrieve = async () => {
   console.log(`testing retrieve()...`)
   let type = `CRUD_Test`
   let search = { id: 0 }
   try {
-    let result = await pgdoc.retrieve(type, search)
+    let result = await pgdoc.retrieve( {type, search} )
     console.log(result)
   }
   catch (err) {
     console.log(`pgdoc.retreive failed for type:'${type}' and search:'${str(search)}'.\n${err}`)
-    return
   }
 }
+// testRetrieve()
 
 let testDelete = async () => {
   console.log(`testing delete()...`)
   let type = `CRUD_Test`
   let search = { id: 0 }
   try {
-    let result = await pgdoc.delete(type, search)
+    let result = await pgdoc.delete( {type, search} )
     console.log(result)
   }
   catch (err) {
     console.log(`pgdoc.delete() failed for type:'${type}' and search:'${str(search)}'.\n${err}`)
-    return
   }
 }
+// testDelete()
 
 let testRequestID = async () => {
   console.log(`testing requestID()...`)
   let type = `CRUD_Test`
   try {
-    let result = await pgdoc.requestID(type)
+    let result = await pgdoc.requestID( {type} )
     console.log(result)
   }
   catch (err) {
     console.log(`pgdoc.requestID() failed for type:'${type}'.\n${err}`)
-    return
   }
 }
+// testRequestID()
 
 let testConfigure = async () => {
-  console.log(`testing configure()... NOT IMPLEMENTED`)
+  console.log(`testing configure()...`)
+  try {
+    let options = { verbose: true }
+    let result = await pgdoc.configure( {options} )
+    console.log(result)
+  }
+  catch (err) {
+    console.log(`pgdoc.configure() failed for options:'${options}'.\n${err}`)
+  }
 }
 
 // console.log( pgdoc.JSON.parse(NaN) )
@@ -86,7 +92,9 @@ let testConfigure = async () => {
 
 let connect = async () => {
   console.log(`connecting to database...`)
-  let err = await pgdoc.connect(config.connectionString, {schema: config.schema, verbose: true})
+  let connectionString = config.connectionString
+  let options = {schema: config.schema, verbose: true}
+  let err = await pgdoc.connect( { connectionString, options } )
   if( err.error ) {
     console.log(err)
   }
