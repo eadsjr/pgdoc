@@ -18,6 +18,7 @@ let config = {
   database: 'pgdoc',
   schema: 'pgdoc',
   verbose: false,
+  quiet: false,
 }
 
 /**
@@ -44,7 +45,7 @@ module.exports.connect = async (params) => {
   }
   if( typeof(options) == 'object' ) {
     Object.assign(config, options)
-    return { error: false }
+    options = config
   }
   config.connectionString = connectionString
 
@@ -54,7 +55,7 @@ module.exports.connect = async (params) => {
     client.end()
   }
   catch (err) {
-    return connectionErrorHandler(client, err, params, pgdocError( "ConnectFailed", params) )
+    return connectionErrorHandler(client, err, params, pgdocError( "ConnectFailed", params), options )
   }
   return { error: false }
 }
@@ -123,7 +124,7 @@ module.exports.store = async (params) => {
       command = `SELECT pgdoc.overwriteUnderMax('${schema}', '${type}', '${doc}', '${search}', ${maxMatch}) ;`
     }
   }
-  if(options.verbose) {
+  if(!options.quiet && options.verbose) {
     console.log(command)
   }
 
@@ -139,7 +140,7 @@ module.exports.store = async (params) => {
     let res = await client.query(command)
     client.end()
     if(res != null) {
-      if(options.verbose) {
+      if(!options.quiet && options.verbose) {
         console.log(`received response: ${str(res)}`)
         console.log(res)
       }
@@ -169,12 +170,14 @@ module.exports.store = async (params) => {
       }
     }
     else {
-      console.error(unknownError)
+      if(!config.quiet) {
+        console.error(unknownError)
+      }
       return pgdocError('StoreFailed', params)
     }
   }
   catch (err) {
-    return connectionErrorHandler(client, err, params, pgdocError('StoreFailed', params) )
+    return connectionErrorHandler(client, err, params, pgdocError('StoreFailed', params), options )
   }
 }
 
@@ -201,7 +204,7 @@ module.exports.retrieve = async (params) => {
     command = `SELECT data FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}' ` +
               `AND NOT data @> '${exclude}';`
   }
-  if(options.verbose) {
+  if(!options.quiet && options.verbose) {
     console.log(command)
   }
 
@@ -212,7 +215,7 @@ module.exports.retrieve = async (params) => {
     let res = await client.query(command)
     client.end()
     if(res != null) {
-      if(options.verbose) {
+      if(!options.quiet && options.verbose) {
         console.log(`received response: ${str(res)}`)
         console.log(res)
       }
@@ -230,12 +233,14 @@ module.exports.retrieve = async (params) => {
       }
     }
     else {
-      console.error(unknownError)
+      if(!options.quiet) {
+        console.error(unknownError)
+      }
       return pgdocError('RetrieveFailed', params)
     }
   }
   catch (err) {
-    return connectionErrorHandler(client, err, params, pgdocError('RetrieveFailed', params) )
+    return connectionErrorHandler(client, err, params, pgdocError('RetrieveFailed', params), options )
   }
 }
 
@@ -262,7 +267,7 @@ module.exports.delete = async (params) => {
     command = `DELETE FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}';`
   }
   /// DELETE FROM pgdocs.docs WHERE type = 'test' AND data @> '{"id":0}' ;
-  if( options.verbose ) {
+  if( !options.quiet && options.verbose ) {
     console.log(command)
   }
 
@@ -273,19 +278,21 @@ module.exports.delete = async (params) => {
     let res = await client.query(command)
     client.end()
     if(res != null) {
-      if(options.verbose) {
+      if(!options.quiet && options.verbose) {
         console.log(`received response: ${str(res)}`)
         console.log(res)
       }
       return { error: false, deleted: res.rowCount }
     }
     else {
-      console.error(unknownError)
+      if(!options.quiet) {
+        console.error(unknownError)
+      }
       return pgdocError('DeleteFailed', params)
     }
   }
   catch (err) {
-    return connectionErrorHandler(client, err, params, pgdocError('DeleteFailed', params) )
+    return connectionErrorHandler(client, err, params, pgdocError('DeleteFailed', params), options )
   }
 }
 
@@ -307,7 +314,7 @@ module.exports.requestID = async (params) => {
 
   // TODO: THIS IS NOT SQL INJECTION SAFE
   let command = `SELECT pgdoc.incrementSequence('${schema}', '${type}') ;`
-  if(options.verbose) {
+  if(!options.quiet && options.verbose) {
     console.log(command)
   }
 
@@ -318,7 +325,7 @@ module.exports.requestID = async (params) => {
     let res = await client.query(command)
     client.end()
     if(res != null) {
-      if(options.verbose) {
+      if(!options.quiet && options.verbose) {
         console.log(`received response: ${str(res)}`)
         console.log(res)
       }
@@ -338,7 +345,7 @@ module.exports.requestID = async (params) => {
     }
   }
   catch (err) {
-    return connectionErrorHandler(client, err, params, pgdocError('RequestIDFailed', params) )
+    return connectionErrorHandler(client, err, params, pgdocError('RequestIDFailed', params), options )
   }
 }
 
@@ -433,11 +440,10 @@ const pgdocError = (label, params, wrapped=null) => {
   return err
 }
 
-const unhandledError = `\n!!!! pgdoc unhandled error! Please report the above object on an issue here: https://github.com/eadsjr/pgdoc/issues !!!!\n`
 const unknownError   = `\n!!!! pgdoc unknown error! Please report any relevant details on an issue here: https://github.com/eadsjr/pgdoc/issues !!!!\n`
 
 /// Handle common error cases
-const connectionErrorHandler = ( client, err, params, fallbackError ) => {
+const connectionErrorHandler = ( client, err, params, fallbackError, options ) => {
   if(client != null) {
     client.end()
   }
@@ -460,14 +466,14 @@ const connectionErrorHandler = ( client, err, params, fallbackError ) => {
     return pgdocError(`DatabaseNotCreated`, params, err)
   }
   else {
-    if( fallbackError != null ) {
+    if(!options.quiet) {
       console.error(err)
-      console.error(unhandledError)
+      console.error(`\n!!!! pgdoc unhandled error! Please report the above object on an issue here: https://github.com/eadsjr/pgdoc/issues !!!!\n`)
+    }
+    if( fallbackError != null ) {
       return fallbackError
     }
     else {
-      console.error(err)
-      console.error(unhandledError)
       return pgdocError(`UnknownError`, params, err)
     }
   }
