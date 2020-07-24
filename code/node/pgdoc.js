@@ -37,15 +37,11 @@ let config = {
  */
 module.exports.connect = async (params) => {
   ({connectionString, options} = params)
-  if( options == null ) {
-    return pgdocError(`BadOptions`, params)
-  }
   if( typeof(connectionString) != `string` ) {
     return pgdocError(`BadConnectionString`, params)
   }
   if( typeof(options) == 'object' ) {
     Object.assign(config, options)
-    options = config
   }
   config.connectionString = connectionString
 
@@ -55,7 +51,7 @@ module.exports.connect = async (params) => {
     client.end()
   }
   catch (err) {
-    return connectionErrorHandler(client, err, params, pgdocError( "ConnectFailed", params), options )
+    return connectionErrorHandler( client, err, params, pgdocError( "ConnectFailed", params) )
   }
   return { error: false }
 }
@@ -82,16 +78,12 @@ module.exports.connect = async (params) => {
  * @returns {object} - A pgdoc error object or an object indicating the number of documents deleted in an overwrite. { error: false, deleted: <Integer> }
  */
 module.exports.store = async (params) => {
-  ({type, doc, search, maxMatch, exclude, options} = params)
-  options = optionsOverride(options)
-  if( options == null ) {
-    return pgdocError(`BadOptions`, params)
-  }
+  ({type, doc, search, maxMatch, exclude} = params)
   doc = str(doc)
   if( search != null ) {
     search = str(search)
   }
-  let schema = options.schema
+  let schema = config.schema
 
   /// TODO: THIS IS NOT SQL INJECTION SAFE
   let command
@@ -124,7 +116,7 @@ module.exports.store = async (params) => {
       command = `SELECT pgdoc.overwriteUnderMax('${schema}', '${type}', '${doc}', '${search}', ${maxMatch}) ;`
     }
   }
-  if(!options.quiet && options.verbose) {
+  if(!config.quiet && config.verbose) {
     console.log(command)
   }
 
@@ -132,7 +124,7 @@ module.exports.store = async (params) => {
   /// Execute store command
   try {
     /// Get connection online.
-    client = new pg.Client(options.connectionString)
+    client = new pg.Client(config.connectionString)
     if(client == null) {
       return pgdocError('UnknownError',params)
     }
@@ -140,7 +132,7 @@ module.exports.store = async (params) => {
     let res = await client.query(command)
     client.end()
     if(res != null) {
-      if(!options.quiet && options.verbose) {
+      if(!config.quiet && config.verbose) {
         console.log(`received response: ${str(res)}`)
         console.log(res)
       }
@@ -177,7 +169,7 @@ module.exports.store = async (params) => {
     }
   }
   catch (err) {
-    return connectionErrorHandler(client, err, params, pgdocError('StoreFailed', params), options )
+    return connectionErrorHandler( client, err, params, pgdocError('StoreFailed', params) )
   }
 }
 
@@ -188,13 +180,9 @@ module.exports.store = async (params) => {
  * @returns {list} - A list of Javascript objects parsed from the document, or an error object.
  */
 module.exports.retrieve = async (params) => {
-  ({type, search, maxMatch, exclude, options} = params)
-  options = optionsOverride(options)
-  if( options == null ) {
-    return pgdocError(`BadOptions`, params)
-  }
+  ({type, search, maxMatch, exclude} = params)
   search = str(search)
-  let schema = options.schema
+  let schema = config.schema
 
   let command
   if( exclude == null ) {
@@ -204,18 +192,18 @@ module.exports.retrieve = async (params) => {
     command = `SELECT data FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}' ` +
               `AND NOT data @> '${exclude}';`
   }
-  if(!options.quiet && options.verbose) {
+  if(!config.quiet && config.verbose) {
     console.log(command)
   }
 
   let client
   try {
-    client = new pg.Client(options.connectionString)
+    client = new pg.Client(config.connectionString)
     await client.connect()
     let res = await client.query(command)
     client.end()
     if(res != null) {
-      if(!options.quiet && options.verbose) {
+      if(!config.quiet && config.verbose) {
         console.log(`received response: ${str(res)}`)
         console.log(res)
       }
@@ -236,14 +224,14 @@ module.exports.retrieve = async (params) => {
       }
     }
     else {
-      if(!options.quiet) {
+      if(!config.quiet) {
         console.error(unknownError)
       }
       return pgdocError('RetrieveFailed', params)
     }
   }
   catch (err) {
-    return connectionErrorHandler(client, err, params, pgdocError('RetrieveFailed', params), options )
+    return connectionErrorHandler( client, err, params, pgdocError('RetrieveFailed', params) )
   }
 }
 
@@ -254,13 +242,9 @@ module.exports.retrieve = async (params) => {
  * @returns {number} - An object with the number of deleted documents under '.deleted', or a pgdoc error
  */
 module.exports.delete = async (params) => {
-  ({type, search, maxMatch, exclude, options} = params)
-  options = optionsOverride(options)
-  if( options == null ) {
-    return pgdocError(`BadOptions`, params)
-  }
+  ({type, search, maxMatch, exclude} = params)
   search = str(search)
-  let schema = options.schema
+  let schema = config.schema
 
   let command
   if(search == null) {
@@ -270,32 +254,32 @@ module.exports.delete = async (params) => {
     command = `DELETE FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}';`
   }
   /// DELETE FROM pgdocs.docs WHERE type = 'test' AND data @> '{"id":0}' ;
-  if( !options.quiet && options.verbose ) {
+  if( !config.quiet && config.verbose ) {
     console.log(command)
   }
 
   let client
   try {
-    client = new pg.Client(options.connectionString)
+    client = new pg.Client(config.connectionString)
     await client.connect()
     let res = await client.query(command)
     client.end()
     if(res != null) {
-      if(!options.quiet && options.verbose) {
+      if(!config.quiet && config.verbose) {
         console.log(`received response: ${str(res)}`)
         console.log(res)
       }
       return { error: false, deleted: res.rowCount }
     }
     else {
-      if(!options.quiet) {
+      if(!config.quiet) {
         console.error(unknownError)
       }
       return pgdocError('DeleteFailed', params)
     }
   }
   catch (err) {
-    return connectionErrorHandler(client, err, params, pgdocError('DeleteFailed', params), options )
+    return connectionErrorHandler( client, err, params, pgdocError('DeleteFailed', params) )
   }
 }
 
@@ -308,27 +292,23 @@ module.exports.delete = async (params) => {
  * @returns {object} - A string containing an integer value, starting at 1 or a pgdoc error
  */
 module.exports.requestID = async (params) => {
-  ({type, options} = params)
-  options = optionsOverride(options)
-  if( options == null ) {
-    return pgdocError(`BadOptions`, params)
-  }
-  let schema = options.schema
+  ({type} = params)
+  let schema = config.schema
 
   // TODO: THIS IS NOT SQL INJECTION SAFE
   let command = `SELECT pgdoc.incrementSequence('${schema}', '${type}') ;`
-  if(!options.quiet && options.verbose) {
+  if(!config.quiet && config.verbose) {
     console.log(command)
   }
 
   let client
   try {
-    client = new pg.Client(options.connectionString)
+    client = new pg.Client(config.connectionString)
     await client.connect()
     let res = await client.query(command)
     client.end()
     if(res != null) {
-      if(!options.quiet && options.verbose) {
+      if(!config.quiet && config.verbose) {
         console.log(`received response: ${str(res)}`)
         console.log(res)
       }
@@ -348,7 +328,7 @@ module.exports.requestID = async (params) => {
     }
   }
   catch (err) {
-    return connectionErrorHandler(client, err, params, pgdocError('RequestIDFailed', params), options )
+    return connectionErrorHandler( client, err, params, pgdocError('RequestIDFailed', params) )
   }
 }
 
@@ -413,20 +393,6 @@ const parse = (string) => {
 
 module.exports.JSON = { parse, stringify: str, str }
 
-/// A code snippet useful for most core functions. Allows one-time config override.
-const optionsOverride = ( options ) => {
-  /// Explicit options override existing config
-  if( options == null ) {
-    options = {}
-  }
-  else if ( typeof(options) != 'object' ) {
-    return null
-  }
-  let o = {}
-  Object.assign( o, config )
-  Object.assign( options, o )
-  return options
-}
 
 /**
  * SECTION: Error handling
@@ -446,7 +412,7 @@ const pgdocError = (label, params, wrapped=null) => {
 const unknownError   = `\n!!!! pgdoc unknown error! Please report any relevant details on an issue here: https://github.com/eadsjr/pgdoc/issues !!!!\n`
 
 /// Handle common error cases
-const connectionErrorHandler = ( client, err, params, fallbackError, options ) => {
+const connectionErrorHandler = ( client, err, params, fallbackError ) => {
   if(client != null) {
     client.end()
   }
@@ -469,7 +435,7 @@ const connectionErrorHandler = ( client, err, params, fallbackError, options ) =
     return pgdocError(`DatabaseNotCreated`, params, err)
   }
   else {
-    if(!options.quiet) {
+    if(!config.quiet) {
       console.error(err)
       console.error(`\n!!!! pgdoc unhandled error! Please report the above object on an issue here: https://github.com/eadsjr/pgdoc/issues !!!!\n`)
     }

@@ -67,8 +67,9 @@ let testBasic = async () => {
   let search = { id }
 
   rl.write(`retrieve()...                                                  `)
-  rv = await pgdoc.retrieve( { type, search } )
+  // rv = await pgdoc.retrieve( { type, search } )
   // rv = await pgdoc.retrieve( { type, search, options: { verbose: true, quiet: true } } )
+  rv = await pgdoc.retrieve( { type, search, options: { verbose: true, quiet: true, schema: `blat` } } )
   assert( rv.length == 1 )
   rl.write(`passed.\n  Retrieved: ${str(rv[0])}\n`)
 
