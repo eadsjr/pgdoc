@@ -91,6 +91,7 @@ module.exports.store = async (params) => {
 
   /// TODO: THIS IS NOT SQL INJECTION SAFE
   let command
+  let commandType = null
   if( search == null ) {
     /// Simple store command. May produce duplicates.
     command = `INSERT INTO ${schema}.docs VALUES ('${type}', '${doc}') ;`
@@ -118,6 +119,7 @@ module.exports.store = async (params) => {
     else {
       /// If the limit is not exceeded, delete matching records and store the value. Reports number of records deleted.
       command = `SELECT pgdoc.overwriteUnderMax('${schema}', '${type}', '${doc}', '${search}', ${maxMatch}) ;`
+      commandType = 1
     }
   }
   if(!config.quiet && config.verbose) {
@@ -143,18 +145,31 @@ module.exports.store = async (params) => {
       /// TODO: more specific success validation
       if( search != null ) {
         /// Update case: expecting at least one result with a rowCount
-        if( `length` in res && res.length > 0 && `rowCount` in res[1] ) {
-          if( res[1].rowCount < 0 ) {
+        // console.error(res)
+        // console.error(res.rows[0].overwriteundermax)
+        if( commandType == 1 ) {
+          if(res.rows[0].overwriteundermax > maxMatch ) {
             err = pgdocError('MaxExceeded', params)
-            err.description += ` Max: ${maxMatch}, Found: ${-res[1].rowCount}`
+            err.description += ` Max: ${maxMatch}, Found: ${-res.rows[0].overwriteundermax}`
             return err
           }
-          /// Deleted 0 or more rows based on search.
-          return { error: false, deleted: res[1].rowCount }
+          else {
+            return { error: false, deleted: res.rows[0].overwriteundermax }
+          }
         }
-        else {
-          return pgdocError('UpdateFailed', params)
-        }
+        // if( `length` in res && res.length > 0 && `rowCount` in res[1] ) {
+        //   if( res[1].rowCount < 0 ) {
+        //     err = pgdocError('MaxExceeded', params)
+        //     err.description += ` Max: ${maxMatch}, Found: ${-res[1].rowCount}`
+        //     return err
+        //   }
+        // else {
+        //   /// Deleted 0 or more rows based on search.
+        //   return { error: false, deleted: res[1].rowCount }
+        // }
+        // else {
+        //   return pgdocError('UpdateFailed', params)
+        // }
       }
       else if(res.rowCount > 0) {
         /// No search performed

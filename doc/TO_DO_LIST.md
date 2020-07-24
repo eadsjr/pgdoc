@@ -19,6 +19,7 @@ TO DO: support exclude in retrieve()
 TO DO: Change interface in CRUD examples to use single param object input
 TO DO: Change interface in pgdoc to use single param object input
 TO DO: Add a 'quiet' option to supress all output
+TO DO: Delete all the options infrastructure. they can just be top level params now.
 TODO: support exclude in delete()
 TODO: delete() maxMatch implementation
 TODO: retrieve() maxMatch implementation

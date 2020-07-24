@@ -84,13 +84,53 @@ let testBasic = async () => {
   process.exit(0)
 }
 
+let testAdvanced = async () => {
+  rl.write(`Testing Basic Use Cases...\n`)
+
+  let connectionString = config.connectionString
+  let options = { verbose: config.verbose }
+  let rv = await pgdoc.connect( { connectionString, options } )
+  assert( !rv.error )
+
+  let type = `pgdocTest`
+
+  rl.write(`ensuring no conflicting records in database via delete()...    `)
+  rv = await pgdoc.delete( { type: `pgdocTest` } )
+  assert( !rv.error )
+  rl.write(`passed.\n  Deleted ${rv.deleted} documents.\n`)
+
+  rl.write(`store() update test...                                         `)
+  let oldDoc = { id: `-15`, v: 1 }
+  rv = await pgdoc.store( { type, doc: oldDoc } )
+  assert( !rv.error )
+  assert( rv.deleted == 0 )
+  rl.write(`\n`)
+  let newDoc = { id: `-15`, v: 2 }
+  let search = { id: `-15` }
+  let maxMatch = 1
+  rv = await pgdoc.store( { type, doc: newDoc, search , maxMatch } )
+  console.error(rv)
+  console.error(!rv.error)
+  assert( !rv.error )
+  assert( rv.deleted == 1 )
+  rl.write(`passed.\n  Stored: ${str(oldDoc)}\n  Updated: ${str(newDoc)}\n`)
+
+
+
+}
+
+let testErrors = async () => {}
+
 tests = async () => {
-  await testBasic()
-  process.exit(1)
+  // await testBasic()
+  await testAdvanced()
+  // await testErrors()
+  process.exit(0)
 }
 try {
   tests()
 }
 catch (err) {
   console.error(err)
+  process.exit(1)
 }
