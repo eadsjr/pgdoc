@@ -39,10 +39,12 @@ You should have set up some of connection details during the install script, whi
 
 ``` js
 let connect = async () => {
-  let password = `password` /* the password to access the database */
+  let username = `pgdoc` /* which user within the PostgreSQL system */
+  let password = `password` /* the password to access the database for the given user */
   let domain   = `127.0.0.1` /* database domain path. 127.0.0.1 if local */
   let port     = `5432` /* 5432 is postgres default. It's a major security risk not to change this if you put it online! */
-  let connectionString = `postgres://pgdoc:${password}@${domain}:${port}/pgdoc`
+  let database = `pgdoc` /* which database within the PostgreSQL system */
+  let connectionString = `postgres://${username}:${password}@${domain}:${port}/${database}`
   let rv = await pgdoc.connect( { connectionString } )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
