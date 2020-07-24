@@ -67,17 +67,17 @@ module.exports.connect = async (params) => {
  * 
  * This will create duplicate records if not further constrained.
  * 
- * Optionally, a search filter object can be provided. This will delete any records found, allowing for updates to existing files.
+ * Optionally, a search filter object can be provided.
+ * This will delete any records found, allowing for updates to existing files.
+ * This search can be constrained by a maxMatch integer.
+ * If maxMatch is exceeded, instead return a MaxExceeded error.
+ * You can exclude objects from the deletion event with a exclude filter object.
  * 
- * This search can be constrained by a maxMatch integer, which if exceeded instead returns a MaxExceeded error.
+ * data/search/exclude objects should non-circular Javascript objects that can be stringified
+ * OR strings containing valid JSON
  * 
- * You can exclude objects from the deletion event with an additional filter object.
+ * Setting maxMatch to 0 effectively requires the record to not already exist in the database
  * 
- * Objects passed in as data/search/exclude will be in the form of non-circular javascript objects that can be stringified OR strings containing valid JSON
- * 
- * Setting maxMatch to 0 effectively requires the record to not already exist in the database, and stores only in that case.
- * 
- * @todo document sequence integer limits of postgres here
  * @param {object} - params - all parameters, including the document to be stored.
  * @returns {object} - A pgdoc error object or an object indicating the number of documents deleted in an overwrite. { error: false, deleted: <Integer> }
  */
@@ -292,6 +292,7 @@ module.exports.delete = async (params) => {
  * 
  * The ID is always a string, and ID's from this function are sequential integers (in string form).
  * 
+ * @todo document sequence integer limits of postgres here
  * @param {object} - params - all parameters, including the type of the document to get an ID for
  * @returns {object} - A string containing an integer value, starting at 1 or a pgdoc error
  */
