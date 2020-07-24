@@ -22,7 +22,7 @@ To get a better idea of what pgdoc is doing under the hood, [check out the code]
 
 [issues]: https://github.com/eadsjr/pgdoc/issues
 [install]: Install.md
-[crud]: CRUD_Examples.md
+[crud]: CRUD_Examples_Terse.md
 [examples]: ../../examples/node/
 [code]: ../../code/node/
 [sql]: ../../code/sql/

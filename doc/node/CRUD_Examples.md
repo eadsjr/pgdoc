@@ -3,6 +3,8 @@
 
 ## CRUD Examples
 
+[Click here for a shorter and less verbose version of this document.][terse]
+
 > When working with databases you generally want to have [CRUD Functionality][CRUD].
 
 > That is, the ability to CREATE, RETRIEVE, UPDATE and DELETE data.
@@ -13,7 +15,7 @@ For these examples to work, you must have first have completed the [install proc
 
 Once that is done and the server is running, you can run `node` to drop into a REPL interactive session or put these example lines of code into a Javascript file and run them with `node myFile.js`.
 
-First we need to include the pgdoc module.
+First we need to require the pgdoc module.
 
 ``` js
 const pgdoc = require(`pgdoc`)
@@ -152,7 +154,7 @@ let storeBasicWithID = async () => {
     console.log(`collected id: ${id}`)
     let params = {}
     params.type = `player`
-    params.doc = { name:`John Smith`, age:33, team:`red`, id:id }
+    params.doc = { name:`Joel Smith`, age:33, team:`red`, id:id }
     let rv = await pgdoc.store( params )
     if( rv.error ) {
       console.error(`${rv.label}: ${rv.description}`)
@@ -207,7 +209,7 @@ Of course if you do this, you must also unpack it before use.
 
 ### RETRIEVE
 
-You get documents back out by performing a search in the form of an Object. `pgdoc.retrieve()` always returns a list. To get a single document, use something unique like an ID and verify the list size is 1.
+You get documents back out by performing a search in the form of an Object. `pgdoc.retrieve()` always returns a list on success. To get a single document, use something unique like an ID and verify the list size is 1.
 
 ```js
 let retrieveBasic = async ( ID ) => {
@@ -502,3 +504,4 @@ deleteLimited(`-4`)
 [CRUD]: https://en.wikipedia.org/wiki/Create,_read,_update_and_delete
 [install]: Install.md
 [start]: Start.md
+[terse]: CRUD_Examples_Terse
