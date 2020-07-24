@@ -438,22 +438,40 @@ storeOverwriteMaxExcluding()
 Deletion is handled using the same search method as `pgdoc.retrieve()`, but the matched documents are deleted instead of being retrieved.
 
 ``` js
-// Multiple object deletion
-docType = "player"
-mySearch = { team: "red" }
-deletedDocCount = await pgdoc.delete(docType, mySearch)
+let deleteBasic = async ( ID ) => {
+  docType = "player"
+  mySearch = { id: ID }
+  rv = await pgdoc.delete(docType, mySearch)
+  if( rv.error ) {
+    console.error(`${rv.label}: ${rv.description}`)
+  }
+  else {
+    console.log(`Deleted ${rv.deleted} document(s)`)
+  }
+}
+deleteBasic("1")
 ```
 
 You can limit the number of documents to be deleted, which is especially useful if you only want your search to match one document.
 
 ``` js
-// Single object deletion
-docType = "player"
-mySearch = { id: 12576 }
-options = { "maxMatches": 1 }
-deletedDocCount = await pgdoc.delete(docType, mySearch, options)
-if( deletedDocCount != 1 ) {
-  error = deletedDocCount
-  console.error(`${docType} deletion failed for search ${str(mySearch)}. Error: ${pgdoc.errorMessage(error)}.`)
+let deleteLimited = async ( ID ) => {
+  docType = "player"
+  mySearch = { id: ID }
+  maxMatch = 1
+  rv = await pgdoc.delete(docType, mySearch, maxMatch)
+  if( rv.error ) {
+    console.error(`${rv.label}: ${rv.description}`)
+  }
+  else {
+    console.log(`Deleted ${rv.deleted} document(s)`)
+  }
 }
+deleteLimited("-4")
 ```
+
+### [Back to getting started page][start]
+
+[CRUD]: https://en.wikipedia.org/wiki/Create,_read,_update_and_delete
+[install]: Install.md
+[start]: Start.md

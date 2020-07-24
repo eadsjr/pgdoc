@@ -257,5 +257,5 @@ if( deletedDocCount != 1 ) {
 ### [Back to start][start]
 
 [CRUD]: https://en.wikipedia.org/wiki/Create,_read,_update_and_delete
-[install]: INSTALL.md
-[start]: START.md
+[install]: Install.md
+[start]: Start.md

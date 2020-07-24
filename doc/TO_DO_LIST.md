@@ -45,7 +45,7 @@ TO DO: CRUD UPDATE case for exclude usage
 TO DO: CRUD UPDATE case for maxMatch usage
 TO DO: CRUD UPDATE case for search usage
 TO DO: CRUD UPDATE example for maxMatch 0
-TODO: CRUD DELETE case for maxMatch (to avoid over deletion)
+TO DO: CRUD DELETE case for maxMatch (to avoid over deletion)
 TODO: CRUD RETRIEVE case for maxMatch (to avoid flood of data)
 NO PE: TO DO: CONSIDER: Drop str/parse from CRUD examples
 TODO: Adjust CRUD examples so they are not dependent on each other... each should work fine in isolation

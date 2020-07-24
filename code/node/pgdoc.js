@@ -245,7 +245,7 @@ module.exports.retrieve = async (type, search, exclude, options) => {
  * @param {string} - type - The type of document. AKA - The name of the collection
  * @param {string} - search - An object with key-value pairs that must be matched to be returned.
  * @param {object} - [options] - OPTIONAL object containing options to alter this function call
- * @returns {number} - The number of deleted documents, or a pgdoc error
+ * @returns {number} - An object with the number of deleted documents under '.deleted', or a pgdoc error
  */
 module.exports.delete = async (type, search, options) => {
   let args = [type, search, options]
