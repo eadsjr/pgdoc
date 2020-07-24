@@ -4,7 +4,7 @@
 /// TODO: Change examples/tests to a template application example.
 
 const pgdoc = require(`./pgdoc.js`)
-const str = require(`fast-safe-stringify`)
+const str = pgdoc.JSON.stringify
 const assert = require(`assert`)
 const rl = require('readline').createInterface({
   input: process.stdin,
@@ -30,52 +30,63 @@ catch (err) {
 
 let testBasic = async () => {
   rl.write(`Testing Basic Use Cases...\n`)
-
-  rl.write(`connect()...`)
+  rl.write(`connect()...                                                   `)
   let connectionString = config.connectionString
   let options = { verbose: config.verbose }
   let rv = await pgdoc.connect( { connectionString, options } )
   assert( !rv.error )
-  rl.write(` passed.\n`)
+  rl.write(`passed.\n`)
 
-  rl.write(`configure()...`)
+  rl.write(`configure()...                                                 `)
   rv = await pgdoc.configure( { options: { verbose: false } } )
   assert( !rv.error )
-  rl.write(` passed.\n`)
+  rl.write(`passed.\n`)
 
   let type = `pgdocTest`
 
-  rl.write(`requestID()...`)
+  rl.write(`requestID()...                                                 `)
   rv = await pgdoc.requestID( { type } )
   assert( !rv.error )
-  rl.write(` passed.\n`)
   let id = rv
+  rl.write(`passed.\nID: ${id}\n`)
 
-  rl.write(`ensuring no conflicting records in database via delete()...`)
+  rl.write(`ensuring no conflicting records in database via delete()...    `)
   rv = await pgdoc.delete( { type: `pgdocTest` } )
   assert( !rv.error )
-  rl.write(` passed. Deleted ${rv.deleted} documents.\n`)
+  rl.write(`passed.\nDeleted ${rv.deleted} documents.\n`)
 
   let doc = { id, x: 1, y: 2, z: 3 }
 
-  rl.write(`store()...`)
+  rl.write(`store()...                                                     `)
   rv = await pgdoc.store( { type, doc } )
   assert( !rv.error )
-  rl.write(` passed. Stored: ${doc}\n`)
+  rl.write(`passed.\nStored: ${str(doc)}\n`)
 
   let search = { id }
 
-  rl.write(`retrieve()...`)
+  rl.write(`retrieve()...                                                  `)
   rv = await pgdoc.retrieve( { type, search } )
   assert( rv.length == 1 )
-  rl.write(` passed. Retrieve: ${rv[0]}\n`)
+  rl.write(`passed.\nRetrieved: ${str(rv[0])}\n`)
 
-  rl.write(`delete()...`)
+  rl.write(`delete()...                                                    `)
   rv = await pgdoc.delete( { type, search } )
   assert( !rv.error )
   assert( rv.deleted == 1 )
-  rl.write(` passed. Deleted ${rv.deleted} documents.\n`)
+  rl.write(`passed.\nDeleted ${rv.deleted} documents.\n`)
 
-  rl.write(`Testing Basic Use Cases... passed.\n\n`)
+  rl.write(`Testing Basic Use Cases...                                     passed.\n\n`)
+
+  process.exit(0)
 }
-testBasic()
+
+tests = async () => {
+  await testBasic()
+  process.exit(1)
+}
+try {
+  tests()
+}
+catch (err) {
+  console.error(err)
+}
