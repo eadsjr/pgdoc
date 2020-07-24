@@ -221,15 +221,18 @@ module.exports.retrieve = async (params) => {
       }
       if(res.rowCount > 0) {
         /// Return a list of data items.
-        let data = res.rows
-        data.error = false
-        return data
+        let docs = []
+        for( r in res.rows ) {
+          docs.push(res.rows[r].data)
+        }
+        docs.error = false
+        return docs
       }
       else {
         // Nothing was found
-        let data = []
-        data.error = false
-        return data
+        let docs = []
+        docs.error = false
+        return docs
       }
     }
     else {

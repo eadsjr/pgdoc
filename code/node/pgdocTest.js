@@ -24,8 +24,10 @@ catch (err) {
   config.hostname = `127.0.0.1`
   config.port     = `5432`
   config.database = `pgdoc`
-  config.schema   = `pgdoc`
   config.connectionString = `postgres://${config.username}:${config.password}@${config.hostname}:${config.port}/${config.database}`
+  config.schema   = `pgdoc`
+  config.verbose  = false
+  config.quiet    = false
 }
 
 let testBasic = async () => {
@@ -38,7 +40,7 @@ let testBasic = async () => {
   rl.write(`passed.\n`)
 
   rl.write(`configure()...                                                 `)
-  rv = await pgdoc.configure( { options: { verbose: false } } )
+  rv = await pgdoc.configure( { options: { verbose: config.verbose, quiet: config.quiet } } )
   assert( !rv.error )
   rl.write(`passed.\n`)
 
@@ -66,6 +68,7 @@ let testBasic = async () => {
 
   rl.write(`retrieve()...                                                  `)
   rv = await pgdoc.retrieve( { type, search } )
+  // rv = await pgdoc.retrieve( { type, search, options: { verbose: true, quiet: true } } )
   assert( rv.length == 1 )
   rl.write(`passed.\nRetrieved: ${str(rv[0])}\n`)
 
