@@ -87,6 +87,9 @@ module.exports.store = async (params) => {
   if( search != null ) {
     search = str(search)
   }
+  if( exclude != null ) {
+    exclude = str(exclude)
+  }
   let schema = config.schema
 
   /// TODO: THIS IS NOT SQL INJECTION SAFE
@@ -99,10 +102,18 @@ module.exports.store = async (params) => {
   }
   else {
     /// Store command with search. May clobber or fail.
-    if( maxMatch == null || maxMatch < 0 ) {
-      /// Delete any matching records and store the value. Reports number of records deleted.
-      command = `DELETE FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}'; ` +
-                `INSERT INTO ${schema}.docs VALUES ('${type}', '${doc}') ;`
+    if( exclude == null ) {
+      if( maxMatch == null || maxMatch < 0 ) {
+        /// Delete any matching records and store the value. Reports number of records deleted.
+        command = `DELETE FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}'; ` +
+                  `INSERT INTO ${schema}.docs VALUES ('${type}', '${doc}') ;`
+        commandType = 1
+      }
+      else {
+        /// If the limit is not exceeded, delete matching records and store the value. Reports number of records deleted.
+        command = `SELECT pgdoc.overwriteUnderMax('${schema}', '${type}', '${doc}', '${search}', ${maxMatch}) ;`
+        commandType = 2
+      }
     }
     else if ( exclude != null ) {
       if( maxMatch == null || maxMatch < 0 ) {
@@ -110,20 +121,21 @@ module.exports.store = async (params) => {
         command = `DELETE FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}' ` +
                   `AND NOT data @> '${exclude}'; ` +
                   `INSERT INTO ${schema}.docs VALUES ('${type}', '${doc}') ;`
+        commandType = 3
       }
       else {
         /// If the limit is not exceeded, delete matching records that are not excluded and store the value. Reports number of records deleted.
-        command = `SELECT pgdoc.overwriteUnderMaxExcluding('${schema}', '${type}', '${doc}', '${search}', ${maxMatch}, ${exclude}) ;`
+        command = `SELECT pgdoc.overwriteUnderMaxExcluding('${schema}', '${type}', '${doc}', '${search}', ${maxMatch}, '${exclude}') ;`
+        commandType = 4
       }
     }
     else {
-      /// If the limit is not exceeded, delete matching records and store the value. Reports number of records deleted.
-      command = `SELECT pgdoc.overwriteUnderMax('${schema}', '${type}', '${doc}', '${search}', ${maxMatch}) ;`
-      commandType = 1
+      return pgdocError('UnhandledStore', params)
     }
   }
   if(!config.quiet && config.verbose) {
-    console.log(command)
+    console.log(`command: ${command}`)
+    console.log(`commandType: ${commandType}`)
   }
 
   let client
@@ -147,8 +159,26 @@ module.exports.store = async (params) => {
         /// Update case: expecting at least one result with a rowCount
         // console.error(res)
         // console.error(res.rows[0].overwriteundermax)
-        if( commandType == 1 ) {
-          if(res.rows[0].overwriteundermax > maxMatch ) {
+        if (commandType == 1) {
+          if( `length` in res && res.length > 1 && `rowCount` in res[1] ) {
+            if( res[1].rowCount < 0 ) {
+              err = pgdocError('MaxExceeded', params)
+              err.description += ` Max: ${maxMatch}, Found: ${-res[1].rowCount}`
+              return err
+            }
+            else {
+              /// Deleted 0 or more rows based on search.
+              return { error: false, deleted: res[1].rowCount }
+            }
+          }
+          else {
+            let err = pgdocError('UpdateFailed', params)
+            err.description += `Expected 'rowCount' from delete operation, but couldn't find it.`
+            return err
+          }
+        }
+        else if( commandType == 2 ) {
+          if(-res.rows[0].overwriteundermax > maxMatch ) {
             err = pgdocError('MaxExceeded', params)
             err.description += ` Max: ${maxMatch}, Found: ${-res.rows[0].overwriteundermax}`
             return err
@@ -157,12 +187,39 @@ module.exports.store = async (params) => {
             return { error: false, deleted: res.rows[0].overwriteundermax }
           }
         }
-        // if( `length` in res && res.length > 0 && `rowCount` in res[1] ) {
-        //   if( res[1].rowCount < 0 ) {
-        //     err = pgdocError('MaxExceeded', params)
-        //     err.description += ` Max: ${maxMatch}, Found: ${-res[1].rowCount}`
-        //     return err
-        //   }
+        else if ( commandType == 3 ) {
+          if( `length` in res && res.length > 1 && `rowCount` in res[1] ) {
+            if( res[1].rowCount < 0 ) {
+              err = pgdocError('MaxExceeded', params)
+              err.description += ` Max: ${maxMatch}, Found: ${-res[1].rowCount}`
+              return err
+            }
+            else {
+              /// Deleted 0 or more rows based on search.
+              return { error: false, deleted: res[1].rowCount }
+            }
+          }
+          else {
+            let err = pgdocError('UpdateFailed', params)
+            err.description += `Expected 'rowCount' from delete operation, but couldn't find it.`
+            return err
+          }
+        }
+        else if (commandType == 4) {
+          if(-res.rows[0].overwriteundermaxexcluding > maxMatch ) {
+            err = pgdocError('MaxExceeded', params)
+            err.description += ` Max: ${maxMatch}, Found: ${-res.rows[0].overwriteundermaxexcluding}`
+            return err
+          }
+          else {
+            return { error: false, deleted: res.rows[0].overwriteundermaxexcluding }
+          }
+        }
+        else {
+          let err = pgdocError('StoreFailed', params)
+          err.description += ` Store Command not recognized!`
+          return err
+        }
         // else {
         //   /// Deleted 0 or more rows based on search.
         //   return { error: false, deleted: res[1].rowCount }
@@ -489,7 +546,7 @@ const errors = {
   ParseFailed:         { error: true, label: `ParseFailed`,          code: -15,  description: `The pgdoc.JSON.parse call failed. Is the argument valid JSON?` },
   BadOptions:          { error: true, label: `BadOptions`,           code: -16,  description: `The options object passed into the function was not valid. It must be an object.` },
   BadConnectionString: { error: true, label: `BadConnectionString`,  code: -17,  description: `The connectionString object passed into the function was not valid. Please check your configuration.` },
-  UpdateFailed:        { error: true, label: `UpdateFailed`,         code: -18,  description: `The store operation returned an unexpected result from the database. Expected 'rowCount' from delete operation, but couldn't find it.` },
+  UpdateFailed:        { error: true, label: `UpdateFailed`,         code: -18,  description: `The store operation returned an unexpected result from the database.` },
   MaxExceeded:         { error: true, label: `MaxExceeded`,          code: -19,  description: `The store operation failed due to the search filter finding more items then allowed by maxMatch.` },
 }
 Object.freeze(errors)

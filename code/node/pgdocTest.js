@@ -67,9 +67,7 @@ let testBasic = async () => {
   let search = { id }
 
   rl.write(`retrieve()...                                                  `)
-  // rv = await pgdoc.retrieve( { type, search } )
-  // rv = await pgdoc.retrieve( { type, search, options: { verbose: true, quiet: true } } )
-  rv = await pgdoc.retrieve( { type, search, options: { verbose: true, quiet: true, schema: `blat` } } )
+  rv = await pgdoc.retrieve( { type, search } )
   assert( rv.length == 1 )
   rl.write(`passed.\n  Retrieved: ${str(rv[0])}\n`)
 
@@ -85,7 +83,7 @@ let testBasic = async () => {
 }
 
 let testAdvanced = async () => {
-  rl.write(`Testing Basic Use Cases...\n`)
+  rl.write(`Testing Advanced Use Cases...\n`)
 
   let connectionString = config.connectionString
   let options = { verbose: config.verbose }
@@ -99,23 +97,75 @@ let testAdvanced = async () => {
   assert( !rv.error )
   rl.write(`passed.\n  Deleted ${rv.deleted} documents.\n`)
 
-  rl.write(`store() update test...                                         `)
+  rl.write(`store() search test...                                         `)
   let oldDoc = { id: `-15`, v: 1 }
   rv = await pgdoc.store( { type, doc: oldDoc } )
   assert( !rv.error )
   assert( rv.deleted == 0 )
-  rl.write(`\n`)
   let newDoc = { id: `-15`, v: 2 }
   let search = { id: `-15` }
-  let maxMatch = 1
-  rv = await pgdoc.store( { type, doc: newDoc, search , maxMatch } )
-  console.error(rv)
-  console.error(!rv.error)
+  rv = await pgdoc.store( { type, doc: newDoc, search } )
   assert( !rv.error )
   assert( rv.deleted == 1 )
   rl.write(`passed.\n  Stored: ${str(oldDoc)}\n  Updated: ${str(newDoc)}\n`)
 
+  rl.write(`store() search + maxMatch test...                              `)
+  oldDoc = { id: `-16`, v: 1 }
+  rv = await pgdoc.store( { type, doc: oldDoc } )
+  assert( !rv.error )
+  assert( rv.deleted == 0 )
+  newDoc = { id: `-16`, v: 2 }
+  search = { id: `-16` }
+  let maxMatch = 1
+  rv = await pgdoc.store( { type, doc: newDoc, search, maxMatch } )
+  assert( !rv.error )
+  assert( rv.deleted == 1 )
+  rl.write(`passed.\n  Stored: ${str(oldDoc)}\n  Updated: ${str(newDoc)}\n`)
 
+  rl.write(`store() search, exclude test...                                `)
+  oldDoc = { id: `-17`, v: 1, ignore: false }
+  rv = await pgdoc.store( { type, doc: oldDoc } )
+  assert( !rv.error )
+  assert( rv.deleted == 0 )
+  oldDoc2 = { id: `-17`, v: 1, ignore: true }
+  rv = await pgdoc.store( { type, doc: oldDoc2 } )
+  assert( !rv.error )
+  assert( rv.deleted == 0 )
+  newDoc = { id: `-17`, v: 100, ignore: false }
+  search = { id: `-17` }
+  let exclude = { ignore: true }
+  rv = await pgdoc.store( { type, doc: newDoc, search, exclude } )
+  assert( !rv.error )
+  assert( rv.deleted == 1 )
+  let deleted = rv.deleted
+  rv = await pgdoc.retrieve( { type, search } )
+  assert( rv.length == 2 )
+  rl.write(`passed.\n  Stored: ${str(oldDoc)}\n  Stored: ${str(oldDoc2)}\n  Updated: ${str(newDoc)}\n  Deleted: ${deleted}\n  Retrieved: ${str(rv[0])}\n  Retrieved: ${str(rv[1])}\n`)
+
+
+  rl.write(`store() search + maxMatch, exclude test...                     `)
+  oldDoc = { id: `-18`, v: 1, ignore: false }
+  rv = await pgdoc.store( { type, doc: oldDoc } )
+  assert( !rv.error )
+  assert( rv.deleted == 0 )
+  oldDoc2 = { id: `-18`, v: 100, ignore: true }
+  rv = await pgdoc.store( { type, doc: oldDoc2 } )
+  assert( !rv.error )
+  assert( rv.deleted == 0 )
+  newDoc = { id: `-18`, v: 2 }
+  search = { id: `-18` }
+  maxMatch = 1
+  exclude = { ignore: true }
+  rv = await pgdoc.store( { type, doc: newDoc, search, exclude, maxMatch } )
+  assert( !rv.error )
+  assert( rv.deleted == 1 )
+  rl.write(`passed.\n  Stored: ${str(oldDoc)}\n  Stored: ${str(oldDoc2)}\n  Updated: ${str(newDoc)}\n  Deleted: ${rv.deleted}\n`)
+
+
+
+  // console.error(rv)
+  // console.error(!rv.error)
+  // rv = await pgdoc.configure( { options: { verbose: true, quiet: false } } )
 
 }
 

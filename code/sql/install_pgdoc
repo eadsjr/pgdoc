@@ -112,7 +112,7 @@ RETURNS INTEGER AS
 $$
 DECLARE recordCount INTEGER;
 BEGIN
-  recordCount := ( SELECT COUNT(*) FROM pgdoc.docs WHERE type = docType AND data @> search ) ;
+  recordCount := ( SELECT COUNT(*) FROM pgdoc.docs WHERE type = docType AND data @> search AND NOT data @> exclude) ;
   RAISE NOTICE 'recordCount: %', recordCount;
   IF
     recordCount <= max
