@@ -229,7 +229,7 @@ let testAdvancedRetrieve = async () => {
   rv = await pgdoc.store( { type, doc: doc1, search, maxMatch } )
   assert( !rv.error, `store of doc1 failed with error ${str(rv)}` )
   assert( rv.deleted == 0, `store of doc1 failed to get expected result, expected 0 deletions and got ${rv.deleted}` )
-  let doc2 = { id: -20, group: `B`, x:1, y:2, complex: { a: { t: 2, u: 4 } } }
+  let doc2 = { id: -20, group: `B`, x:1, y:2, complex: { a: { t: 2, u: 4 }, c: 8 } }
   search = { id: `-20` }
   rv = await pgdoc.store( { type, doc: doc2, search, maxMatch } )
   assert( !rv.error, `store of doc2 failed with error ${str(rv)}` )
@@ -273,8 +273,17 @@ let testAdvancedRetrieve = async () => {
   rl.write(`  Search: ${str(search)}\n`)
   rl.write(`  Retrieved: ${str(rv[0])}\n`)
 
-  /// TODO: search
-  /// TODO: search + maxMatch
+  rl.write(`retrieve() search, exclude...                                  `)
+  search = { x: 2 }
+  let exclude = { group: `A` }
+  rv = await pgdoc.retrieve( { type, search, exclude } )
+  assert( !rv.error, `retrieve failed with error ${str(rv)}` )
+  assert( rv.length == 1, `retrieve failed to get expected result, expected 1 document and got ${rv.length}` )
+  rl.write(`passed.\n`)
+  rl.write(`  Search: ${str(search)}\n`)
+  rl.write(`  Exclude: ${str(exclude)}\n`)
+  rl.write(`  Retrieved: ${str(rv[0])}\n`)
+
   /// TODO: search, exclude
   /// TODO: search + maxMatch, exclude
   /// TODO: search ( multi level objects )
