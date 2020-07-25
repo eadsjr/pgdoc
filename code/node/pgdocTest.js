@@ -78,12 +78,10 @@ let testBasic = async () => {
   rl.write(`passed.\n  Deleted ${rv.deleted} documents.\n`)
 
   rl.write(`Testing Basic Use Cases...                                     passed.\n\n`)
-
-  process.exit(0)
 }
 
-let testAdvanced = async () => {
-  rl.write(`Testing Advanced Use Cases...\n`)
+let testAdvancedStore = async () => {
+  rl.write(`Testing Advanced Use Cases for Store...\n`)
 
   let connectionString = config.connectionString
   let options = { verbose: config.verbose }
@@ -161,19 +159,24 @@ let testAdvanced = async () => {
   assert( rv.deleted == 1 )
   rl.write(`passed.\n  Stored: ${str(oldDoc)}\n  Stored: ${str(oldDoc2)}\n  Updated: ${str(newDoc)}\n  Deleted: ${rv.deleted}\n`)
 
-
+  rl.write(`delete() to clean up...                                        `)
+  rv = await pgdoc.delete( { type } )
+  assert( !rv.error )
+  assert( rv.deleted == 6 )
+  rl.write(`passed.\n  Deleted ${rv.deleted} documents.\n`)
 
   // console.error(rv)
   // console.error(!rv.error)
   // rv = await pgdoc.configure( { options: { verbose: true, quiet: false } } )
 
+  rl.write(`Testing Advanced Use Cases for Store...                        passed.\n\n`)
 }
 
 let testErrors = async () => {}
 
 tests = async () => {
-  // await testBasic()
-  await testAdvanced()
+  await testBasic()
+  await testAdvancedStore()
   // await testErrors()
   process.exit(0)
 }
