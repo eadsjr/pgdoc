@@ -175,14 +175,38 @@ let testAdvancedStore = async () => {
 
 let testErrors = async () => {}
 
-tests = async () => {
+let tests = async () => {
   await testBasic()
   await testAdvancedStore()
   // await testErrors()
   process.exit(0)
 }
+let interactiveTests = async () => {
+  rl.question(`(E)xit or Test: (A)ll, (1)Basic, (2)Advanced: `, async (command) => {
+    // console.log(`Command: ${command}`)
+    if( command == 'e' || command == 'E' ) {
+      process.exit(0)
+    }
+    switch( command ) {
+      case 'a':
+      case 'A':
+        await tests()
+        break
+      case '1':
+        await testBasic()
+        break
+      case '2':
+        await testAdvancedStore()
+        // await testAdvanced()
+        break
+      default:
+        await tests()
+    }
+    interactiveTests()
+  })
+}
 try {
-  tests()
+  interactiveTests()
 }
 catch (err) {
   console.error(err)
