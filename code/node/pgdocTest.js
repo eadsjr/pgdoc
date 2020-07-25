@@ -50,19 +50,22 @@ let testBasic = async () => {
   rv = await pgdoc.requestID( { type } )
   assert( !rv.error, `requestID failed with error ${str(rv)}` )
   let id = rv
-  rl.write(`passed.\n  ID: ${id}\n`)
+  rl.write(`passed.\n`)
+  rl.write(`  ID: ${id}\n`)
 
-  rl.write(`ensuring no conflicting records in database via delete()...    `)
+  rl.write(`delete() ensuring no conflicting records in database...        `)
   rv = await pgdoc.delete( { type: `pgdocTest` } )
   assert( !rv.error, `delete failed with error ${str(rv)}` )
-  rl.write(`passed.\n  Deleted ${rv.deleted} documents.\n`)
+  rl.write(`passed.\n`)
+  rl.write(`  Deleted ${rv.deleted} documents.\n`)
 
   let doc = { id, x: 1, y: 2, z: 3 }
 
   rl.write(`store()...                                                     `)
   rv = await pgdoc.store( { type, doc } )
   assert( !rv.error, `store failed with error ${str(rv)}` )
-  rl.write(`passed.\n  Stored: ${str(doc)}\n`)
+  rl.write(`passed.\n`)
+  rl.write(`  Stored: ${str(doc)}\n`)
 
   let search = { id }
 
@@ -70,13 +73,15 @@ let testBasic = async () => {
   rv = await pgdoc.retrieve( { type, search } )
   assert( !rv.error, `retrieve failed with error ${str(rv)}` )
   assert( rv.length == 1, `retrieve failed to get expected result, expected 1 document and got ${rv.length}` )
-  rl.write(`passed.\n  Retrieved: ${str(rv[0])}\n`)
+  rl.write(`passed.\n`)
+  rl.write(`  Retrieved: ${str(rv[0])}\n`)
 
   rl.write(`delete()...                                                    `)
   rv = await pgdoc.delete( { type, search } )
   assert( !rv.error, `delete failed with error ${str(rv)}` )
   assert( rv.deleted == 1, `delete failed to get expected result, expected 1 deletion and got ${rv.deleted}` )
-  rl.write(`passed.\n  Deleted ${rv.deleted} documents.\n`)
+  rl.write(`passed.\n`)
+  rl.write(`  Deleted ${rv.deleted} documents.\n`)
 
   rl.write(`store() with string...                                         `)
   rv = await pgdoc.requestID( { type } )
@@ -89,7 +94,10 @@ let testBasic = async () => {
   rv = await pgdoc.delete( { type, search } )
   assert( !rv.error, `delete failed with error ${str(rv)}` )
   assert( rv.deleted == 1, `delete failed to get expected result, expected 1 deletion and got ${rv.deleted}` )
-  rl.write(`passed.\n  ID: ${id}\n  Stored: ${str(doc)}\n  Deleted ${rv.deleted} documents.\n`)
+  rl.write(`passed.\n`)
+  rl.write(`  ID: ${id}\n`)
+  rl.write(`  Stored: ${str(doc)}\n`)
+  rl.write(`  Deleted ${rv.deleted} documents.\n`)
 
   rl.write(`Testing Basic Use Cases...                                     passed.\n\n`)
 }
@@ -104,10 +112,11 @@ let testAdvancedStore = async () => {
 
   let type = `pgdocTest`
 
-  rl.write(`ensuring no conflicting records in database via delete()...    `)
+  rl.write(`delete() ensuring no conflicting records in database...        `)
   rv = await pgdoc.delete( { type } )
   assert( !rv.error, `delete failed with error ${str(rv)}` )
-  rl.write(`passed.\n  Deleted ${rv.deleted} documents.\n`)
+  rl.write(`passed.\n`)
+  rl.write(`  Deleted ${rv.deleted} documents.\n`)
 
   rl.write(`store() search test...                                         `)
   let oldDoc = { id: `-15`, v: 1 }
@@ -120,6 +129,8 @@ let testAdvancedStore = async () => {
   assert( !rv.error, `store of newDoc failed with error ${str(rv)}` )
   assert( rv.deleted == 1, `store of newDoc failed to get expected result, expected 1 deletion and got ${rv.deleted}` )
   rl.write(`passed.\n  Stored: ${str(oldDoc)}\n  Updated: ${str(newDoc)}\n`)
+  rl.write(`  Stored:  ${str(oldDoc)}\n`)
+  rl.write(`  Updated: ${str(newDoc)}\n`)
 
   rl.write(`store() search + maxMatch test...                              `)
   oldDoc = { id: `-16`, v: 1 }
@@ -132,7 +143,9 @@ let testAdvancedStore = async () => {
   rv = await pgdoc.store( { type, doc: newDoc, search, maxMatch } )
   assert( !rv.error, `store of newDoc failed with error ${str(rv)}` )
   assert( rv.deleted == 1, `store of newDoc failed to get expected result, expected 1 deletion and got ${rv.deleted}` )
-  rl.write(`passed.\n  Stored: ${str(oldDoc)}\n  Updated: ${str(newDoc)}\n`)
+  rl.write(`passed.\n`)
+  rl.write(`  Stored:  ${str(oldDoc)}\n`)
+  rl.write(`  Updated: ${str(newDoc)}\n`)
 
   rl.write(`store() search, exclude test...                                `)
   oldDoc = { id: `-17`, v: 1, ignore: false }
@@ -153,8 +166,13 @@ let testAdvancedStore = async () => {
   rv = await pgdoc.retrieve( { type, search } )
   assert( !rv.error, `retrieve failed with error ${str(rv)}` )
   assert( rv.length == 2, `retrieve failed to get expected result, expected 2 documents and got ${rv.length}` )
-  rl.write(`passed.\n  Stored: ${str(oldDoc)}\n  Stored: ${str(oldDoc2)}\n  Updated: ${str(newDoc)}\n  Deleted: ${deleted}\n  Retrieved: ${str(rv[0])}\n  Retrieved: ${str(rv[1])}\n`)
-
+  rl.write(`passed.\n`)
+  rl.write(`  Stored:     ${str(oldDoc)}\n`)
+  rl.write(`  Stored:     ${str(oldDoc2)}\n`)
+  rl.write(`  Updated:    ${str(newDoc)}\n`)
+  rl.write(`  Deleted:    ${deleted}\n`)
+  rl.write(`  Retrieved:  ${str(rv[0])}\n`)
+  rl.write(`  Retrieved:  ${str(rv[1])}\n`)
 
   rl.write(`store() search + maxMatch, exclude test...                     `)
   oldDoc = { id: `-18`, v: 1, ignore: false }
@@ -172,17 +190,18 @@ let testAdvancedStore = async () => {
   rv = await pgdoc.store( { type, doc: newDoc, search, exclude, maxMatch } )
   assert( !rv.error, `store of newDoc failed with error ${str(rv)}` )
   assert( rv.deleted == 1, `store of newDoc failed to get expected result, expected 1 deletion and got ${rv.deleted}` )
-  rl.write(`passed.\n  Stored: ${str(oldDoc)}\n  Stored: ${str(oldDoc2)}\n  Updated: ${str(newDoc)}\n  Deleted: ${rv.deleted}\n`)
+  rl.write(`passed.\n`)
+  rl.write(`  Stored:  ${str(oldDoc)}\n`)
+  rl.write(`  Stored:  ${str(oldDoc2)}\n`)
+  rl.write(`  Updated: ${str(newDoc)}\n`)
+  rl.write(`  Deleted: ${rv.deleted}\n`)
 
   rl.write(`delete() to clean up...                                        `)
   rv = await pgdoc.delete( { type } )
   assert( !rv.error, `delete failed with error ${str(rv)}` )
   assert( rv.deleted == 6, `delete failed to get expected result, expected 6 deletions and got ${rv.deleted}` )
-  rl.write(`passed.\n  Deleted ${rv.deleted} documents.\n`)
-
-  // console.error(rv)
-  // console.error(!rv.error)
-  // rv = await pgdoc.configure( { options: { verbose: true, quiet: false } } )
+  rl.write(`passed.\n`)
+  rl.write(`  Deleted ${rv.deleted} documents.\n`)
 
   rl.write(`Testing Advanced Use Cases for Store...                        passed.\n\n`)
 }
@@ -280,7 +299,8 @@ let testAdvancedDelete = async () => {
   rl.write(`ensuring no conflicting records in database via delete()...    `)
   rv = await pgdoc.delete( { type: `pgdocTest` } )
   assert( !rv.error, `delete failed with error ${str(rv)}` )
-  rl.write(`passed.\n  Deleted ${rv.deleted} documents.\n`)
+  rl.write(`passed.\n`)
+  rl.write(`  Deleted ${rv.deleted} documents.\n`)
 
   /// TODO: search
   /// TODO: search + maxMatch
