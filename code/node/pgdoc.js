@@ -17,8 +17,8 @@ const stringify = require('fast-safe-stringify')
 let config = {
   database: 'pgdoc',
   schema: 'pgdoc',
-  verbose: false,
-  quiet: false,
+  verbose: false, /// causes additional output 
+  quiet: false, /// overrides verbose, and also suppresses uncommon error related output
 }
 
 /**
@@ -31,6 +31,8 @@ let config = {
  * This verifies that a connection to the database is in working order.
  * 
  * You should call it when starting your application.
+ * 
+ * This can be passed options to configure pgdoc in the same manner as pgdoc.configure()
  * 
  * @param {object} - params - all parameters, including a PostgreSQL 'connectionString'
  * @returns {object} - A pgdoc error object or { error: false }
@@ -412,7 +414,7 @@ module.exports.requestID = async (params) => {
 /**
  * Changes default options for all actions starting after this change takes effect.
  *
- * They can also be overridden on a per-function-call basis.
+ * Only provided fields will be updated, all others remain unchanged.
  *
  * @param {object} - params - all parameters, including 
  * @returns {object} - A pgdoc error object or { error: false }
