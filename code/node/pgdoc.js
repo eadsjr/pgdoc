@@ -10,13 +10,13 @@ https://github.com/eadsjr/pgdoc/
 `
 ) ; process.exit(1) }
 
-const pg = require('pg')
-const stringify = require('fast-safe-stringify')
+const pg = require(`pg`)
+const stringify = require(`fast-safe-stringify`)
 
 /// Default configuration
 let config = {
-  database: 'pgdoc', /// which database to access with the connected PostgreSQL system
-  schema: 'pgdoc', /// which database schema to use in the connected database
+  database: `pgdoc`, /// which database to access with the connected PostgreSQL system
+  schema: `pgdoc`, /// which database schema to use in the connected database
   verboseSQL: false, /// if true, causes additional output specific to SQL
   verbose: false, /// if true, causes additional output
   quiet: false, /// if true, overrides verbose options, and also suppresses uncommon error output
@@ -43,7 +43,7 @@ module.exports.connect = async (params) => {
   if( typeof(connectionString) != `string` ) {
     return pgdocError(`BadConnectionString`, params)
   }
-  if( typeof(options) == 'object' ) {
+  if( typeof(options) == `object` ) {
     Object.assign(config, options)
   }
   else if( options != null ) {
@@ -58,7 +58,7 @@ module.exports.connect = async (params) => {
     client.end()
   }
   catch (err) {
-    return connectionErrorHandler( client, err, params, pgdocError( "ConnectFailed", params) )
+    return connectionErrorHandler( client, err, params, pgdocError( `ConnectFailed`, params) )
   }
   return { error: false }
 }
@@ -133,7 +133,7 @@ module.exports.store = async (params) => {
       }
     }
     else {
-      return pgdocError('UnhandledStore', params)
+      return pgdocError(`UnhandledStore`, params)
     }
   }
   if(!config.quiet && (config.verbose || config.verboseSQL) ) {
@@ -147,7 +147,7 @@ module.exports.store = async (params) => {
     /// Get connection online.
     client = new pg.Client(config.connectionString)
     if(client == null) {
-      return pgdocError('UnknownError',params)
+      return pgdocError(`UnknownError`,params)
     }
     await client.connect()
     let res = await client.query(command)
@@ -165,7 +165,7 @@ module.exports.store = async (params) => {
         if (commandType == 1) {
           if( `length` in res && res.length > 1 && `rowCount` in res[1] ) {
             if( res[1].rowCount < 0 ) {
-              err = pgdocError('MaxExceeded', params)
+              err = pgdocError(`MaxExceeded`, params)
               err.description += ` Max: ${maxMatch}, Found: ${-res[1].rowCount}`
               return err
             }
@@ -175,14 +175,14 @@ module.exports.store = async (params) => {
             }
           }
           else {
-            let err = pgdocError('UpdateFailed', params)
+            let err = pgdocError(`UpdateFailed`, params)
             err.description += `Expected 'rowCount' from delete operation, but couldn't find it.`
             return err
           }
         }
         else if( commandType == 2 ) {
           if(-res.rows[0].overwriteundermax > maxMatch ) {
-            err = pgdocError('MaxExceeded', params)
+            err = pgdocError(`MaxExceeded`, params)
             err.description += ` Max: ${maxMatch}, Found: ${-res.rows[0].overwriteundermax}`
             return err
           }
@@ -193,7 +193,7 @@ module.exports.store = async (params) => {
         else if ( commandType == 3 ) {
           if( `length` in res && res.length > 1 && `rowCount` in res[1] ) {
             if( res[1].rowCount < 0 ) {
-              err = pgdocError('MaxExceeded', params)
+              err = pgdocError(`MaxExceeded`, params)
               err.description += ` Max: ${maxMatch}, Found: ${-res[1].rowCount}`
               return err
             }
@@ -203,14 +203,14 @@ module.exports.store = async (params) => {
             }
           }
           else {
-            let err = pgdocError('UpdateFailed', params)
+            let err = pgdocError(`UpdateFailed`, params)
             err.description += `Expected 'rowCount' from delete operation, but couldn't find it.`
             return err
           }
         }
         else if (commandType == 4) {
           if(-res.rows[0].overwriteundermaxexcluding > maxMatch ) {
-            err = pgdocError('MaxExceeded', params)
+            err = pgdocError(`MaxExceeded`, params)
             err.description += ` Max: ${maxMatch}, Found: ${-res.rows[0].overwriteundermaxexcluding}`
             return err
           }
@@ -219,7 +219,7 @@ module.exports.store = async (params) => {
           }
         }
         else {
-          let err = pgdocError('StoreFailed', params)
+          let err = pgdocError(`StoreFailed`, params)
           err.description += ` Store Command not recognized!`
           return err
         }
@@ -228,7 +228,7 @@ module.exports.store = async (params) => {
         //   return { error: false, deleted: res[1].rowCount }
         // }
         // else {
-        //   return pgdocError('UpdateFailed', params)
+        //   return pgdocError(`UpdateFailed`, params)
         // }
       }
       else if(res.rowCount > 0) {
@@ -237,18 +237,18 @@ module.exports.store = async (params) => {
       }
       else {
         /// Nothing was stored
-        return pgdocError('NothingChanged', params)
+        return pgdocError(`NothingChanged`, params)
       }
     }
     else {
       if(!config.quiet) {
         console.error(unknownError)
       }
-      return pgdocError('StoreFailed', params)
+      return pgdocError(`StoreFailed`, params)
     }
   }
   catch (err) {
-    return connectionErrorHandler( client, err, params, pgdocError('StoreFailed', params) )
+    return connectionErrorHandler( client, err, params, pgdocError(`StoreFailed`, params) )
   }
 }
 
@@ -306,11 +306,11 @@ module.exports.retrieve = async (params) => {
       if(!config.quiet) {
         console.error(unknownError)
       }
-      return pgdocError('RetrieveFailed', params)
+      return pgdocError(`RetrieveFailed`, params)
     }
   }
   catch (err) {
-    return connectionErrorHandler( client, err, params, pgdocError('RetrieveFailed', params) )
+    return connectionErrorHandler( client, err, params, pgdocError(`RetrieveFailed`, params) )
   }
 }
 
@@ -354,11 +354,11 @@ module.exports.delete = async (params) => {
       if(!config.quiet) {
         console.error(unknownError)
       }
-      return pgdocError('DeleteFailed', params)
+      return pgdocError(`DeleteFailed`, params)
     }
   }
   catch (err) {
-    return connectionErrorHandler( client, err, params, pgdocError('DeleteFailed', params) )
+    return connectionErrorHandler( client, err, params, pgdocError(`DeleteFailed`, params) )
   }
 }
 
@@ -399,16 +399,16 @@ module.exports.requestID = async (params) => {
       }
       else {
         /// Nothing was stored
-        return pgdocError('RequestIDFailed', params)
+        return pgdocError(`RequestIDFailed`, params)
       }
     }
     else {
       /// Null response
-      return pgdocError('RequestIDFailed', params)
+      return pgdocError(`RequestIDFailed`, params)
     }
   }
   catch (err) {
-    return connectionErrorHandler( client, err, params, pgdocError('RequestIDFailed', params) )
+    return connectionErrorHandler( client, err, params, pgdocError(`RequestIDFailed`, params) )
   }
 }
 
@@ -422,7 +422,7 @@ module.exports.requestID = async (params) => {
  */
 module.exports.configure = ( params ) => {
   ({options} = params)
-  if( typeof(options) == 'object' ) {
+  if( typeof(options) == `object` ) {
     Object.assign(config, options)
     return { error: false }
   }
@@ -446,7 +446,7 @@ module.exports.configure = ( params ) => {
  * @returns {string} - A JSON string representation of the object passed in.
  */
 const str = (object) => {
-  if( typeof(object) != 'string' ) {
+  if( typeof(object) != `string` ) {
     return stringify(object);
   }
   else return object

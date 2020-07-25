@@ -6,7 +6,7 @@
 const pgdoc = require(`./pgdoc.js`)
 const str = pgdoc.JSON.stringify
 const assert = require(`assert`)
-const rl = require('readline').createInterface({
+const rl = require(`readline`).createInterface({
   input: process.stdin,
   output: process.stdout
 })
