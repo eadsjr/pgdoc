@@ -30,7 +30,7 @@ TODO: Link specification once fleshed out PS: doc/node/Start.md
 .
 TODO: clean up and finalize the install script
 TODO: Store(): more specific success validation
-TODO: document sequence integer limits of postgres here PS: store()
+TO DO: document sequence integer limits of postgres here PS: store()
 TODO: Determine the state of non-first level searches like this { o: 1, j:{ x: 1 } }... does { o: 1, j:{ x: 1, y:2 } } match?
 
 CRUD:

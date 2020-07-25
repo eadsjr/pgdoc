@@ -397,7 +397,7 @@ storeOverwriteMax()
 
 You can also use this maxMatch feature to ensure a unique value in the first place.
 
-> IDs provided by pgdoc.requestID() will be unique for that database, so this should not be necessary for them.
+> IDs provided by pgdoc.requestID() will be unique for that database, so this should not normally be necessary for them.
 
 ``` js
 let storeUnique = async () => {

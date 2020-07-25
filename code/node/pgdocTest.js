@@ -151,6 +151,7 @@ let testAdvancedStore = async () => {
   assert( rv.deleted == 1, `store failed to get expected result, expected 1 deletion and got ${rv.deleted}` )
   let deleted = rv.deleted
   rv = await pgdoc.retrieve( { type, search } )
+  assert( !rv.error, `retrieve failed with error ${str(rv)}` )
   assert( rv.length == 2, `retrieve failed to get expected result, expected 2 documents and got ${rv.length}` )
   rl.write(`passed.\n  Stored: ${str(oldDoc)}\n  Stored: ${str(oldDoc2)}\n  Updated: ${str(newDoc)}\n  Deleted: ${deleted}\n  Retrieved: ${str(rv[0])}\n  Retrieved: ${str(rv[1])}\n`)
 
@@ -186,11 +187,71 @@ let testAdvancedStore = async () => {
   rl.write(`Testing Advanced Use Cases for Store...                        passed.\n\n`)
 }
 
+let testAdvancedRetrieve = async () => {
+  rl.write(`Testing Advanced Use Cases for Retrieve...\n`)
+
+  let connectionString = config.connectionString
+  let options = { verbose: config.verbose }
+  let rv = await pgdoc.connect( { connectionString, options } )
+  assert( !rv.error, `connect failed with error ${str(rv)}` )
+
+  let type = `pgdocTest`
+
+  rl.write(`ensuring no conflicting records in database via delete()...    `)
+  rv = await pgdoc.delete( { type: `pgdocTest` } )
+  assert( !rv.error, `delete failed with error ${str(rv)}` )
+  rl.write(`passed.\n  Deleted ${rv.deleted} documents.\n`)
+
+  /// TODO: search
+  /// TODO: search + maxMatch
+  /// TODO: search, exclude
+  /// TODO: search + maxMatch, exclude
+  /// TODO: search ( multi level objects )
+
+  // console.error(rv)
+  // console.error(!rv.error)
+  // rv = await pgdoc.configure( { options: { verbose: true, quiet: false } } )
+
+  rl.write(`Testing Advanced Use Cases for Retrieve...                     passed.\n\n`)
+}
+
+let testAdvancedDelete = async () => {
+  rl.write(`Testing Advanced Use Cases for Retrieve...\n`)
+
+  let connectionString = config.connectionString
+  let options = { verbose: config.verbose }
+  let rv = await pgdoc.connect( { connectionString, options } )
+  assert( !rv.error, `connect failed with error ${str(rv)}` )
+
+  let type = `pgdocTest`
+
+  rl.write(`ensuring no conflicting records in database via delete()...    `)
+  rv = await pgdoc.delete( { type: `pgdocTest` } )
+  assert( !rv.error, `delete failed with error ${str(rv)}` )
+  rl.write(`passed.\n  Deleted ${rv.deleted} documents.\n`)
+
+  /// TODO: search
+  /// TODO: search + maxMatch
+  /// TODO: search, exclude
+  /// TODO: search + maxMatch, exclude
+  /// TODO: search ( multi level objects )
+
+  // console.error(rv)
+  // console.error(!rv.error)
+  // rv = await pgdoc.configure( { options: { verbose: true, quiet: false } } )
+
+  rl.write(`Testing Advanced Use Cases for Retrieve...                     passed.\n\n`)
+}
+
 let testErrors = async () => {}
 
 let tests = async () => {
   await testBasic()
   await testAdvancedStore()
+  // await testAdvancedRetrieve()
+  // await testAdvancedDelete()
+  // await testAdvanced()
+  // await testParallel()
   // await testErrors()
   process.exit(0)
 }
