@@ -260,10 +260,7 @@ module.exports.store = async (params) => {
  */
 module.exports.retrieve = async (params) => {
   ({type, search, maxMatch, exclude} = params)
-  if( search == null ) {
-    search = `*`
-  }
-  else {
+  if( search != null ) {
     search = str(search)
   }
   if( exclude != null ) {
@@ -272,7 +269,10 @@ module.exports.retrieve = async (params) => {
   let schema = config.schema
 
   let command
-  if( exclude == null ) {
+  if( search == null ) {
+    command = `SELECT data FROM ${schema}.docs WHERE type = '${type}';`
+  }
+  else if( exclude == null ) {
     command = `SELECT data FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}';`
   }
   else {
