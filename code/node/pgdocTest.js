@@ -105,7 +105,7 @@ let testAdvancedStore = async () => {
   let type = `pgdocTest`
 
   rl.write(`ensuring no conflicting records in database via delete()...    `)
-  rv = await pgdoc.delete( { type: `pgdocTest` } )
+  rv = await pgdoc.delete( { type } )
   assert( !rv.error, `delete failed with error ${str(rv)}` )
   rl.write(`passed.\n  Deleted ${rv.deleted} documents.\n`)
 
@@ -113,42 +113,42 @@ let testAdvancedStore = async () => {
   let oldDoc = { id: `-15`, v: 1 }
   rv = await pgdoc.store( { type, doc: oldDoc } )
   assert( !rv.error, `store of oldDoc failed with error ${str(rv)}` )
-  assert( rv.deleted == 0, `store failed to get expected result, expected 0 deletions and got ${rv.deleted}` )
+  assert( rv.deleted == 0, `store of oldDoc failed to get expected result, expected 0 deletions and got ${rv.deleted}` )
   let newDoc = { id: `-15`, v: 2 }
   let search = { id: `-15` }
   rv = await pgdoc.store( { type, doc: newDoc, search } )
   assert( !rv.error, `store of newDoc failed with error ${str(rv)}` )
-  assert( rv.deleted == 1, `store failed to get expected result, expected 1 deletion and got ${rv.deleted}` )
+  assert( rv.deleted == 1, `store of newDoc failed to get expected result, expected 1 deletion and got ${rv.deleted}` )
   rl.write(`passed.\n  Stored: ${str(oldDoc)}\n  Updated: ${str(newDoc)}\n`)
 
   rl.write(`store() search + maxMatch test...                              `)
   oldDoc = { id: `-16`, v: 1 }
   rv = await pgdoc.store( { type, doc: oldDoc } )
   assert( !rv.error, `store of oldDoc failed with error ${str(rv)}` )
-  assert( rv.deleted == 0, `store failed to get expected result, expected 0 deletions and got ${rv.deleted}` )
+  assert( rv.deleted == 0, `store of oldDoc failed to get expected result, expected 0 deletions and got ${rv.deleted}` )
   newDoc = { id: `-16`, v: 2 }
   search = { id: `-16` }
   let maxMatch = 1
   rv = await pgdoc.store( { type, doc: newDoc, search, maxMatch } )
   assert( !rv.error, `store of newDoc failed with error ${str(rv)}` )
-  assert( rv.deleted == 1, `store failed to get expected result, expected 1 deletion and got ${rv.deleted}` )
+  assert( rv.deleted == 1, `store of newDoc failed to get expected result, expected 1 deletion and got ${rv.deleted}` )
   rl.write(`passed.\n  Stored: ${str(oldDoc)}\n  Updated: ${str(newDoc)}\n`)
 
   rl.write(`store() search, exclude test...                                `)
   oldDoc = { id: `-17`, v: 1, ignore: false }
   rv = await pgdoc.store( { type, doc: oldDoc } )
   assert( !rv.error, `store of oldDoc failed with error ${str(rv)}` )
-  assert( rv.deleted == 0, `store failed to get expected result, expected 0 deletions and got ${rv.deleted}` )
+  assert( rv.deleted == 0, `store of oldDoc failed to get expected result, expected 0 deletions and got ${rv.deleted}` )
   oldDoc2 = { id: `-17`, v: 1, ignore: true }
   rv = await pgdoc.store( { type, doc: oldDoc2 } )
   assert( !rv.error, `store of oldDoc2 failed with error ${str(rv)}` )
-  assert( rv.deleted == 0, `store failed to get expected result, expected 0 deletions and got ${rv.deleted}` )
+  assert( rv.deleted == 0, `store of oldDoc2 failed to get expected result, expected 0 deletions and got ${rv.deleted}` )
   newDoc = { id: `-17`, v: 100, ignore: false }
   search = { id: `-17` }
   let exclude = { ignore: true }
   rv = await pgdoc.store( { type, doc: newDoc, search, exclude } )
   assert( !rv.error, `store of newDoc failed with error ${str(rv)}` )
-  assert( rv.deleted == 1, `store failed to get expected result, expected 1 deletion and got ${rv.deleted}` )
+  assert( rv.deleted == 1, `store of newDoc failed to get expected result, expected 1 deletion and got ${rv.deleted}` )
   let deleted = rv.deleted
   rv = await pgdoc.retrieve( { type, search } )
   assert( !rv.error, `retrieve failed with error ${str(rv)}` )
@@ -160,18 +160,18 @@ let testAdvancedStore = async () => {
   oldDoc = { id: `-18`, v: 1, ignore: false }
   rv = await pgdoc.store( { type, doc: oldDoc } )
   assert( !rv.error, `store of oldDoc failed with error ${str(rv)}` )
-  assert( rv.deleted == 0, `store failed to get expected result, expected 0 deletions and got ${rv.deleted}` )
+  assert( rv.deleted == 0, `store of oldDoc failed to get expected result, expected 0 deletions and got ${rv.deleted}` )
   oldDoc2 = { id: `-18`, v: 100, ignore: true }
   rv = await pgdoc.store( { type, doc: oldDoc2 } )
   assert( !rv.error, `store of oldDoc2 failed with error ${str(rv)}` )
-  assert( rv.deleted == 0, `store failed to get expected result, expected 0 deletions and got ${rv.deleted}` )
+  assert( rv.deleted == 0, `store of oldDoc2 failed to get expected result, expected 0 deletions and got ${rv.deleted}` )
   newDoc = { id: `-18`, v: 2 }
   search = { id: `-18` }
   maxMatch = 1
   exclude = { ignore: true }
   rv = await pgdoc.store( { type, doc: newDoc, search, exclude, maxMatch } )
   assert( !rv.error, `store of newDoc failed with error ${str(rv)}` )
-  assert( rv.deleted == 1, `store failed to get expected result, expected 1 deletion and got ${rv.deleted}` )
+  assert( rv.deleted == 1, `store of newDoc failed to get expected result, expected 1 deletion and got ${rv.deleted}` )
   rl.write(`passed.\n  Stored: ${str(oldDoc)}\n  Stored: ${str(oldDoc2)}\n  Updated: ${str(newDoc)}\n  Deleted: ${rv.deleted}\n`)
 
   rl.write(`delete() to clean up...                                        `)
@@ -198,9 +198,52 @@ let testAdvancedRetrieve = async () => {
   let type = `pgdocTest`
 
   rl.write(`ensuring no conflicting records in database via delete()...    `)
-  rv = await pgdoc.delete( { type: `pgdocTest` } )
+  rv = await pgdoc.delete( { type } )
   assert( !rv.error, `delete failed with error ${str(rv)}` )
   rl.write(`passed.\n  Deleted ${rv.deleted} documents.\n`)
+
+  rl.write(`store() of searchable documents...                             `)
+
+  let doc1 = { id: -19, group: `A`, x:1, y:2, complex: { a: { t: 7, u: 3 } } }
+  let search = { id: `-19` }
+  let maxMatch = 0
+  rv = await pgdoc.store( { type, doc: doc1, search, maxMatch } )
+  assert( !rv.error, `store of doc1 failed with error ${str(rv)}` )
+  assert( rv.deleted == 0, `store of doc1 failed to get expected result, expected 0 deletions and got ${rv.deleted}` )
+  let doc2 = { id: -20, group: `B`, x:1, y:2, complex: { a: { t: 2, u: 4 } } }
+  search = { id: `-20` }
+  rv = await pgdoc.store( { type, doc: doc2, search, maxMatch } )
+  assert( !rv.error, `store of doc2 failed with error ${str(rv)}` )
+  assert( rv.deleted == 0, `store of doc2 failed to get expected result, expected 0 deletions and got ${rv.deleted}` )
+  let doc3 = { id: -21, group: `B`, x:2, y:1, complex: { a: { t: 1, u: -5 }, b: 3 } }
+  search = { id: `-21` }
+  rv = await pgdoc.store( { type, doc: doc3, search, maxMatch } )
+  assert( !rv.error, `store of doc3 failed with error ${str(rv)}` )
+  assert( rv.deleted == 0, `store of doc3 failed to get expected result, expected 0 deletions and got ${rv.deleted}` )
+  let doc4 = { id: -22, group: `A`, x:2, y:1, complex: { a: { t: 7, u: 2 }, b: 3 } }
+  search = { id: `-22` }
+  rv = await pgdoc.store( { type, doc: doc4, search, maxMatch } )
+  assert( !rv.error, `store of doc4 failed with error ${str(rv)}` )
+  assert( rv.deleted == 0, `store of doc4 failed to get expected result, expected 0 deletions and got ${rv.deleted}` )
+  rl.write(`passed.\n  Stored: ${str(doc1)}\n  Stored: ${str(doc2)}\n  Stored: ${str(doc3)}\n  Stored: ${str(doc4)}\n`)
+
+  rl.write(`retrieve() by shared member...                                 `)
+  search = { group: `A` }
+  rv = await pgdoc.retrieve( { type, search } )
+  assert( !rv.error, `retrieve failed with error ${str(rv)}` )
+  assert( rv.length == 2, `retrieve failed to get expected result, expected 2 documents and got ${rv.length}` )
+  assert( doc1.complex.a.u == rv[0].complex.a.u || doc1.complex.a.u == rv[1].complex.a.u,
+          `expected doc1 data element to be in retrieved documents, but unable to find it!\n`+
+          `Expected: doc1.complex.a.u == ${doc1.complex.a.u} to be in Retrieved: ${str(rv)}`)
+  rl.write(`passed.\n  Retrieved: ${str(rv[0])}\n  Retrieved: ${str(rv[1])}\n`)
+
+  rl.write(`retrieve() search + maxMatch...                                `)
+  search = { complex: { a: { t: 1, u: -5 }, b: 3 } }
+  let maxMatch = 1
+  rv = await pgdoc.retrieve( { type, search, maxMatch } )
+  assert( !rv.error, `retrieve failed with error ${str(rv)}` )
+  assert( rv.length == 2, `retrieve failed to get expected result, expected 2 documents and got ${rv.length}` )
+  rl.write(`passed.\n  Retrieved: ${str(rv[0])}\n  Retrieved: ${str(rv[1])}\n`)
 
   /// TODO: search
   /// TODO: search + maxMatch
