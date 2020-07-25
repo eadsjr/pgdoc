@@ -15,10 +15,11 @@ const stringify = require('fast-safe-stringify')
 
 /// Default configuration
 let config = {
-  database: 'pgdoc',
-  schema: 'pgdoc',
-  verbose: false, /// causes additional output 
-  quiet: false, /// overrides verbose, and also suppresses uncommon error related output
+  database: 'pgdoc', /// which database to access with the connected PostgreSQL system
+  schema: 'pgdoc', /// which database schema to use in the connected database
+  verboseSQL: false, /// if true, causes additional output specific to SQL
+  verbose: false, /// if true, causes additional output
+  quiet: false, /// if true, overrides verbose options, and also suppresses uncommon error output
 }
 
 /**
@@ -135,7 +136,7 @@ module.exports.store = async (params) => {
       return pgdocError('UnhandledStore', params)
     }
   }
-  if(!config.quiet && config.verbose) {
+  if(!config.quiet && (config.verbose || config.verboseSQL) ) {
     console.log(`command: ${command}`)
     console.log(`commandType: ${commandType}`)
   }
@@ -270,7 +271,7 @@ module.exports.retrieve = async (params) => {
     command = `SELECT data FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}' ` +
               `AND NOT data @> '${exclude}';`
   }
-  if(!config.quiet && config.verbose) {
+  if(!config.quiet && (config.verbose || config.verboseSQL)) {
     console.log(command)
   }
 
@@ -332,7 +333,7 @@ module.exports.delete = async (params) => {
     command = `DELETE FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}';`
   }
   /// DELETE FROM pgdocs.docs WHERE type = 'test' AND data @> '{"id":0}' ;
-  if( !config.quiet && config.verbose ) {
+  if(!config.quiet && (config.verbose || config.verboseSQL)) {
     console.log(command)
   }
 
@@ -376,7 +377,7 @@ module.exports.requestID = async (params) => {
 
   // TODO: THIS IS NOT SQL INJECTION SAFE
   let command = `SELECT pgdoc.incrementSequence('${schema}', '${type}') ;`
-  if(!config.quiet && config.verbose) {
+  if(!config.quiet && (config.verbose || config.verboseSQL)) {
     console.log(command)
   }
 
