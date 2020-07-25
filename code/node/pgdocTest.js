@@ -78,6 +78,19 @@ let testBasic = async () => {
   assert( rv.deleted == 1, `delete failed to get expected result, expected 1 deletion and got ${rv.deleted}` )
   rl.write(`passed.\n  Deleted ${rv.deleted} documents.\n`)
 
+  rl.write(`store() with string...                                         `)
+  rv = await pgdoc.requestID( { type } )
+  assert( !rv.error, `requestID failed with error ${str(rv)}` )
+  id = rv
+  doc = `{ "id": "${id}", "x": 1, "y": 2, "z": 3 }`
+  rv = await pgdoc.store( { type, doc } )
+  assert( !rv.error, `store failed with error ${str(rv)}` )
+  search = { id }
+  rv = await pgdoc.delete( { type, search } )
+  assert( !rv.error, `delete failed with error ${str(rv)}` )
+  assert( rv.deleted == 1, `delete failed to get expected result, expected 1 deletion and got ${rv.deleted}` )
+  rl.write(`passed.\n  ID: ${id}\n  Stored: ${str(doc)}\n  Deleted ${rv.deleted} documents.\n`)
+
   rl.write(`Testing Basic Use Cases...                                     passed.\n\n`)
 }
 
