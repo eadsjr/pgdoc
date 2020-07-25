@@ -225,7 +225,11 @@ let testAdvancedRetrieve = async () => {
   rv = await pgdoc.store( { type, doc: doc4, search, maxMatch } )
   assert( !rv.error, `store of doc4 failed with error ${str(rv)}` )
   assert( rv.deleted == 0, `store of doc4 failed to get expected result, expected 0 deletions and got ${rv.deleted}` )
-  rl.write(`passed.\n  Stored: ${str(doc1)}\n  Stored: ${str(doc2)}\n  Stored: ${str(doc3)}\n  Stored: ${str(doc4)}\n`)
+  rl.write(`passed.\n`)
+  rl.write(`  Stored: ${str(doc1)}\n`)
+  rl.write(`  Stored: ${str(doc2)}\n`)
+  rl.write(`  Stored: ${str(doc3)}\n`)
+  rl.write(`  Stored: ${str(doc4)}\n`)
 
   rl.write(`retrieve() by shared member...                                 `)
   search = { group: `A` }
@@ -235,15 +239,20 @@ let testAdvancedRetrieve = async () => {
   assert( doc1.complex.a.u == rv[0].complex.a.u || doc1.complex.a.u == rv[1].complex.a.u,
           `expected doc1 data element to be in retrieved documents, but unable to find it!\n`+
           `Expected: doc1.complex.a.u == ${doc1.complex.a.u} to be in Retrieved: ${str(rv)}`)
-  rl.write(`passed.\n  Retrieved: ${str(rv[0])}\n  Retrieved: ${str(rv[1])}\n`)
+  rl.write(`passed.\n`)
+  rl.write(`  Search: ${str(search)}\n`)
+  rl.write(`  Retrieved: ${str(rv[0])}\n`)
+  rl.write(`  Retrieved: ${str(rv[1])}\n`)
 
   rl.write(`retrieve() search + maxMatch...                                `)
   search = { complex: { a: { t: 1, u: -5 }, b: 3 } }
-  let maxMatch = 1
+  maxMatch = 1
   rv = await pgdoc.retrieve( { type, search, maxMatch } )
   assert( !rv.error, `retrieve failed with error ${str(rv)}` )
-  assert( rv.length == 2, `retrieve failed to get expected result, expected 2 documents and got ${rv.length}` )
-  rl.write(`passed.\n  Retrieved: ${str(rv[0])}\n  Retrieved: ${str(rv[1])}\n`)
+  assert( rv.length == 1, `retrieve failed to get expected result, expected 1 document and got ${rv.length}` )
+  rl.write(`passed.\n`)
+  rl.write(`  Search: ${str(search)}\n`)
+  rl.write(`  Retrieved: ${str(rv[0])}\n`)
 
   /// TODO: search
   /// TODO: search + maxMatch
@@ -291,7 +300,7 @@ let testErrors = async () => {}
 let tests = async () => {
   await testBasic()
   await testAdvancedStore()
-  // await testAdvancedRetrieve()
+  await testAdvancedRetrieve()
   // await testAdvancedDelete()
   // await testAdvanced()
   // await testParallel()
@@ -299,7 +308,7 @@ let tests = async () => {
   process.exit(0)
 }
 let interactiveTests = async () => {
-  rl.question(`(E)xit or Test: (A)ll, (1)Basic, (2)Advanced: `, async (command) => {
+  rl.question(`(E)xit or Test: (A)ll, (1)Basic, (2)Advanced, (0) Current: `, async (command) => {
     // console.log(`Command: ${command}`)
     if( command == 'e' || command == 'E' ) {
       process.exit(0)
@@ -311,10 +320,16 @@ let interactiveTests = async () => {
         break
       case '1':
         await testBasic()
+        process.exit(0)
         break
       case '2':
         await testAdvancedStore()
+        process.exit(0)
         // await testAdvanced()
+        break
+      case '0':
+        await testAdvancedRetrieve()
+        process.exit(0)
         break
       default:
         await tests()
