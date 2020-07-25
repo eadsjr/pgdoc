@@ -82,7 +82,7 @@ $$
 DECLARE recordCount INTEGER;
 BEGIN
   recordCount := ( SELECT COUNT(*) FROM pgdoc.docs WHERE type = docType AND data @> search ) ;
-  RAISE NOTICE 'recordCount: %', recordCount;
+  -- RAISE NOTICE 'recordCount: %', recordCount;
   IF
     recordCount <= max
   THEN
@@ -113,7 +113,7 @@ $$
 DECLARE recordCount INTEGER;
 BEGIN
   recordCount := ( SELECT COUNT(*) FROM pgdoc.docs WHERE type = docType AND data @> search AND NOT data @> exclude) ;
-  RAISE NOTICE 'recordCount: %', recordCount;
+  -- RAISE NOTICE 'recordCount: %', recordCount;
   IF
     recordCount <= max
   THEN
@@ -128,6 +128,34 @@ END;
 $$
 LANGUAGE plpgsql;
 ALTER FUNCTION pgdoc.overwriteUnderMaxExcluding( TEXT, TEXT, JSONB, JSONB, INTEGER, JSONB ) OWNER TO pgdoc;
+
+
+-- Select a set of documents returned by a search if the record count is under provided maximum
+-- If the max is breached, instead return the number of records that would have been selected as a negative number.
+CREATE OR REPLACE FUNCTION pgdoc.retrieveUnderMax( schemaName TEXT, docType TEXT, search JSONB, max INTEGER )
+RETURNS SETOF JSONB AS
+$$
+DECLARE recordCount INTEGER;
+BEGIN
+  recordCount := ( SELECT COUNT(*) FROM pgdoc.docs WHERE type = docType AND data @> search ) ;
+  -- RAISE NOTICE 'recordCount: %', recordCount;
+  IF
+    recordCount <= max
+  THEN
+    RETURN QUERY SELECT data FROM pgdoc.docs WHERE type = docType AND data @> search ;
+  ELSE
+    RETURN QUERY SELECT ('{ "MaxExceeded": ' || -recordCount || ' }')::JSONB;
+  END IF;
+END;
+$$
+LANGUAGE plpgsql;
+ALTER FUNCTION pgdoc.retrieveUnderMax( TEXT, TEXT, JSONB, INTEGER ) OWNER TO pgdoc;
+-- SELECT pgdoc.retrieveUnderMax( 'pgdoc', 'pgdocTest', '{"complex":{"a":{"t":1,"u":-5},"b":3}}', 1 );
+-- SELECT pgdoc.retrieveUnderMax( 'pgdoc', 'pgdocTest', '{"complex":{"a":{"t":1,"u":-5},"b":3}}', 0 );
+-- SELECT data FROM pgdoc.docs WHERE type = 'pgdocTest' AND data @> '{"complex":{"a":{"t":1,"u":-5},"b":3}}' ;
+
+
+
 
 
 -- required for the above function to succeed

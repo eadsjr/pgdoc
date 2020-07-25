@@ -255,6 +255,8 @@ module.exports.store = async (params) => {
 /**
  * Retrieve a list of objects built from JSON documents matching the fields of a JSON object.
  *
+ * LIMITATION: Currently a top level member of a data object called 'MaxExceededError' will cause this function to fail.
+ *
  * @param {object} - params - all parameters, including a search object to seek matches with.
  * @returns {list} - A list of Javascript objects parsed from the document, or an error object.
  */
@@ -269,11 +271,20 @@ module.exports.retrieve = async (params) => {
   let schema = config.schema
 
   let command
+  let commandType
   if( search == null ) {
     command = `SELECT data FROM ${schema}.docs WHERE type = '${type}';`
+    commandType = 1
   }
   else if( exclude == null ) {
-    command = `SELECT data FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}';`
+    if( maxMatch != null ) {
+      // console.error(`maxMatch: ${maxMatch}`)
+      command = `SELECT pgdoc.retrieveUnderMax( '${schema}', '${type}', '${search}', ${maxMatch} );`
+      commandType = 2
+    }
+    else {
+      command = `SELECT data FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}';`
+    }
   }
   else {
     command = `SELECT data FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}' ` +
@@ -295,6 +306,25 @@ module.exports.retrieve = async (params) => {
         console.log(res)
       }
       if(res.rowCount > 0) {
+        /// Exit on a `MaxExceeded` error.
+        if( commandType == 2 ) {
+          if( res.rows[0].retrieveundermax &&
+              res.rows[0].retrieveundermax.MaxExceededError != null ) {
+            console.error(`MaxExceeded: ${str(res.rows[0].MaxExceededError)}`)
+            let err = pgdocError(`MaxExceeded`, params)
+            err.description += ` Max: ${maxMatch}, Found: ${-res.rows[0].MaxExceededError}`
+            return err
+          }
+          else {
+            /// Return a list of data items.
+            let docs = []
+            for( r in res.rows ) {
+              docs.push(res.rows[r].retrieveundermax)
+            }
+            docs.error = false
+            return docs
+          }
+        }
         /// Return a list of data items.
         let docs = []
         for( r in res.rows ) {

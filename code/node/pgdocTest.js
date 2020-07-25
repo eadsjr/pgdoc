@@ -263,9 +263,12 @@ let testAdvancedRetrieve = async () => {
   rl.write(`  Retrieved: ${str(rv[0])}\n`)
   rl.write(`  Retrieved: ${str(rv[1])}\n`)
 
+  // rv = await pgdoc.configure( { options: { verboseSQL: true, verbose: false, quiet: false } } )
+
   rl.write(`retrieve() search + maxMatch...                                `)
   search = { complex: { a: { t: 1, u: -5 }, b: 3 } }
   maxMatch = 1
+  // maxMatch = 0
   rv = await pgdoc.retrieve( { type, search, maxMatch } )
   assert( !rv.error, `retrieve failed with error ${str(rv)}` )
   assert( rv.length == 1, `retrieve failed to get expected result, expected 1 document and got ${rv.length}` )
@@ -284,13 +287,13 @@ let testAdvancedRetrieve = async () => {
   rl.write(`  Exclude: ${str(exclude)}\n`)
   rl.write(`  Retrieved: ${str(rv[0])}\n`)
 
-  /// TODO: search, exclude
   /// TODO: search + maxMatch, exclude
   /// TODO: search ( multi level objects )
 
   // console.error(rv)
   // console.error(!rv.error)
   // rv = await pgdoc.configure( { options: { verbose: true, quiet: false } } )
+  // rv = await pgdoc.configure( { options: { verboseSQL: true, verbose: false, quiet: false } } )
 
   rl.write(`Testing Advanced Use Cases for Retrieve...                     passed.\n\n`)
 }
