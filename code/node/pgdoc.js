@@ -367,16 +367,22 @@ module.exports.delete = async (params) => {
  * 
  * The ID is always a string, and ID's from this function are sequential integers (in string form).
  * 
- * @todo document sequence integer limits of postgres here
+ * ID's provided by this rely on PostgreSQL sequences, which use 8 byte bigint arithmetic.
+ * They will roll over to negative after 9223372036854775807.
+ * The way this is handled can cause gaps in the sequence under certain conditions.
+ * It has not yet been verified this case arises in pgdoc.
+ * REFERENCE: https://www.postgresql.org/docs/12/sql-createsequence.html#:~:text=Sequences%20are%20based%20on%20bigint
+ * 
+ * No pgdoc.js code explicitly relies on the ID, nearly any string or JSON object you use will do.
+ * 
  * @param {object} - params - all parameters, including the type of the document to get an ID for
  * @returns {object} - A string containing an integer value, starting at 1 or a pgdoc error
  */
 module.exports.requestID = async (params) => {
   ({type} = params)
-  let schema = config.schema
 
   // TODO: THIS IS NOT SQL INJECTION SAFE
-  let command = `SELECT pgdoc.incrementSequence('${schema}', '${type}') ;`
+  let command = `SELECT pgdoc.incrementSequence('${config.schema}', '${type}') ;`
   if(!config.quiet && (config.verbose || config.verboseSQL)) {
     console.log(command)
   }

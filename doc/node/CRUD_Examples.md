@@ -144,6 +144,8 @@ storeDynamicString()
 
 You can request an ID with `pgdoc.requestID` to store inside the object and make finding it again easier. This ID is a simple integer, but every time it is requested from the database by a server it will be incremented by one. A separate counter sequence is used for each document type.
 
+> NOTE: The integer values provided by requestID() will roll over to negative after reaching 9223372036854775807. If your use case needs more then 9 to 18 quintillion ID's for a particular document type, you need to use a different method of acquiring IDs.
+
 You should verify you were able to get an ID before using it. Valid IDs will be 1 or greater.
 
 ``` js
