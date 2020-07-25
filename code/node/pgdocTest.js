@@ -336,22 +336,27 @@ let interactiveTests = async () => {
     switch( command ) {
       case 'a':
       case 'A':
+        rl.write(`Running all tests...\n\n`)
         await tests()
         break
       case '1':
+        rl.write(`Running basic tests...\n\n`)
         await testBasic()
         process.exit(0)
         break
       case '2':
+        rl.write(`Running advanced tests...\n\n`)
         await testAdvancedStore()
         process.exit(0)
         // await testAdvanced()
         break
       case '0':
+        rl.write(`Running current module tests...\n\n`)
         await testAdvancedRetrieve()
         process.exit(0)
         break
       default:
+        rl.write(`Running all tests...\n\n`)
         await tests()
     }
     interactiveTests()
