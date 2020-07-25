@@ -5,8 +5,8 @@ TODO.md
 'TODO:' - An unfinished task, searchable tag
 'CONSIDER: TODO:' - An unfinished task, searchable tag. The author is not confident that it should be done.
 'TO DO:' - A task that no longer needs attention
-'NOPE: TO DO:' - A task that was not performed as stated for any reason
-'NO PE: TO DO:' - A task that was not performed as stated for any reason
+'NOPE: message TO DO:' - A task that was not performed as stated for any reason, message optional
+'DONE: message TO DO:' - A task was completed, message optional
 'TODO: .... PS: ...' - "Post script" details added after to prevent breaking search.
 
 # TODO List
