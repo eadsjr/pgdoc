@@ -287,8 +287,15 @@ module.exports.retrieve = async (params) => {
     }
   }
   else {
-    command = `SELECT data FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}' ` +
-              `AND NOT data @> '${exclude}';`
+    if( maxMatch != null ) {
+      command = `SELECT pgdoc.retrieveUnderMaxExcluding( '${schema}', '${type}', '${search}', ${maxMatch}, '${exclude}' );`
+      commandType = 3
+    }
+    else {
+      command = `SELECT data FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}' ` +
+                `AND NOT data @> '${exclude}';`
+      commandType = 4
+    }
   }
   if(!config.quiet && (config.verbose || config.verboseSQL)) {
     console.log(command)
@@ -324,6 +331,9 @@ module.exports.retrieve = async (params) => {
             docs.error = false
             return docs
           }
+        }
+        else if( commandType == 3 ) {
+          TODO
         }
         /// Return a list of data items.
         let docs = []
