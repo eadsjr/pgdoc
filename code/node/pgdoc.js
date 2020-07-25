@@ -260,7 +260,15 @@ module.exports.store = async (params) => {
  */
 module.exports.retrieve = async (params) => {
   ({type, search, maxMatch, exclude} = params)
-  search = str(search)
+  if( search == null ) {
+    search = `*`
+  }
+  else {
+    search = str(search)
+  }
+  if( exclude != null ) {
+    exclude = str(exclude)
+  }
   let schema = config.schema
 
   let command
