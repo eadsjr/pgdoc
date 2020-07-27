@@ -310,9 +310,6 @@ let testAdvancedRetrieve = async () => {
   // rl.write(`  Search: ${str(search)}\n`)
   // rl.write(`  Retrieved: ${str(rv[0])}\n`)
 
-
-
-
   // console.error(rv)
   // console.error(!rv.error)
   // rv = await pgdoc.configure( { options: { verbose: true, quiet: false } } )

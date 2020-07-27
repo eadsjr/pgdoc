@@ -22,7 +22,7 @@ TO DO: Add a 'quiet' option to supress all output
 TO DO: Delete all the options infrastructure. they can just be top level params now.
 TODO: support exclude in delete()
 TODO: delete() maxMatch implementation
-TODO: retrieve() maxMatch implementation
+TO DO: retrieve() maxMatch implementation
 TODO: Need a wildcard for matching... so like a search for documents that have ANY value under 'id'.
 TODO: in addition to wildcards for matching, math logic for things like age <, > given #
 TODO: Write a spec document
@@ -140,6 +140,11 @@ TODO: explain reasoning about dev branch separation and deliberate storage in re
 IMPORTANT LATER:
 TODO: releases for stable versions of pgdoc
 TODO: Later: update the windows install to use a release and verify it isn't prevented from loading via Chrome or Windows security
+TODO: commandType stuff can be simplified, it's getting repetitive
+TODO: LATER: single runCommand() in DB that operates all the functions, eliminating client side SQL and streamlining return value handling.
+TODO: CONSIDER: Reduce all variants of SQL functions to one, which detects which path to take based on a code. pgdoc.runCommand()
+TODO: CONSIDER: A loop/recursive search in PLpgSQL that checks each step of the object looking for a match. Where, if it branches, all branch heads need to match. If it does not branch, a match is a hit.
+TODO: search ( multi level objects )
 
 FINALIZING:
 TODO: github - hide old projects and dead forks
