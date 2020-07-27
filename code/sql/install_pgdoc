@@ -177,6 +177,32 @@ ALTER FUNCTION pgdoc.retrieveUnderMaxExcluding( TEXT, TEXT, JSONB, INTEGER, JSON
 
 
 
+
+-- CREATE OR REPLACE FUNCTION  pgdoc.runCommand( command INTEGER, schemaName TEXT, docType TEXT, newData JSONB, search JSONB, max INTEGER, exclude JSONB )
+-- RETURNS SETOF JSONB AS
+-- $$
+-- DECLARE recordCount INTEGER;
+-- BEGIN
+--   recordCount := ( SELECT COUNT(*) FROM pgdoc.docs WHERE type = docType AND data @> search AND NOT data @> exclude ) ;
+--   -- RAISE NOTICE 'recordCount: %', recordCount;
+--   IF
+--     command == 1 -- Store
+--   THEN
+--   -- IF
+--   --   recordCount <= max
+--   -- THEN
+--   --   RETURN QUERY SELECT data FROM pgdoc.docs WHERE type = docType AND data @> search AND NOT data @> exclude ;
+--   -- ELSE
+--   --   RETURN QUERY SELECT ('{ "MaxExceededError": ' || -recordCount || ' }')::JSONB;
+--   -- END IF;
+-- END;
+-- $$
+-- LANGUAGE plpgsql;
+-- ALTER FUNCTION pgdoc.runCommand( INTEGER, TEXT, TEXT, JSONB, JSONB, INTEGER, JSONB ) OWNER TO pgdoc;
+
+
+
+
 -- required for the above function to succeed
 -- GRANT create,usage ON SCHEMA public TO pgdoc ;
 
