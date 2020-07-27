@@ -333,7 +333,23 @@ module.exports.retrieve = async (params) => {
           }
         }
         else if( commandType == 3 ) {
-          TODO
+          /// Exit on a `MaxExceeded` error.
+          if( res.rows[0].retrieveundermaxexcluding &&
+              res.rows[0].retrieveundermaxexcluding.MaxExceededError != null ) {
+            console.error(`MaxExceeded: ${str(res.rows[0].MaxExceededError)}`)
+            let err = pgdocError(`MaxExceeded`, params)
+            err.description += ` Max: ${maxMatch}, Found: ${-res.rows[0].MaxExceededError}`
+            return err
+          }
+          else {
+            /// Return a list of data items.
+            let docs = []
+            for( r in res.rows ) {
+              docs.push(res.rows[r].retrieveundermaxexcluding)
+            }
+            docs.error = false
+            return docs
+          }
         }
         /// Return a list of data items.
         let docs = []

@@ -144,7 +144,7 @@ BEGIN
   THEN
     RETURN QUERY SELECT data FROM pgdoc.docs WHERE type = docType AND data @> search ;
   ELSE
-    RETURN QUERY SELECT ('{ "MaxExceeded": ' || -recordCount || ' }')::JSONB;
+    RETURN QUERY SELECT ('{ "MaxExceededError": ' || -recordCount || ' }')::JSONB;
   END IF;
 END;
 $$
@@ -155,6 +155,25 @@ ALTER FUNCTION pgdoc.retrieveUnderMax( TEXT, TEXT, JSONB, INTEGER ) OWNER TO pgd
 -- SELECT data FROM pgdoc.docs WHERE type = 'pgdocTest' AND data @> '{"complex":{"a":{"t":1,"u":-5},"b":3}}' ;
 
 
+
+CREATE OR REPLACE FUNCTION pgdoc.retrieveUnderMaxExcluding( schemaName TEXT, docType TEXT, search JSONB, max INTEGER, exclude JSONB )
+RETURNS SETOF JSONB AS
+$$
+DECLARE recordCount INTEGER;
+BEGIN
+  recordCount := ( SELECT COUNT(*) FROM pgdoc.docs WHERE type = docType AND data @> search AND NOT data @> exclude ) ;
+  -- RAISE NOTICE 'recordCount: %', recordCount;
+  IF
+    recordCount <= max
+  THEN
+    RETURN QUERY SELECT data FROM pgdoc.docs WHERE type = docType AND data @> search AND NOT data @> exclude ;
+  ELSE
+    RETURN QUERY SELECT ('{ "MaxExceededError": ' || -recordCount || ' }')::JSONB;
+  END IF;
+END;
+$$
+LANGUAGE plpgsql;
+ALTER FUNCTION pgdoc.retrieveUnderMaxExcluding( TEXT, TEXT, JSONB, INTEGER, JSONB ) OWNER TO pgdoc;
 
 
 

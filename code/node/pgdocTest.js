@@ -291,7 +291,7 @@ let testAdvancedRetrieve = async () => {
   search = { x: 1 }
   exclude = { group: `B` }
   maxMatch = 1
-  maxMatch = 0 /// TEMPORARY CHANGE TO FLUSH OUT maxMatch issues, needs own test later
+  // maxMatch = 0 /// TEMPORARY CHANGE TO FLUSH OUT maxMatch issues, needs own test later
   rv = await pgdoc.retrieve( { type, search, maxMatch, exclude } )
   assert( !rv.error, `retrieve failed with error ${str(rv)}` )
   assert( rv.length == 1, `retrieve failed to get expected result, expected 1 document and got ${rv.length}` )
