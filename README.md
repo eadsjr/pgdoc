@@ -17,9 +17,9 @@ Using this you can store and search JSON documents, a generic format for data st
 
 A library that allows document storage, retrieval and deletion with a function call.
 
-Document selection via JSON object subsets. This can be on any part of the data, including an explicit id.
+Document selection via JSON object subset of the top level of a document. This allows selection via group tags, IDs and shared simple values, but not select elements of complex sub-object hierarchies.
 
-Incomplete error handling system, that will reduce but not eliminate the need for try-catch blocks everywhere.
+Incomplete error handling system, that will reduce but not yet eliminate the need for try-catch blocks everywhere.
 
 An install script that configures PostgreSQL for pgdoc.
 
@@ -42,8 +42,9 @@ Full support for NodeJS.
 
 Support for additional programming languages (tentative)
 
-A means of requesting unused non-sequential IDs from the database. `pgdoc.requestUUID(docType)`
+A means of generating or requesting unused non-sequential IDs. `pgdoc.requestUUID(docType)` or similar.
 
+Document Selection via JSON object subsets at any level of the object hierarchy.
 
 ## Support
 

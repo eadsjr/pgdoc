@@ -300,9 +300,18 @@ let testAdvancedRetrieve = async () => {
   rl.write(`  Exclude: ${str(exclude)}\n`)
   rl.write(`  Retrieved: ${str(rv[0])}\n`)
 
+  // /// This feature will take some serious work, and is not yet supported
+  // rl.write(`retrieve() multi-level objects...                              `)
+  // search = { complex: { a: { t: 1 } } }
+  // rv = await pgdoc.retrieve( { type, search, exclude } )
+  // assert( !rv.error, `retrieve failed with error ${str(rv)}` )
+  // assert( rv.length == 1, `retrieve failed to get expected result, expected 1 document and got ${rv.length}` )
+  // rl.write(`passed.\n`)
+  // rl.write(`  Search: ${str(search)}\n`)
+  // rl.write(`  Retrieved: ${str(rv[0])}\n`)
 
-  /// TODO: search + maxMatch, exclude
-  /// TODO: search ( multi level objects )
+
+
 
   // console.error(rv)
   // console.error(!rv.error)
