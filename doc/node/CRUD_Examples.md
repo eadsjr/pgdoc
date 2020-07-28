@@ -324,6 +324,7 @@ let storeOverwrite = async () => {
   let params = {}
   params.type = `player`
   params.doc  = { name: `Bill Smith`, age:43, team: `red`, id: `-1` }
+  params.search = { id: `-1` }
   rv = await pgdoc.store( params )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
@@ -332,6 +333,7 @@ let storeOverwrite = async () => {
     // Now overwrite the stored data with a specific alternative value
     console.log(`document stored with age: 43`)
     let params = {}
+    params.type = `player`
     params.doc  = { name: `Bill Smith`, age: 44, team: `red`, id: `-1` }
     params.search = { id: `-1` }
     rv = await pgdoc.store( params )
@@ -346,7 +348,7 @@ let storeOverwrite = async () => {
         console.warn(`Document was written to database, but previous version not found`)
       }
       else {
-        console.error(`Document was written to database, and ${rv.deleted} documents were deleted. Something went wrong.`)
+        console.error(`1 Document was written to database, and ${rv.deleted} documents were deleted. Maybe something went wrong.`)
       }
     }
   }
