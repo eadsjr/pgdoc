@@ -334,6 +334,12 @@ let testAdvancedDelete = async () => {
   assert( !rv.error, `connect failed with error ${str(rv)}` )
 
   let type = `pgdocTest`
+  let doc
+  let search
+  let exclude
+  let maxMatch
+
+  // rv = await pgdoc.configure( { options: { verboseSQL: true, verbose: true, quiet: false } } )
 
   rl.write(`ensuring no conflicting records in database via delete()...    `)
   rv = await pgdoc.delete( { type } )
@@ -347,8 +353,8 @@ let testAdvancedDelete = async () => {
   rl.write(`  Retrieved ${rv.length} documents.\n`)
 
   rl.write(`delete() with search...                                        `)
-  let doc = { a: 1, b: 2 }
-  let search = doc
+  doc = { a: 1, b: 2 }
+  search = doc
   rv = await pgdoc.store( { type, doc } )
   assert( !rv.error, `store() of doc failed with error ${str(rv)}` )
   rv = await pgdoc.retrieve( { type, search } )
@@ -366,7 +372,7 @@ let testAdvancedDelete = async () => {
   rl.write(`delete() with search + maxMatch...                             `)
   doc = { a: 2, b: 1 }
   search = doc
-  let maxMatch = 1
+  maxMatch = 1
   rv = await pgdoc.store( { type, doc } )
   assert( !rv.error, `store() of doc failed with error ${str(rv)}` )
   rv = await pgdoc.retrieve( { type, search } )
@@ -381,15 +387,63 @@ let testAdvancedDelete = async () => {
   rl.write(`passed.\n`)
   rl.write(`  Stored and Deleted document.\n`)
 
+  // rv = await pgdoc.configure( { options: { verboseSQL: true, verbose: false, quiet: false } } )
 
-  /// TODO: search + maxMatch
-  /// TODO: search, exclude
-  /// TODO: search + maxMatch, exclude
+  rl.write(`delete() with search, exclude...                               `)
+  doc = { a: 2, b: 2 }
+  search = { a: 2 }
+  exclude = { b: 2 }
+  rv = await pgdoc.store( { type, doc } )
+  assert( !rv.error, `store() of doc failed with error ${str(rv)}` )
+  rv = await pgdoc.retrieve( { type, search } )
+  assert( !rv.error, `retrieve() failed with error ${str(rv)}` )
+  assert( rv.length == 1, `retrieve() failed to get expected result, expected 1 document and got ${rv.length}` )
+  rv = await pgdoc.delete( { type, search, exclude } )
+  assert( !rv.error, `delete() failed with error ${str(rv)}` )
+  assert( rv.deleted == 0, `delete() failed to get expected result, expected 0 documents and got ${rv.deleted}` )
+  rv = await pgdoc.delete( { type, search } )
+  assert( !rv.error, `delete() failed with error ${str(rv)}` )
+  assert( rv.deleted == 1, `delete() failed to get expected result, expected 1 document and got ${rv.deleted}` )
+  rv = await pgdoc.retrieve( { type, search } )
+  assert( !rv.error, `retrieve() failed with error ${str(rv)}` )
+  assert( rv.length == 0, `retrieve() failed to get expected result, expected 0 documents and got ${rv.length}` )
+  rl.write(`passed.\n`)
+  rl.write(`  Stored and Excluded document. Deleted after.\n`)
+
+  // rv = await pgdoc.configure( { options: { verboseSQL: true, verbose: true, quiet: false } } )
+
+  rl.write(`delete() with search + maxMatch, exclude...                    `)
+  doc = { a: 2, b: -2 }
+  rv = await pgdoc.store( { type, doc } )
+  assert( !rv.error, `store() of doc failed with error ${str(rv)}` )
+  doc = { a: 2, b: 2 }
+  rv = await pgdoc.store( { type, doc } )
+  assert( !rv.error, `store() of doc failed with error ${str(rv)}` )
+  search = { a: 2 }
+  exclude = { b: 2 }
+  maxMatch = 1 /// TEMP
+  rv = await pgdoc.retrieve( { type, search } )
+  assert( !rv.error, `retrieve() failed with error ${str(rv)}` )
+  assert( rv.length == 2, `retrieve() failed to get expected result, expected 2 documents and got ${rv.length}` )
+  // console.log(`args: ${str({ type, search, maxMatch, exclude })}`)
+  rv = await pgdoc.delete( { type, search, maxMatch, exclude } )
+  assert( !rv.error, `delete() failed with error ${str(rv)}` )
+  assert( rv.deleted == 1, `delete() failed to get expected result, expected 1 document and got ${rv.deleted}` )
+  rv = await pgdoc.delete( { type, search } )
+  assert( !rv.error, `delete() failed with error ${str(rv)}` )
+  assert( rv.deleted == 1, `delete() failed to get expected result, expected 1 document and got ${rv.deleted}` )
+  rv = await pgdoc.retrieve( { type, search } )
+  assert( !rv.error, `retrieve() failed with error ${str(rv)}` )
+  assert( rv.length == 0, `retrieve() failed to get expected result, expected 0 documents and got ${rv.length}` )
+  rl.write(`passed.\n`)
+  rl.write(`  Stored and deleted one document of two. Deleted other after.\n`)
+
+
   /// TODO: search ( multi level objects )
 
   // console.error(rv)
   // console.error(!rv.error)
-  // rv = await pgdoc.configure( { options: { verbose: true, quiet: false } } )
+  // rv = await pgdoc.configure( { options: { verboseSQL: true, verbose: false, quiet: false } } )
 
   rl.write(`Testing Advanced Use Cases for Delete...                       passed.\n\n`)
 }
@@ -400,7 +454,7 @@ let tests = async () => {
   await testBasic()
   await testAdvancedStore()
   await testAdvancedRetrieve()
-  // await testAdvancedDelete()
+  await testAdvancedDelete()
   // await testAdvanced()
   // await testParallel()
   // await testErrors()
@@ -426,12 +480,14 @@ let interactiveTests = async () => {
       case '2':
         rl.write(`Running advanced tests...\n\n`)
         await testAdvancedStore()
+        await testAdvancedRetrieve()
+        await testAdvancedDelete()
         process.exit(0)
         // await testAdvanced()
         break
       case '0':
         rl.write(`Running current module tests...\n\n`)
-        await testAdvancedRetrieve()
+        await testAdvancedDelete()
         process.exit(0)
         break
       default:

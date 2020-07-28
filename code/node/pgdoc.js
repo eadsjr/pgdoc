@@ -386,11 +386,17 @@ module.exports.retrieve = async (params) => {
  */
 module.exports.delete = async (params) => {
   ({type, search, maxMatch, exclude} = params)
-  search = str(search)
+  if( search != null ) {
+    search = str(search)
+  }
+  if( exclude != null ) {
+    exclude = str(exclude)
+  }
   let schema = config.schema
 
+  // console.log(`params: ${str(params)}`)
+
   let command
-  let commandType
   if(search == null) {
     command = `DELETE FROM ${schema}.docs WHERE type = '${type}';`
   }
@@ -399,7 +405,8 @@ module.exports.delete = async (params) => {
       command = `DELETE FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}';`
     }
     else {
-      command = `SELECT pgdoc.deleteUnderMax( '${schema}', '${type}', '${search}', ${maxMatch} );`
+      command = `SELECT pgdoc.deleteUnderMax( '${schema}', '${type}', '${search}', ${maxMatch} ) ` +
+                `AS data;`
     }
   }
   else {
@@ -408,7 +415,7 @@ module.exports.delete = async (params) => {
                 `AND NOT data @> '${exclude}'`
     }
     else {
-      command = `SELECT pgdoc.deleteUnderMaxExcluding( '${schema}', '${type}', '${search}', ${maxMatch}, '${exclude}' );`
+      command = `SELECT pgdoc.deleteUnderMaxExcluding( '${schema}', '${type}', '${search}', ${maxMatch}, '${exclude}' ) AS data;`
     }
   }
   /// DELETE FROM pgdocs.docs WHERE type = 'test' AND data @> '{"id":0}' ;
@@ -427,11 +434,36 @@ module.exports.delete = async (params) => {
         console.log(`received response: ${str(res)}`)
         console.log(res)
       }
-      return { error: false, deleted: res.rowCount }
+      if( res.rowCount > 0 && res.rows.length > 0 && res.rows[0].data ) {
+        if( res.rows[0].data.MaxExceededError != null ) {
+          let err = pgdocError(`MaxExceeded`, params)
+          err.description += ` Max: ${maxMatch}, Found: ${-res.rows[0].data.MaxExceededError}`
+          return err
+        }
+        else if ( res.rows[0].data.deleted != null ) {
+          return { error: false, deleted: res.rows[0].data.deleted }
+        }
+        else {
+          if(!config.quiet) {
+            console.error(unknownError)
+          }
+          return pgdocError(`DeleteFailed`, params)
+          console.error(`ERR1`)
+        }
+      }
+      else {
+        // if(!config.quiet) {
+        //   console.error(unknownError)
+        //   console.error(`ERR2`)
+        // }
+        // return pgdocError(`DeleteFailed`, params)
+        return { error: false, deleted: res.rowCount }
+      }
     }
     else {
       if(!config.quiet) {
         console.error(unknownError)
+        console.error(`ERR3`)
       }
       return pgdocError(`DeleteFailed`, params)
     }
