@@ -324,7 +324,7 @@ let storeOverwrite = async () => {
   let params = {}
   params.type = `player`
   params.doc  = { name: `Bill Smith`, age:43, team: `red`, id: `-1` }
-  params.search = { id: `-1` }
+  params.search = { id: `-1` } /// This will wipe out existing records with this ID
   rv = await pgdoc.store( params )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
@@ -335,7 +335,7 @@ let storeOverwrite = async () => {
     let params = {}
     params.type = `player`
     params.doc  = { name: `Bill Smith`, age: 44, team: `red`, id: `-1` }
-    params.search = { id: `-1` }
+    params.search = { id: `-1` } /// This will wipe out the previous store's record
     rv = await pgdoc.store( params )
     if( rv.error ) {
       console.error(`${rv.label}: ${rv.description}`)
@@ -387,6 +387,7 @@ let storeOverwriteMax = async () => {
   params.maxMatch = 1
   rv = await pgdoc.store( params )
   if( rv.error ) {
+    /// This should trigger with a MaxExceeded error.
     console.error(`${rv.label}: ${rv.description}`)
   }
   else {
@@ -437,7 +438,7 @@ let storeOverwriteMaxExcluding = async () => {
   params = {}
   params.type = `player`
   params.doc  = { name: `Samuel Doe`, position: `pitcher`, age:19, team: `red`, id: `-5` } /// position CONFLICT!
-  rv = await pgdoc.store( docType, oldDoc )
+  rv = await pgdoc.store( params )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
     return
@@ -455,11 +456,11 @@ let storeOverwriteMaxExcluding = async () => {
     console.error(`${rv.label}: ${rv.description}`)
   }
   else {
-    if( rv.length == 1 ) {
+    if( rv.deleted == 1 ) {
       console.log( `Samuel Doe's age updated non-destructively despite conflicting position.` )
     }
     else {
-      console.error( `Error: Something prevented a proper update...\nrv: ${rv}` )
+      console.error( `Error: Something prevented a proper update...\nrv: ${str(rv)}` )
     }
   }
 }
