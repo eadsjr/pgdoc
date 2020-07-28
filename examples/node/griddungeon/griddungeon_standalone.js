@@ -15,30 +15,34 @@ let gameState = {}
 let game = {}
 
 let randomInt = (max) => {
-  return Math.floor(Math.random() * Math.floor(size))
+  return Math.floor(Math.random() * Math.floor(max))
 }
 
 let newGame = async () => {
 
   gameState = {}
 
-  let rv = await pgdoc.connect(config.connectionString, {schema: config.schema})
+  let rv = await pgdoc.connect({connectionString: config.connectionString, schema: config.schema})
   if( rv.error ) { console.error(`${rv.label}: ${rv.description}`) ; return }
 
   /// Secure a fresh ID for the game
-  let gameType = `game`
-  rv = await pgdoc.requestID({type:gameType})
+  rv = await pgdoc.requestID({type:`game`})
   if( rv.error ) { console.error(`${rv.label}: ${rv.description}`) ; return }
+  // if( rv.error ) { console.error(`${rv.label}: ${rv.description}: ${str(rv.wrapped)}`) ; return }
   let gameID = rv
+
+  if(config.verbose) {
+    console.log(`gameID: ${str(gameID)}`)
+  }
 
   /// Make a board grid, and populate it randomly with a hero and 3 monsters
   let i = 0
-  let entities, entity
+  let entities = []
   while( i < 4 ) {
     /// Create a new entity
-    rv = await pgdoc.requestID({type:entityType})
+    rv = await pgdoc.requestID({type:`entity`})
     if( rv.error ) { console.error(`${rv.label}: ${rv.description}`) ; return }
-    entity = {}
+    let entity = {}
     entity.id = rv
     entity.x = randomInt(config.boardSize)
     entity.y = randomInt(config.boardSize)
@@ -59,19 +63,27 @@ let newGame = async () => {
         j += 1
       }
     }
+
+    entities.push(entity)
+    i += 1
   }
 
   /// Save the game and game state
   game = { id: gameID, state: `new`, move: 0, boardSize: config.boardSize }
-  rv = await pgdoc.store({type: gameType, doc: game})
+  if(config.verbose) {
+    console.log(`game: ${str(game)}`)
+  }
+  rv = await pgdoc.store({type: `game`, doc: game})
   if( rv.error ) { console.error(`${rv.label}: ${rv.description}`) ; return }
 
   /// Save the gameState
   gameState.entities = entities
   gameState.gameID = gameID
   gameState.move = 0
-  let gameStateType = `gameState`
-  rv = await pgdoc.store({type: gameStateType, doc: gameState})
+  if(config.verbose) {
+    console.log(`gameState: ${str(gameState)}`)
+  }
+  rv = await pgdoc.store({type: `gameState`, doc: gameState})
   if( rv.error ) { console.error(`${rv.label}: ${rv.description}`) ; return }
 }
 
@@ -96,14 +108,18 @@ let renderBoard = async () => {
     let x = (entity.x * 2) + 1
     let y = entity.y + 1
     let figure = entity.class == `hero` ? `@` : `M`
-    let lineY = lines[y].slice(0,x) + figure + lines[y].slice(x,0)
+    // rl.write(board[y])
+    let lineY = board[y].slice(0,x) + figure + board[y].slice(x+1,board[y].length)
+    // rl.write(lineY)
     board[y] = lineY
   }
   return board
 }
 let renderGame = async () => {
-  let board = renderBoard()
-  rl.write(board)
+  let board = await renderBoard()
+  for(l in board) {
+    rl.write(board[l])
+  }
 }
 
 let processInput = async (e) => {
@@ -114,14 +130,18 @@ let processInput = async (e) => {
 }
 
 let playGame = async () => {
-  // readline.emitKeypressEvents(process.stdin)
-  // if (process.stdin.isTTY)
-  //   process.stdin.setRawMode(true);
-  // process.stdin.on(`keypress`, processInput )
+  // await newGame()
+  // console.log(str(game))
+  // console.log(str(gameState))
+  game = {"id":"11","state":"new","move":0,"boardSize":7}
+  gameState = {"entities":[{"id":"23055","x":0,"y":3,"hp":15,"class":"hero","attack":6,"gameID":"11"},{"id":"23056","x":2,"y":0,"hp":15,"class":"monster","attack":6,"gameID":"11"},{"id":"23057","x":2,"y":5,"hp":13,"class":"monster","attack":6,"gameID":"11"},{"id":"23058","x":6,"y":1,"hp":8,"class":"monster","attack":6,"gameID":"11"}],"gameID":"11","move":0}
 
-  await newGame()
-  console.log(str(game))
-  console.log(str(gameState))
+  await renderGame()
+
+  readline.emitKeypressEvents(process.stdin)
+  if (process.stdin.isTTY)
+    process.stdin.setRawMode(true);
+  process.stdin.on(`keypress`, processInput )
 }
 playGame()
 
