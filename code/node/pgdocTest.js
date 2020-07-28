@@ -487,7 +487,10 @@ let interactiveTests = async () => {
         break
       case '0':
         rl.write(`Running current module tests...\n\n`)
-        await testAdvancedDelete()
+        rv = await pgdoc.configure( { options: { verboseSQL: true, verbose: true, quiet: false } } )
+        await testAdvancedStore()
+        // await testAdvancedRetrieve()
+        // await testAdvancedDelete()
         process.exit(0)
         break
       default:
