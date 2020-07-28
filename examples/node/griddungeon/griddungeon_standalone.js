@@ -2,11 +2,16 @@
 const pgdoc = require(`../../../code/node/pgdoc.js`)
 const config = require(`./config`)
 const str = require(`fast-safe-stringify`)
+const rl = require(`readline`).createInterface({
+  input: process.stdin,
+  output: process.stdout
+})
 
 console.log(`starting griddungeon standalone terminal application`)
 
 
 let gameState = {}
+let game = {}
 
 let randomInt = (max) => {
   return Math.floor(Math.random() * Math.floor(size))
@@ -14,18 +19,18 @@ let randomInt = (max) => {
 
 let newGame = async () => {
 
+  gameState = {}
+
   let rv = await pgdoc.connect(config.connectionString, {schema: config.schema})
   if( rv.error ) { console.error(`${rv.label}: ${rv.description}`) ; return }
 
+  /// Secure a fresh ID for the game
   let gameType = `game`
   rv = await pgdoc.requestID({type:gameType})
   if( rv.error ) { console.error(`${rv.label}: ${rv.description}`) ; return }
   let gameID = rv
-  let game = { id: gameID, state: `new` }
 
-  /// Make a 7x7 grid, and populate it randomly with a hero and 3 monsters
-
-  let entityType = `entity`
+  /// Make a board grid, and populate it randomly with a hero and 3 monsters
   let i = 0
   let entities, entity
   while( i < 4 ) {
@@ -53,45 +58,53 @@ let newGame = async () => {
         j += 1
       }
     }
-
-    entities.push(entity)
-    rv = await pgdoc.store({type: entityType, doc: entity})
-    if( rv.error ) { console.error(`${rv.label}: ${rv.description}`) ; return }
   }
+
+  /// Save the game and game state
+  game = { id: gameID, state: `new`, move: 0, boardSize: config.boardSize }
+  rv = await pgdoc.store({type: gameType, doc: game})
+  if( rv.error ) { console.error(`${rv.label}: ${rv.description}`) ; return }
+
+  /// Save the gameState
   gameState.entities = entities
   gameState.gameID = gameID
+  gameState.move = 0
+  let gameStateType = `gameState`
+  rv = await pgdoc.store({type: gameStateType, doc: gameState})
+  if( rv.error ) { console.error(`${rv.label}: ${rv.description}`) ; return }
+}
 
-  rv = await pgdoc.store({type: gameType, doc: game})
+/// TODO: this should flex with game.boardSize
+let boardTemplate = {
+  -1: `+++++++++++++++\n`,
+   0: `+             +\n`,
+   1: `+             +\n`,
+   2: `+             +\n`,
+   3: `+             +\n`,
+   4: `+             +\n`,
+   5: `+             +\n`,
+   6: `+             +\n`,
+   7: `+++++++++++++++\n\n`,
+}
+
+let renderBoard = async () => {
+  let board = {}
+  Object.assign( board, boardTemplate )
+  for( e in gameState.entities ) {
+    let entity = gameState.entities[e]
+    let x = (entity.x * 2) + 1
+    let y = entity.y
+    let figure = entity.class == `hero` ? `@` : `M`
+    let lineY = lines[y].slice(0,x) + figure + lines[y].slice(x,0)
+    board[y] = lineY
+  }
+  return board
+}
+let renderGame = async () => {
+  let board = renderBoard()
+  rl.write(board)
 }
 
 let playGame = async () => {
-  let err = await pgdoc.connect(config.connectionString, {schema: config.schema})
-  if( err != null ) {
-    console.log(err)
-    return
-  }
-
-  let type = `entity`
-  let data = { id: 0, x: 1, y: 3, hp: 10, attack: 4 }
-  let rv = await pgdoc.store(type, data)
-  if( rv.error ) {
-    console.error(`${rv.label}: ${rv.description}`)
-  }
-// }
-  // catch (err) {
-  //   console.log(`pgdoc.store failed for type:'${type}' and data:'${str(data)}'.\n${err}`)
-  //   return
-  // }
-  let search = { id: 0 }
-  // try {
-    let result = await pgdoc.retrieve(type, search)
-    console.log(result)
-  // }
-  // catch (err) {
-    // console.log(`pgdoc.retreive failed for type:'${type}' and data:'${str(search)}'.\n${err}`)
-    // return
-  // }
 }
 playGame()
-// console.log( pgdoc.JSON.parse(NaN) )
-// console.log( pgdoc.JSON.parse('cats Wros') )
