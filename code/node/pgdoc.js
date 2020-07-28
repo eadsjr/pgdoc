@@ -106,8 +106,7 @@ module.exports.store = async (params) => {
   // return pgdocError(`InsecureSQL`, params)
   let schema = config.schema
 
-  let command
-  let commandType
+  let command, commandType
 
   /// Determine type of command
   if( search == null ) {
@@ -182,16 +181,15 @@ module.exports.store = async (params) => {
         if( data.UnknownCommandError != null ) {
           err = pgdocError(`UnknownCommandError`, params)
         }
-        /// TODO: more defensive programming on what is returned from the database.
         let rv = { error: false, deleted: data.deleted }
-        return data /// Should be something like { deleted: <int>, error: false }
+        return rv /// Should be something like { deleted: <int>, error: false }
       }
       else {
         // return pgdocError(`NothingChanged`, params)
         if(!config.quiet) {
           console.error(unknownError)
         }
-        let err = pgdocError(`StoreBadReturnValue`, params)
+        let err = pgdocError(`BadReturnValue`, params)
         err.description += str(res)
         return err
       }
@@ -200,7 +198,7 @@ module.exports.store = async (params) => {
       if(!config.quiet) {
         console.error(unknownError)
       }
-      return pgdocError(`StoreNoReturnValue`, params)
+      return pgdocError(`NoReturnValue`, params)
     }
   }
   catch (err) {
@@ -221,43 +219,63 @@ module.exports.store = async (params) => {
  */
 module.exports.retrieve = async (params) => {
   ({type, search, maxMatch, exclude} = params)
+  if( type == null ) {
+    return pgdocError(`TypeMissing`, params)
+  }
   if( search != null ) {
     search = str(search)
   }
   if( exclude != null ) {
     exclude = str(exclude)
   }
+  // TODO: additional error handling
+  // return pgdocError(`BadJSON`, params)
+  // return pgdocError(`InsecureSQL`, params)
   let schema = config.schema
 
-  let command
-  let commandType
+  let command, commandType
+
+  /// Determine type of command
   if( search == null ) {
-    command = `SELECT data FROM ${schema}.docs WHERE type = '${type}';`
-    commandType = 1
+    /// Return all records of given type.
+    commandType = commands.Retrieve
   }
   else if( exclude == null ) {
-    if( maxMatch != null ) {
-      // console.error(`maxMatch: ${maxMatch}`)
-      command = `SELECT pgdoc.retrieveUnderMax( '${schema}', '${type}', '${search}', ${maxMatch} );`
-      commandType = 2
+    if( maxMatch == null ) {
+      /// Return matching records.
+      commandType = commands.RetrieveSearch
     }
     else {
-      command = `SELECT data FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}';`
+      /// If the limit is not exceeded, return matching records.
+      commandType = commands.RetrieveSearchMax
     }
+  }
+  else if( maxMatch == null ) {
+    /// Return matching records that are not excluded.
+    commandType = commands.RetrieveSearchExclude
   }
   else {
-    if( maxMatch != null ) {
-      command = `SELECT pgdoc.retrieveUnderMaxExcluding( '${schema}', '${type}', '${search}', ${maxMatch}, '${exclude}' );`
-      commandType = 3
-    }
-    else {
-      command = `SELECT data FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}' ` +
-                `AND NOT data @> '${exclude}';`
-      commandType = 4
-    }
+    /// If the limit is not exceeded, return matching records that are not excluded.
+    commandType = commands.RetrieveSearchExcludeMax
   }
-  if(!config.quiet && (config.verbose || config.verboseSQL)) {
-    console.log(command)
+
+  /// Now build up SQL statement. Values not needed for the given command type are ignored.
+  /// TODO: THIS IS NOT SQL INJECTION SAFE
+  doc      = `NULL`
+  search   = search   != null ? `'${search}'`  : `NULL`
+  exclude  = exclude  != null ? `'${exclude}'` : `NULL`
+  maxMatch = maxMatch != null ? maxMatch       : `NULL`
+  command  = `SELECT pgdoc.retrieve(${commandType},` +
+                                   `'${schema}',` +
+                                   `'${type}',` +
+                                   `${doc},` +
+                                   `${search},` +
+                                   `${maxMatch},` +
+                                   `${exclude}` +
+                                   `) AS data;`
+  if(!config.quiet && (config.verbose || config.verboseSQL) ) {
+    console.log(`command: ${command}`)
+    console.log(`commandType: ${commandType}`)
   }
 
   let client
@@ -271,45 +289,20 @@ module.exports.retrieve = async (params) => {
         console.log(`received response: ${str(res)}`)
         console.log(res)
       }
-      if(res.rowCount > 0) {
-        /// Exit on a `MaxExceeded` error.
-        if( commandType == 2 ) {
-          if( res.rows[0].retrieveundermax &&
-              res.rows[0].retrieveundermax.MaxExceededError != null ) {
-            console.error(`MaxExceeded: ${str(res.rows[0].MaxExceededError)}`)
-            let err = pgdocError(`MaxExceeded`, params)
-            err.description += ` Max: ${maxMatch}, Found: ${-res.rows[0].MaxExceededError}`
+      try {
+        let data
+        if( res.rows.length > 0 ) {
+          data = res.rows[0].data
+          if( data.MaxExceededError != null ) {
+            err = pgdocError(`MaxExceeded`, params)
+            err.description += ` Max: ${maxMatch}, Found: ${data.MaxExceededError}`
             return err
           }
-          else {
-            /// Return a list of data items.
-            let docs = []
-            for( r in res.rows ) {
-              docs.push(res.rows[r].retrieveundermax)
-            }
-            docs.error = false
-            return docs
+          if( data.UnknownCommandError != null ) {
+            return pgdocError(`UnknownCommandError`, params)
           }
         }
-        else if( commandType == 3 ) {
-          /// Exit on a `MaxExceeded` error.
-          if( res.rows[0].retrieveundermaxexcluding &&
-              res.rows[0].retrieveundermaxexcluding.MaxExceededError != null ) {
-            console.error(`MaxExceeded: ${str(res.rows[0].MaxExceededError)}`)
-            let err = pgdocError(`MaxExceeded`, params)
-            err.description += ` Max: ${maxMatch}, Found: ${-res.rows[0].MaxExceededError}`
-            return err
-          }
-          else {
-            /// Return a list of data items.
-            let docs = []
-            for( r in res.rows ) {
-              docs.push(res.rows[r].retrieveundermaxexcluding)
-            }
-            docs.error = false
-            return docs
-          }
-        }
+
         /// Return a list of data items.
         let docs = []
         for( r in res.rows ) {
@@ -318,18 +311,20 @@ module.exports.retrieve = async (params) => {
         docs.error = false
         return docs
       }
-      else {
-        // Nothing was found
-        let docs = []
-        docs.error = false
-        return docs
+      catch (wrappedError) {
+        if(!config.quiet) {
+          console.error(unknownError)
+        }
+        let err = pgdocError(`BadReturnValue`, params, wrappedError)
+        err.description += str(res)
+        return err
       }
     }
     else {
       if(!config.quiet) {
         console.error(unknownError)
       }
-      return pgdocError(`RetrieveFailed`, params)
+      return pgdocError(`NoReturnValue`, params)
     }
   }
   catch (err) {
@@ -608,20 +603,22 @@ const connectionErrorHandler = ( client, err, params, fallbackError ) => {
  * Provides programmatic access to the error codes as a Javascript Object indexed by label.
  */
 const errors = {
-  UnknownError:        { error: true, label: `UnknownError`,         code: -1,   description: `An unknown error has occurred.` },
+  UnknownError:        { error: true, label: `UnknownError`,         code: -1,   description: `An unknown error has occurred. Please report it.` },
   DatabaseUnreachable: { error: true, label: `DatabaseUnreachable`,  code: -2,   description: `When attempting to connect, the database was not found. Ensure it is online and that your connection configuration is correct.` },
   AccessDenied:        { error: true, label: `AccessDenied`,         code: -3,   description: `When attempting to connect, the database refused your connection due to failed authentication. Ensure your installation completed successfully, and check your login configuration.` },
   DatabaseNotCreated:  { error: true, label: `DatabaseNotCreated`,   code: -4,   description: `When attempting to connect, PostgreSQL connected but the specific database requested was not found. Ensure your installation completed successfully and check your login configuration.` },
-  ConnectFailed:       { error: true, label: `ConnectFailed`,        code: -10,  description: `The connect operation failed for unknown reasons.` },
   BadPermissions:      { error: true, label: `BadPermissions`,       code: -5,   description: `When attempting to interact with the database, your action was rejected due to permissions settings in the database. Please ensure your installation completed successfully.` },
+  ConnectFailed:       { error: true, label: `ConnectFailed`,        code: -10,  description: `The connect operation failed for unknown reasons.` },
+  TypeMissing:         { error: true, label: `TypeMissing`,          code: -10,  description: `Document type was not provided: all core functions require document type.` },
   StoreFailed:         { error: true, label: `StoreFailed`,          code: -11,  description: `The store operation failed for unknown reasons.` },
-  StoreBadReturnValue: { error: true, label: `StoreBadReturnValue`,  code: -18,  description: `The store operation returned an unexpected response from the database.\n` },
-  StoreNoReturnValue:  { error: true, label: `StoreNoReturnValue`,   code: -11,  description: `The store operation returned an empty response from the database.` },
-  MaxExceeded:         { error: true, label: `MaxExceeded`,          code: -19,  description: `The operation failed due to the search finding more items then allowed by maxMatch.` },
-  ///
+  StoreDocMissing:     { error: true, label: `StoreDocMissing`,      code: -11,  description: `A document was not provided to pgdoc.store()` },
   RetrieveFailed:      { error: true, label: `RetrieveFailed`,       code: -12,  description: `The retrieve operation failed for unknown reasons.` },
   DeleteFailed:        { error: true, label: `DeleteFailed`,         code: -13,  description: `The delete operation failed for unknown reasons.` },
   RequestIDFailed:     { error: true, label: `RequestIDFailed`,      code: -14,  description: `The requestID operation failed for unknown reasons.` },
+  BadReturnValue:      { error: true, label: `BadReturnValue`,       code: -18,  description: `Returned an unexpected response from the database.\n` },
+  NoReturnValue:       { error: true, label: `NoReturnValue`,        code: -11,  description: `Returned an empty response from the database.` },
+  MaxExceeded:         { error: true, label: `MaxExceeded`,          code: -19,  description: `Search found more items then allowed by maxMatch.` },
+  UnknownCommandError: { error: true, label: `UnknownCommandError`,  code: -19,  description: `pgdoc internal error: The command number sent to a database function was not recognized!` },
   ParseFailed:         { error: true, label: `ParseFailed`,          code: -15,  description: `The pgdoc.JSON.parse call failed. Is the argument valid JSON?` },
   BadOptions:          { error: true, label: `BadOptions`,           code: -16,  description: `The options object passed into the function was not valid. It must be an object.` },
   BadConnectionString: { error: true, label: `BadConnectionString`,  code: -17,  description: `The connectionString object passed into the function was not valid. Please check your configuration.` },
@@ -634,6 +631,16 @@ const commands = {
   StoreSearch: 2,
   StoreSearchMax: 3,
   StoreSearchExclude: 4,
-  StoreSearchExcludeMax: 5
+  StoreSearchExcludeMax: 5,
+  Retrieve: 101,
+  RetrieveSearch: 102,
+  RetrieveSearchMax: 103,
+  RetrieveSearchExclude: 104,
+  RetrieveSearchExcludeMax: 105,
+  Delete: 201,
+  DeleteSearch: 202,
+  DeleteSearchMax: 203,
+  DeleteSearchExclude: 204,
+  DeleteSearchExcludeMax: 205,
 }
 

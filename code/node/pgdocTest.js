@@ -164,6 +164,7 @@ let testAdvancedStore = async () => {
   assert( rv.deleted == 1, `store() of newDoc failed to get expected result, expected 1 deletion and got ${rv.deleted}` )
   let deleted = rv.deleted
   rv = await pgdoc.retrieve( { type, search } )
+  // console.error(rv)
   assert( !rv.error, `retrieve() failed with error ${str(rv)}` )
   assert( rv.length == 2, `retrieve() failed to get expected result, expected 2 documents and got ${rv.length}` )
   rl.write(`passed.\n`)
