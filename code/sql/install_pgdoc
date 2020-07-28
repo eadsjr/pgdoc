@@ -72,160 +72,6 @@ LANGUAGE plpgsql;
 
 ALTER FUNCTION pgdoc.incrementSequence( TEXT, TEXT ) OWNER TO pgdoc;
 
-
-
--- Delete a set of documents returned by a search and replace with provided data if the record count to be deleted is under provided maximum
--- If the max is breached, instead return the number of records that would have been deleted as a negative number.
-CREATE OR REPLACE FUNCTION pgdoc.overwriteUnderMax( schemaName TEXT, docType TEXT, newData JSONB, search JSONB, max INTEGER )
-RETURNS INTEGER AS
-$$
-DECLARE recordCount INTEGER;
-BEGIN
-  recordCount := ( SELECT COUNT(*) FROM pgdoc.docs WHERE type = docType AND data @> search ) ;
-  -- RAISE NOTICE 'recordCount: %', recordCount;
-  IF
-    recordCount <= max
-  THEN
-    -- delete, store and return
-    DELETE FROM pgdoc.docs WHERE type = docType AND data @> search;
-    INSERT INTO pgdoc.docs VALUES (docType, newData);
-    RETURN recordCount;
-  ELSE
-    RETURN -recordCount;
-  END IF;
-END;
-$$
-LANGUAGE plpgsql;
-ALTER FUNCTION pgdoc.overwriteUnderMax( TEXT, TEXT, JSONB, JSONB, INTEGER ) OWNER TO pgdoc;
--- DROP FUNCTION pgdoc.overwriteUnderMax( TEXT, TEXT, JSONB, JSONB, INTEGER );
-
--- SELECT pgdoc.overwriteUnderMax( 'pgdoc', 'player', '{ "name": "John Smith", "age": 44, "team": "red", "id": "-1" }', '{ "id": "-1" }', 1 ) ;
--- SELECT data FROM pgdoc.docs WHERE type = 'player' AND data @> '{"id":"-1"}';
--- INSERT INTO pgdoc.docs VALUES ('player', '{"name":"John Smith","age":42,"team":"red","id":"-1"}');
-
-
--- Delete a set of documents returned by a search and replace with provided data if the record count to be deleted is under provided maximum
--- Refine the search with a second exclude search
--- If the max is breached, instead return the number of records that would have been deleted as a negative number.
-CREATE OR REPLACE FUNCTION pgdoc.overwriteUnderMaxExcluding( schemaName TEXT, docType TEXT, newData JSONB, search JSONB, max INTEGER, exclude JSONB )
-RETURNS INTEGER AS
-$$
-DECLARE recordCount INTEGER;
-BEGIN
-  recordCount := ( SELECT COUNT(*) FROM pgdoc.docs WHERE type = docType AND data @> search AND NOT data @> exclude) ;
-  -- RAISE NOTICE 'recordCount: %', recordCount;
-  IF
-    recordCount <= max
-  THEN
-    -- delete, store and return
-    DELETE FROM pgdoc.docs WHERE type = docType AND data @> search AND NOT data @> exclude;
-    INSERT INTO pgdoc.docs VALUES (docType, newData);
-    RETURN recordCount;
-  ELSE
-    RETURN -recordCount;
-  END IF;
-END;
-$$
-LANGUAGE plpgsql;
-ALTER FUNCTION pgdoc.overwriteUnderMaxExcluding( TEXT, TEXT, JSONB, JSONB, INTEGER, JSONB ) OWNER TO pgdoc;
-
-
--- Select a set of documents returned by a search if the record count is under provided maximum
--- If the max is breached, instead return the number of records that would have been selected as a negative number.
-CREATE OR REPLACE FUNCTION pgdoc.retrieveUnderMax( schemaName TEXT, docType TEXT, search JSONB, max INTEGER )
-RETURNS SETOF JSONB AS
-$$
-DECLARE recordCount INTEGER;
-BEGIN
-  recordCount := ( SELECT COUNT(*) FROM pgdoc.docs WHERE type = docType AND data @> search ) ;
-  -- RAISE NOTICE 'recordCount: %', recordCount;
-  IF
-    recordCount <= max
-  THEN
-    RETURN QUERY SELECT data FROM pgdoc.docs WHERE type = docType AND data @> search ;
-  ELSE
-    RETURN QUERY SELECT ('{ "MaxExceededError": ' || -recordCount || ' }')::JSONB;
-  END IF;
-END;
-$$
-LANGUAGE plpgsql;
-ALTER FUNCTION pgdoc.retrieveUnderMax( TEXT, TEXT, JSONB, INTEGER ) OWNER TO pgdoc;
--- SELECT pgdoc.retrieveUnderMax( 'pgdoc', 'pgdocTest', '{"complex":{"a":{"t":1,"u":-5},"b":3}}', 1 );
--- SELECT pgdoc.retrieveUnderMax( 'pgdoc', 'pgdocTest', '{"complex":{"a":{"t":1,"u":-5},"b":3}}', 0 );
--- SELECT data FROM pgdoc.docs WHERE type = 'pgdocTest' AND data @> '{"complex":{"a":{"t":1,"u":-5},"b":3}}' ;
-
-
-
-CREATE OR REPLACE FUNCTION pgdoc.retrieveUnderMaxExcluding( schemaName TEXT, docType TEXT, search JSONB, max INTEGER, exclude JSONB )
-RETURNS SETOF JSONB AS
-$$
-DECLARE recordCount INTEGER;
-BEGIN
-  recordCount := ( SELECT COUNT(*) FROM pgdoc.docs WHERE type = docType AND data @> search AND NOT data @> exclude ) ;
-  -- RAISE NOTICE 'recordCount: %', recordCount;
-  IF
-    recordCount <= max
-  THEN
-    RETURN QUERY SELECT data FROM pgdoc.docs WHERE type = docType AND data @> search AND NOT data @> exclude ;
-  ELSE
-    RETURN QUERY SELECT ('{ "MaxExceededError": ' || -recordCount || ' }')::JSONB;
-  END IF;
-END;
-$$
-LANGUAGE plpgsql;
-ALTER FUNCTION pgdoc.retrieveUnderMaxExcluding( TEXT, TEXT, JSONB, INTEGER, JSONB ) OWNER TO pgdoc;
-
-
-
--- Delete a set of documents returned by a search if the record count is under provided maximum
--- If the max is breached, instead return the number of records that would have been selected as a negative number.
-CREATE OR REPLACE FUNCTION pgdoc.deleteUnderMax( schemaName TEXT, docType TEXT, search JSONB, max INTEGER )
-RETURNS SETOF JSONB AS
-$$
-DECLARE recordCount INTEGER;
-BEGIN
-  recordCount := ( SELECT COUNT(*) FROM pgdoc.docs WHERE type = docType AND data @> search ) ;
-  -- RAISE NOTICE 'recordCount: %', recordCount;
-  IF
-    recordCount <= max
-  THEN
-    DELETE FROM pgdoc.docs WHERE type = docType AND data @> search ;
-    RETURN QUERY SELECT ('{ "deleted": ' || recordCount || ' }')::JSONB;
-  ELSE
-    RETURN QUERY SELECT ('{ "MaxExceededError": ' || -recordCount || ' }')::JSONB;
-  END IF;
-END;
-$$
-LANGUAGE plpgsql;
-ALTER FUNCTION pgdoc.deleteUnderMax( TEXT, TEXT, JSONB, INTEGER ) OWNER TO pgdoc;
-
-
-CREATE OR REPLACE FUNCTION pgdoc.deleteUnderMaxExcluding( schemaName TEXT, docType TEXT, search JSONB, max INTEGER, exclude JSONB )
-RETURNS SETOF JSONB AS
-$$
-DECLARE recordCount INTEGER;
-BEGIN
-  recordCount := ( SELECT COUNT(*) FROM pgdoc.docs WHERE type = docType AND data @> search AND NOT data @> exclude ) ;
-  -- RAISE NOTICE 'recordCount: %', recordCount;
-  IF
-    recordCount <= max
-  THEN
-    DELETE FROM pgdoc.docs WHERE type = docType AND data @> search AND NOT data @> exclude ;
-    RETURN QUERY SELECT ('{ "deleted": ' || recordCount || ' }')::JSONB;
-  ELSE
-    RETURN QUERY SELECT ('{ "MaxExceededError": ' || -recordCount || ' }')::JSONB;
-  END IF;
-END;
-$$
-LANGUAGE plpgsql;
-ALTER FUNCTION pgdoc.deleteUnderMaxExcluding( TEXT, TEXT, JSONB, INTEGER, JSONB ) OWNER TO pgdoc;
-
-
-
-
-
-
-
 --- STORE
 CREATE OR REPLACE FUNCTION  pgdoc.store( command INTEGER, schemaName TEXT, docType TEXT, doc JSONB, search JSONB, max INTEGER, exclude JSONB )
 RETURNS SETOF JSONB AS
@@ -281,16 +127,16 @@ LANGUAGE plpgsql;
 ALTER FUNCTION pgdoc.store( INTEGER, TEXT, TEXT, JSONB, JSONB, INTEGER, JSONB ) OWNER TO pgdoc;
 ---
 --- Store()tests
-SELECT pgdoc.store( 0, 'pgdoc', 'pgdocTest', NULL, NULL, NULL, NULL ) AS data; 
-SELECT pgdoc.store( 1, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "store" }', NULL, NULL, NULL ) AS data; 
-SELECT pgdoc.store( 2, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "storeSearch" }', '{ "runCommandTest": "store" }', NULL, NULL ) AS data;
-SELECT pgdoc.store( 3, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "storeSearchMax" }', '{ "runCommandTest": "storeSearch" }', 1, NULL ) AS data;
-SELECT pgdoc.store( 4, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "storeSearchExclude" }', '{}', NULL, '{ "runCommandTest": "storeSearchMax" }' ) AS data;
-SELECT pgdoc.store( 5, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "storeSearchExcludeMax" }', '{}', 1, '{ "runCommandTest": "storeSearchExclude" }' ) AS data;
-SELECT pgdoc.store( 5, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "storeSearchExcludeMax" }', '{}', 0, '{ "runCommandTest": "storeSearchExclude" }' ) AS data;
+-- SELECT pgdoc.store( 0, 'pgdoc', 'pgdocTest', NULL, NULL, NULL, NULL ) AS data; 
+-- SELECT pgdoc.store( 1, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "store" }', NULL, NULL, NULL ) AS data; 
+-- SELECT pgdoc.store( 2, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "storeSearch" }', '{ "runCommandTest": "store" }', NULL, NULL ) AS data;
+-- SELECT pgdoc.store( 3, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "storeSearchMax" }', '{ "runCommandTest": "storeSearch" }', 1, NULL ) AS data;
+-- SELECT pgdoc.store( 4, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "storeSearchExclude" }', '{}', NULL, '{ "runCommandTest": "storeSearchMax" }' ) AS data;
+-- SELECT pgdoc.store( 5, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "storeSearchExcludeMax" }', '{}', 1, '{ "runCommandTest": "storeSearchExclude" }' ) AS data;
+-- SELECT pgdoc.store( 5, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "storeSearchExcludeMax" }', '{}', 0, '{ "runCommandTest": "storeSearchExclude" }' ) AS data;
 --- Test utils
-SELECT data FROM pgdoc.docs WHERE type = 'pgdocTest' AND data @> '{}';
-DELETE FROM pgdoc.docs WHERE type = 'pgdocTest';
+-- SELECT data FROM pgdoc.docs WHERE type = 'pgdocTest' AND data @> '{}';
+-- DELETE FROM pgdoc.docs WHERE type = 'pgdocTest';
 
 --- RETRIEVE
 CREATE OR REPLACE FUNCTION  pgdoc.retrieve( command INTEGER, schemaName TEXT, docType TEXT, doc JSONB, search JSONB, max INTEGER, exclude JSONB )
@@ -336,22 +182,22 @@ LANGUAGE plpgsql;
 ALTER FUNCTION pgdoc.retrieve( INTEGER, TEXT, TEXT, JSONB, JSONB, INTEGER, JSONB ) OWNER TO pgdoc;
 ---
 --- Retrieve() tests
-INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -19, "group": "A", "x":1, "y":2, "complex": { "a": { "t": 7, "u": 3 } } }' );
-INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -20, "group": "B", "x":1, "y":2, "complex": { "a": { "t": 2, "u": 4 }, "c": 8 } }' );
-INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -21, "group": "B", "x":2, "y":1, "complex": { "a": { "t": 1, "u": -5 }, "b": 3 } }' );
-INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -22, "group": "A", "x":2, "y":1, "complex": { "a": { "t": 7, "u": 2 }, "b": 3 } }' );
-SELECT pgdoc.retrieve( 100, 'pgdoc', 'pgdocTest', NULL, NULL, NULL, NULL ) AS data;
-SELECT pgdoc.retrieve( 101, 'pgdoc', 'pgdocTest', NULL, NULL, NULL, NULL ) AS data;
-SELECT pgdoc.retrieve( 102, 'pgdoc', 'pgdocTest', NULL, '{ "group": "A" }', NULL, NULL ) AS data;
-SELECT pgdoc.retrieve( 103, 'pgdoc', 'pgdocTest', NULL, '{ "complex": { "a": { "t": 1, "u": -5 }, "b": 3 } }', 1, NULL ) AS data;
-SELECT pgdoc.retrieve( 103, 'pgdoc', 'pgdocTest', NULL, '{ "complex": { "a": { "t": 1, "u": -5 }, "b": 3 } }', 0, NULL ) AS data;
-SELECT pgdoc.retrieve( 102, 'pgdoc', 'pgdocTest', NULL, '{ "x": 2 }', NULL, '{ "group": "A" }' ) AS data;
-SELECT pgdoc.retrieve( 104, 'pgdoc', 'pgdocTest', NULL, '{ "x": 2 }', NULL, '{ "group": "A" }' ) AS data;
-SELECT pgdoc.retrieve( 105, 'pgdoc', 'pgdocTest', NULL, '{ "x": 1 }', 1, '{ "group": "B" }' ) AS data;
-SELECT pgdoc.retrieve( 105, 'pgdoc', 'pgdocTest', NULL, '{ "x": 1 }', 0, '{ "group": "B" }' ) AS data;
+-- INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -19, "group": "A", "x":1, "y":2, "complex": { "a": { "t": 7, "u": 3 } } }' );
+-- INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -20, "group": "B", "x":1, "y":2, "complex": { "a": { "t": 2, "u": 4 }, "c": 8 } }' );
+-- INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -21, "group": "B", "x":2, "y":1, "complex": { "a": { "t": 1, "u": -5 }, "b": 3 } }' );
+-- INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -22, "group": "A", "x":2, "y":1, "complex": { "a": { "t": 7, "u": 2 }, "b": 3 } }' );
+-- SELECT pgdoc.retrieve( 100, 'pgdoc', 'pgdocTest', NULL, NULL, NULL, NULL ) AS data;
+-- SELECT pgdoc.retrieve( 101, 'pgdoc', 'pgdocTest', NULL, NULL, NULL, NULL ) AS data;
+-- SELECT pgdoc.retrieve( 102, 'pgdoc', 'pgdocTest', NULL, '{ "group": "A" }', NULL, NULL ) AS data;
+-- SELECT pgdoc.retrieve( 103, 'pgdoc', 'pgdocTest', NULL, '{ "complex": { "a": { "t": 1, "u": -5 }, "b": 3 } }', 1, NULL ) AS data;
+-- SELECT pgdoc.retrieve( 103, 'pgdoc', 'pgdocTest', NULL, '{ "complex": { "a": { "t": 1, "u": -5 }, "b": 3 } }', 0, NULL ) AS data;
+-- SELECT pgdoc.retrieve( 102, 'pgdoc', 'pgdocTest', NULL, '{ "x": 2 }', NULL, '{ "group": "A" }' ) AS data;
+-- SELECT pgdoc.retrieve( 104, 'pgdoc', 'pgdocTest', NULL, '{ "x": 2 }', NULL, '{ "group": "A" }' ) AS data;
+-- SELECT pgdoc.retrieve( 105, 'pgdoc', 'pgdocTest', NULL, '{ "x": 1 }', 1, '{ "group": "B" }' ) AS data;
+-- SELECT pgdoc.retrieve( 105, 'pgdoc', 'pgdocTest', NULL, '{ "x": 1 }', 0, '{ "group": "B" }' ) AS data;
 --- Test utils
-SELECT data FROM pgdoc.docs WHERE type = 'pgdocTest' AND data @> '{}';
-DELETE FROM pgdoc.docs WHERE type = 'pgdocTest';
+-- SELECT data FROM pgdoc.docs WHERE type = 'pgdocTest' AND data @> '{}';
+-- DELETE FROM pgdoc.docs WHERE type = 'pgdocTest';
 
 
 
@@ -412,22 +258,22 @@ LANGUAGE plpgsql;
 ALTER FUNCTION pgdoc.delete( INTEGER, TEXT, TEXT, JSONB, JSONB, INTEGER, JSONB ) OWNER TO pgdoc;
 ---
 --- Delete() tests
-INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -23 }' );
-SELECT pgdoc.delete( 200, 'pgdoc', 'pgdocTest', NULL, NULL, NULL, NULL ) AS data;
-SELECT pgdoc.delete( 201, 'pgdoc', 'pgdocTest', NULL, NULL, NULL, NULL ) AS data;
-INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -24 }' );
-INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -25 }' );
-SELECT pgdoc.delete( 202, 'pgdoc', 'pgdocTest', NULL, '{ "id": -25 }', NULL, NULL ) AS data;
-INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -24, "badID": false }' );
-SELECT pgdoc.delete( 203, 'pgdoc', 'pgdocTest', NULL, '{ "id": -24 }', 0, NULL ) AS data;
-SELECT pgdoc.delete( 204, 'pgdoc', 'pgdocTest', NULL, '{ "id": -24 }', NULL, '{ "badID": false }' ) AS data;
-INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -26 }' );
-INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -27 }' );
-SELECT pgdoc.delete( 205, 'pgdoc', 'pgdocTest', NULL, '{}', 1, '{ "id": "-24" }' ) AS data;
-SELECT pgdoc.delete( 205, 'pgdoc', 'pgdocTest', NULL, '{}', 30, '{ "id": "-24" }' ) AS data;
+-- INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -23 }' );
+-- SELECT pgdoc.delete( 200, 'pgdoc', 'pgdocTest', NULL, NULL, NULL, NULL ) AS data;
+-- SELECT pgdoc.delete( 201, 'pgdoc', 'pgdocTest', NULL, NULL, NULL, NULL ) AS data;
+-- INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -24 }' );
+-- INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -25 }' );
+-- SELECT pgdoc.delete( 202, 'pgdoc', 'pgdocTest', NULL, '{ "id": -25 }', NULL, NULL ) AS data;
+-- INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -24, "badID": false }' );
+-- SELECT pgdoc.delete( 203, 'pgdoc', 'pgdocTest', NULL, '{ "id": -24 }', 0, NULL ) AS data;
+-- SELECT pgdoc.delete( 204, 'pgdoc', 'pgdocTest', NULL, '{ "id": -24 }', NULL, '{ "badID": false }' ) AS data;
+-- INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -26 }' );
+-- INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -27 }' );
+-- SELECT pgdoc.delete( 205, 'pgdoc', 'pgdocTest', NULL, '{}', 1, '{ "id": "-24" }' ) AS data;
+-- SELECT pgdoc.delete( 205, 'pgdoc', 'pgdocTest', NULL, '{}', 30, '{ "id": "-24" }' ) AS data;
 --- Test utils
-SELECT data FROM pgdoc.docs WHERE type = 'pgdocTest' AND data @> '{}';
-DELETE FROM pgdoc.docs WHERE type = 'pgdocTest';
+-- SELECT data FROM pgdoc.docs WHERE type = 'pgdocTest' AND data @> '{}';
+-- DELETE FROM pgdoc.docs WHERE type = 'pgdocTest';
 
 
 
