@@ -130,7 +130,7 @@ let storeDynamicString = async () => {
   let params = {}
   let complexObject = { data: {}, evenMoreData: {} }
   params.type = `player`
-  params.doc = `{ "name":"Tammy Smith", "age":25, "team":"blue", "config": ${str(complexObject)}, id: "-10" }`
+  params.doc = `{ "name":"Tammy Smith", "age":25, "team":"blue", "config": ${str(complexObject)}, "id": "-10" }`
   let rv = await pgdoc.store( params )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
@@ -181,7 +181,6 @@ You can store the id and other metadata outside your data object by nesting them
 let storeWithMetadata = async () => {
   let params = {}
   params.type = `player`
-  params.doc = { name:`John Calhoun`, age:22, team:`blue` }
   let id = await pgdoc.requestID( params )
   if( id.error ) {
     console.error(`${id.label}: ${id.description}`)
@@ -189,6 +188,7 @@ let storeWithMetadata = async () => {
   else {
     console.log(`collected id: ${id}`)
     let myMetaData = { timestamp: Date.now(), id: id }
+    let myData = { name:`John Calhoun`, age:22, team:`blue` }
     let params = {}
     params.type = `player`
     params.doc = { meta: myMetaData, data: myData }

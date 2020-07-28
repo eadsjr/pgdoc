@@ -145,6 +145,7 @@ TODO: LATER: single runCommand() in DB that operates all the functions, eliminat
 TODO: CONSIDER: Reduce all variants of SQL functions to one, which detects which path to take based on a code. pgdoc.runCommand()
 TODO: CONSIDER: A loop/recursive search in PLpgSQL that checks each step of the object looking for a match. Where, if it branches, all branch heads need to match. If it does not branch, a match is a hit.
 TODO: search ( multi level objects )
+TODO: TEST: complex object subtree interactions with search
 
 FINALIZING:
 TODO: github - hide old projects and dead forks
