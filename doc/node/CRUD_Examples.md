@@ -299,7 +299,7 @@ let retrieveExcluding = async () => {
   let params = {}
   params.type = `player`
   params.search = { team: `red` }
-  params.exclude = { age: `42` }
+  params.exclude = { age: 42 }
   rv = await pgdoc.retrieve( params )
   if( rv.error ) {
     console.error(`${rv.label}: ${rv.description}`)
