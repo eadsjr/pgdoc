@@ -215,17 +215,19 @@ let testAdvancedRetrieve = async () => {
   assert( !rv.error, `connect failed with error ${str(rv)}` )
 
   let type = `pgdocTest`
+  let search, maxMatch, exclude
 
   rl.write(`ensuring no conflicting records in database via delete()...    `)
   rv = await pgdoc.delete( { type } )
   assert( !rv.error, `delete() failed with error ${str(rv)}` )
   rl.write(`passed.\n  Deleted ${rv.deleted} documents.\n`)
 
-  rl.write(`store() of searchable documents...                             `)
+  // rv = await pgdoc.configure( { options: { verboseSQL: true, verbose: false, quiet: false } } )
 
+  rl.write(`store() of searchable documents...                             `)
   let doc1 = { id: -19, group: `A`, x:1, y:2, complex: { a: { t: 7, u: 3 } } }
-  let search = { id: `-19` }
-  let maxMatch = 0
+  search = { id: `-19` }
+  maxMatch = 0
   rv = await pgdoc.store( { type, doc: doc1, search, maxMatch } )
   assert( !rv.error, `store() of doc1 failed with error ${str(rv)}` )
   assert( rv.deleted == 0, `store() of doc1 failed to get expected result, expected 0 deletions and got ${rv.deleted}` )
@@ -278,7 +280,7 @@ let testAdvancedRetrieve = async () => {
 
   rl.write(`retrieve() search, exclude...                                  `)
   search = { x: 2 }
-  let exclude = { group: `A` }
+  exclude = { group: `A` }
   rv = await pgdoc.retrieve( { type, search, exclude } )
   assert( !rv.error, `retrieve() failed with error ${str(rv)}` )
   assert( rv.length == 1, `retrieve() failed to get expected result, expected 1 document and got ${rv.length}` )

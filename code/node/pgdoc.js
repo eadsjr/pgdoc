@@ -86,13 +86,24 @@ module.exports.connect = async (params) => {
  */
 module.exports.store = async (params) => {
   ({type, doc, search, maxMatch, exclude} = params)
-  doc = str(doc)
+  if( type == null ) {
+    return pgdocError(`TypeMissing`, params)
+  }
+  if( doc == null ) {
+    return pgdocError(`StoreDocMissing`, params)
+  }
+  else {
+    doc = str(doc)
+  }
   if( search != null ) {
     search = str(search)
   }
   if( exclude != null ) {
     exclude = str(exclude)
   }
+  // TODO: additional error handling
+  // return pgdocError(`BadJSON`, params)
+  // return pgdocError(`InsecureSQL`, params)
   let schema = config.schema
 
   let command
@@ -128,17 +139,18 @@ module.exports.store = async (params) => {
 
   /// Now build up SQL statement. Values not needed for the given command type are ignored.
   /// TODO: THIS IS NOT SQL INJECTION SAFE
-  doc     = doc     != null ? `'${doc}'`     : `NULL`
-  search  = search  != null ? `'${search}'`  : `NULL`
-  exclude = exclude != null ? `'${exclude}'` : `NULL`
-  command = `SELECT pgdoc.store(${commandType},` +
-                               `'${schema}',` +
-                               `'${type}',` +
-                               `${doc},` +
-                               `${search},` +
-                               `${maxMatch||`NULL`},` +
-                               `${exclude}` +
-                               `) AS data;`
+  doc      = doc      != null ? `'${doc}'`     : `NULL`
+  search   = search   != null ? `'${search}'`  : `NULL`
+  exclude  = exclude  != null ? `'${exclude}'` : `NULL`
+  maxMatch = maxMatch != null ? maxMatch       : `NULL`
+  command  = `SELECT pgdoc.store(${commandType},` +
+                                `'${schema}',` +
+                                `'${type}',` +
+                                `${doc},` +
+                                `${search},` +
+                                `${maxMatch},` +
+                                `${exclude}` +
+                                `) AS data;`
   if(!config.quiet && (config.verbose || config.verboseSQL) ) {
     console.log(`command: ${command}`)
     console.log(`commandType: ${commandType}`)
