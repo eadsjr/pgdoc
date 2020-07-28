@@ -622,6 +622,8 @@ const errors = {
   ParseFailed:         { error: true, label: `ParseFailed`,          code: -15,  description: `The pgdoc.JSON.parse call failed. Is the argument valid JSON?` },
   BadOptions:          { error: true, label: `BadOptions`,           code: -16,  description: `The options object passed into the function was not valid. It must be an object.` },
   BadConnectionString: { error: true, label: `BadConnectionString`,  code: -17,  description: `The connectionString object passed into the function was not valid. Please check your configuration.` },
+  BadJSON:             { error: true, label: `BadJSON`,              code: -17,  description: `The JSON provided was malformed` },
+  InsecureSQL:         { error: true, label: `InsecureSQL`,          code: -17,  description: `The input provided appears dangerous or malicious, and was rejected.` },
 }
 Object.freeze(errors)
 module.exports.errors = errors
