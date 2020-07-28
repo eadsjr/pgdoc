@@ -8,4 +8,6 @@ config.database = `pgdoc`
 config.schema   = `griddungeon`
 config.connectionString = `postgres://${config.username}:${config.password}@${config.hostname}:${config.port}/${config.database}`
 
+config.boardSize = 7
+
 module.exports = config
