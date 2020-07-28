@@ -310,6 +310,13 @@ let testAdvancedRetrieve = async () => {
   // rl.write(`  Search: ${str(search)}\n`)
   // rl.write(`  Retrieved: ${str(rv[0])}\n`)
 
+  rl.write(`cleaning up after tests via delete()...                        `)
+  rv = await pgdoc.delete( { type } )
+  assert( !rv.error, `delete failed with error ${str(rv)}` )
+  assert( rv.deleted == 4, `delete() failed to get expected result, expected 4 deletions and got ${rv.deleted}` )
+  rl.write(`passed.\n  Deleted ${rv.deleted} documents.\n`)
+
+
   // console.error(rv)
   // console.error(!rv.error)
   // rv = await pgdoc.configure( { options: { verbose: true, quiet: false } } )

@@ -177,6 +177,48 @@ ALTER FUNCTION pgdoc.retrieveUnderMaxExcluding( TEXT, TEXT, JSONB, INTEGER, JSON
 
 
 
+-- Delete a set of documents returned by a search if the record count is under provided maximum
+-- If the max is breached, instead return the number of records that would have been selected as a negative number.
+CREATE OR REPLACE FUNCTION pgdoc.deleteUnderMax( schemaName TEXT, docType TEXT, search JSONB, max INTEGER )
+RETURNS SETOF JSONB AS
+$$
+DECLARE recordCount INTEGER;
+BEGIN
+  recordCount := ( SELECT COUNT(*) FROM pgdoc.docs WHERE type = docType AND data @> search ) ;
+  -- RAISE NOTICE 'recordCount: %', recordCount;
+  IF
+    recordCount <= max
+  THEN
+    DELETE FROM pgdoc.docs WHERE type = docType AND data @> search ;
+    RETURN QUERY SELECT ('{ "deleted": ' || recordCount || ' }')::JSONB;
+  ELSE
+    RETURN QUERY SELECT ('{ "MaxExceededError": ' || -recordCount || ' }')::JSONB;
+  END IF;
+END;
+$$
+LANGUAGE plpgsql;
+ALTER FUNCTION pgdoc.deleteUnderMax( TEXT, TEXT, JSONB, INTEGER ) OWNER TO pgdoc;
+
+
+CREATE OR REPLACE FUNCTION pgdoc.deleteUnderMaxExcluding( schemaName TEXT, docType TEXT, search JSONB, max INTEGER, exclude JSONB )
+RETURNS SETOF JSONB AS
+$$
+DECLARE recordCount INTEGER;
+BEGIN
+  recordCount := ( SELECT COUNT(*) FROM pgdoc.docs WHERE type = docType AND data @> search AND NOT data @> exclude ) ;
+  -- RAISE NOTICE 'recordCount: %', recordCount;
+  IF
+    recordCount <= max
+  THEN
+    DELETE FROM pgdoc.docs WHERE type = docType AND data @> search AND NOT data @> exclude ;
+    RETURN QUERY SELECT ('{ "deleted": ' || recordCount || ' }')::JSONB;
+  ELSE
+    RETURN QUERY SELECT ('{ "MaxExceededError": ' || -recordCount || ' }')::JSONB;
+  END IF;
+END;
+$$
+LANGUAGE plpgsql;
+ALTER FUNCTION pgdoc.deleteUnderMaxExcluding( TEXT, TEXT, JSONB, INTEGER, JSONB ) OWNER TO pgdoc;
 
 -- CREATE OR REPLACE FUNCTION  pgdoc.runCommand( command INTEGER, schemaName TEXT, docType TEXT, newData JSONB, search JSONB, max INTEGER, exclude JSONB )
 -- RETURNS SETOF JSONB AS

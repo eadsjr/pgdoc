@@ -390,11 +390,26 @@ module.exports.delete = async (params) => {
   let schema = config.schema
 
   let command
+  let commandType
   if(search == null) {
     command = `DELETE FROM ${schema}.docs WHERE type = '${type}';`
   }
+  else if( exclude == null ) {
+    if( maxMatch == null ) {
+      command = `DELETE FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}';`
+    }
+    else {
+      command = `SELECT pgdoc.deleteUnderMax( '${schema}', '${type}', '${search}', ${maxMatch} );`
+    }
+  }
   else {
-    command = `DELETE FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}';`
+    if( maxMatch == null ) {
+      command = `DELETE FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}' ` +
+                `AND NOT data @> '${exclude}'`
+    }
+    else {
+      command = `SELECT pgdoc.deleteUnderMaxExcluding( '${schema}', '${type}', '${search}', ${maxMatch}, '${exclude}' );`
+    }
   }
   /// DELETE FROM pgdocs.docs WHERE type = 'test' AND data @> '{"id":0}' ;
   if(!config.quiet && (config.verbose || config.verboseSQL)) {
