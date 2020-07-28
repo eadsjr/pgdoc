@@ -220,29 +220,31 @@ $$
 LANGUAGE plpgsql;
 ALTER FUNCTION pgdoc.deleteUnderMaxExcluding( TEXT, TEXT, JSONB, INTEGER, JSONB ) OWNER TO pgdoc;
 
--- CREATE OR REPLACE FUNCTION  pgdoc.runCommand( command INTEGER, schemaName TEXT, docType TEXT, newData JSONB, search JSONB, max INTEGER, exclude JSONB )
--- RETURNS SETOF JSONB AS
--- $$
--- DECLARE recordCount INTEGER;
--- BEGIN
---   recordCount := ( SELECT COUNT(*) FROM pgdoc.docs WHERE type = docType AND data @> search AND NOT data @> exclude ) ;
---   -- RAISE NOTICE 'recordCount: %', recordCount;
---   IF
---     command == 1 -- Store
---   THEN
---   -- IF
---   --   recordCount <= max
---   -- THEN
---   --   RETURN QUERY SELECT data FROM pgdoc.docs WHERE type = docType AND data @> search AND NOT data @> exclude ;
---   -- ELSE
---   --   RETURN QUERY SELECT ('{ "MaxExceededError": ' || -recordCount || ' }')::JSONB;
---   -- END IF;
--- END;
--- $$
--- LANGUAGE plpgsql;
--- ALTER FUNCTION pgdoc.runCommand( INTEGER, TEXT, TEXT, JSONB, JSONB, INTEGER, JSONB ) OWNER TO pgdoc;
 
 
+CREATE OR REPLACE FUNCTION  pgdoc.runCommand( command INTEGER, schemaName TEXT, docType TEXT, doc JSONB, search JSONB, max INTEGER, exclude JSONB )
+RETURNS SETOF JSONB AS
+$$
+DECLARE recordCount INTEGER;
+DECLARE docs TEXT;
+BEGIN
+  -- recordCount := ( SELECT COUNT(*) FROM pgdoc.docs WHERE type = docType AND data @> search AND NOT data @> exclude ) ;
+  docs := schemaName || '.docs' ;
+  -- RAISE NOTICE 'recordCount: %', recordCount;
+  IF
+    command = 1 -- Simple Store
+  THEN
+    INSERT INTO docs VALUES ( docType , doc );
+  END IF;
+END;
+$$
+LANGUAGE plpgsql;
+ALTER FUNCTION pgdoc.runCommand( INTEGER, TEXT, TEXT, JSONB, JSONB, INTEGER, JSONB ) OWNER TO pgdoc;
+-- 
+SELECT pgdoc.runCommand( 1, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "storeSimple" }', NULL, NULL, NULL ) ; 
+-- SELECT data FROM pgdoc.docs WHERE type = 'pgdocTest';
+-- DELETE FROM pgdoc.docs WHERE type = 'pgdocTest';
+DROP FUNCTION pgdoc.runCommand( INTEGER, TEXT, TEXT, JSONB, JSONB, INTEGER, JSONB );
 
 
 -- required for the above function to succeed
