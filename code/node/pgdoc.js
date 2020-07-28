@@ -115,24 +115,21 @@ module.exports.store = async (params) => {
   }
   else if( exclude == null ) {
     if( maxMatch == null ) {
-      /// Delete any matching records and store the value. Reports number of records deleted.
+      /// Delete any matching records and store the document.
       commandType = commands.StoreSearch
     }
     else {
-      /// If the limit is not exceeded, delete matching records and store the value.
-      /// Reports number of records deleted.
+      /// If the limit is not exceeded, delete matching records and store the document.
       commandType = commands.StoreSearchMax
     }
   }
   else if( maxMatch == null ) {
-    /// Delete any matching records that are not excluded and store the value.
-    /// Reports number of records deleted.
+    /// Delete any matching records that are not excluded and store the document.
     commandType = commands.StoreSearchExclude
   }
   else {
     /// If the limit is not exceeded, delete matching records that are not excluded.
-    /// Then store the value.
-    /// Reports number of records deleted.
+    /// Then store the document.
     commandType = commands.StoreSearchExcludeMax
   }
 
@@ -340,41 +337,64 @@ module.exports.retrieve = async (params) => {
  */
 module.exports.delete = async (params) => {
   ({type, search, maxMatch, exclude} = params)
+  if( type == null ) {
+    return pgdocError(`TypeMissing`, params)
+  }
   if( search != null ) {
     search = str(search)
   }
   if( exclude != null ) {
     exclude = str(exclude)
   }
+  // TODO: additional error handling
+  // return pgdocError(`BadJSON`, params)
+  // return pgdocError(`InsecureSQL`, params)
   let schema = config.schema
 
-  // console.log(`params: ${str(params)}`)
+  let command, commandType
 
-  let command
-  if(search == null) {
-    command = `DELETE FROM ${schema}.docs WHERE type = '${type}';`
+
+  /// Determine type of command
+  if( search == null ) {
+    /// Delete all files of given type.
+    commandType = commands.Delete
   }
   else if( exclude == null ) {
     if( maxMatch == null ) {
-      command = `DELETE FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}';`
+      /// Delete any matching records.
+      commandType = commands.DeleteSearch
     }
     else {
-      command = `SELECT pgdoc.deleteUnderMax( '${schema}', '${type}', '${search}', ${maxMatch} ) ` +
-                `AS data;`
+      /// If the limit is not exceeded, delete matching records.
+      commandType = commands.DeleteSearchMax
     }
+  }
+  else if( maxMatch == null ) {
+    /// Delete any matching records that are not excluded.
+    commandType = commands.DeleteSearchExclude
   }
   else {
-    if( maxMatch == null ) {
-      command = `DELETE FROM ${schema}.docs WHERE type = '${type}' AND data @> '${search}' ` +
-                `AND NOT data @> '${exclude}'`
-    }
-    else {
-      command = `SELECT pgdoc.deleteUnderMaxExcluding( '${schema}', '${type}', '${search}', ${maxMatch}, '${exclude}' ) AS data;`
-    }
+    /// If the limit is not exceeded, delete matching records that are not excluded.
+    commandType = commands.DeleteSearchExcludeMax
   }
-  /// DELETE FROM pgdocs.docs WHERE type = 'test' AND data @> '{"id":0}' ;
-  if(!config.quiet && (config.verbose || config.verboseSQL)) {
-    console.log(command)
+
+  /// Now build up SQL statement. Values not needed for the given command type are ignored.
+  /// TODO: THIS IS NOT SQL INJECTION SAFE
+  doc      = `NULL`
+  search   = search   != null ? `'${search}'`  : `NULL`
+  exclude  = exclude  != null ? `'${exclude}'` : `NULL`
+  maxMatch = maxMatch != null ? maxMatch       : `NULL`
+  command  = `SELECT pgdoc.delete(${commandType},` +
+                                 `'${schema}',` +
+                                 `'${type}',` +
+                                 `${doc},` +
+                                 `${search},` +
+                                 `${maxMatch},` +
+                                 `${exclude}` +
+                                 `) AS data;`
+  if(!config.quiet && (config.verbose || config.verboseSQL) ) {
+    console.log(`command: ${command}`)
+    console.log(`commandType: ${commandType}`)
   }
 
   let client
@@ -388,38 +408,33 @@ module.exports.delete = async (params) => {
         console.log(`received response: ${str(res)}`)
         console.log(res)
       }
-      if( res.rowCount > 0 && res.rows.length > 0 && res.rows[0].data ) {
-        if( res.rows[0].data.MaxExceededError != null ) {
-          let err = pgdocError(`MaxExceeded`, params)
-          err.description += ` Max: ${maxMatch}, Found: ${-res.rows[0].data.MaxExceededError}`
+      if( res.rowCount == 1 && res.rows.length > 0 && `data` in res.rows[0] ) {
+        let data = res.rows[0].data
+        if( data.MaxExceededError != null ) {
+          err = pgdocError(`MaxExceeded`, params)
+          err.description += ` Max: ${maxMatch}, Found: ${data.MaxExceededError}`
           return err
         }
-        else if ( res.rows[0].data.deleted != null ) {
-          return { error: false, deleted: res.rows[0].data.deleted }
+        if( data.UnknownCommandError != null ) {
+          err = pgdocError(`UnknownCommandError`, params)
         }
-        else {
-          if(!config.quiet) {
-            console.error(unknownError)
-          }
-          return pgdocError(`DeleteFailed`, params)
-          console.error(`ERR1`)
-        }
+        let rv = { error: false, deleted: data.deleted }
+        return rv /// Should be something like { deleted: <int>, error: false }
       }
       else {
-        // if(!config.quiet) {
-        //   console.error(unknownError)
-        //   console.error(`ERR2`)
-        // }
-        // return pgdocError(`DeleteFailed`, params)
-        return { error: false, deleted: res.rowCount }
+        if(!config.quiet) {
+          console.error(unknownError)
+        }
+        let err = pgdocError(`BadReturnValue`, params)
+        err.description += str(res)
+        return err
       }
     }
     else {
       if(!config.quiet) {
         console.error(unknownError)
-        console.error(`ERR3`)
       }
-      return pgdocError(`DeleteFailed`, params)
+      return pgdocError(`NoReturnValue`, params)
     }
   }
   catch (err) {
