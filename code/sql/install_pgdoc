@@ -226,7 +226,7 @@ ALTER FUNCTION pgdoc.deleteUnderMaxExcluding( TEXT, TEXT, JSONB, INTEGER, JSONB 
 
 
 
-
+--- STORE
 CREATE OR REPLACE FUNCTION  pgdoc.store( command INTEGER, schemaName TEXT, docType TEXT, doc JSONB, search JSONB, max INTEGER, exclude JSONB )
 RETURNS SETOF JSONB AS
 $$
@@ -234,7 +234,6 @@ DECLARE recordCount INTEGER;
 DECLARE docs TEXT;
 BEGIN
   docs := schemaName || '.docs' ;
-  -- RAISE NOTICE 'recordCount: %', recordCount;
   IF command = 1 -- store()
   THEN
     INSERT INTO docs VALUES ( docType , doc );
@@ -293,15 +292,7 @@ SELECT pgdoc.store( 5, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "storeSearchEx
 SELECT data FROM pgdoc.docs WHERE type = 'pgdocTest' AND data @> '{}';
 DELETE FROM pgdoc.docs WHERE type = 'pgdocTest';
 
-
-    -- recordCount :=
-    --   WITH deleted AS
-    --     (DELETE FROM docs WHERE type = docType AND data @> search)
-    --     SELECT COUNT(*) FROM deleted;
-    --   INSERT INTO docs VALUES ( docType , doc );
-    -- RETURN recordCount;
-
-
+--- RETRIEVE
 CREATE OR REPLACE FUNCTION  pgdoc.retrieve( command INTEGER, schemaName TEXT, docType TEXT, doc JSONB, search JSONB, max INTEGER, exclude JSONB )
 RETURNS SETOF JSONB AS
 $$
@@ -309,13 +300,11 @@ DECLARE recordCount INTEGER;
 DECLARE docs TEXT;
 BEGIN
   docs := schemaName || '.docs' ;
-  -- RAISE NOTICE 'recordCount: %', recordCount;
   IF command = 101 -- retrieve()
   THEN
     RETURN QUERY SELECT data FROM docs WHERE type = docType ;
   ELSIF command = 102 -- retrieve(), search
   THEN
-    RAISE NOTICE 'search: %', search;
     RETURN QUERY SELECT data FROM docs WHERE type = docType AND data @> search ;
   ELSIF command = 103 -- retrieve(), search with maxMatch
   THEN
@@ -360,6 +349,82 @@ SELECT pgdoc.retrieve( 102, 'pgdoc', 'pgdocTest', NULL, '{ "x": 2 }', NULL, '{ "
 SELECT pgdoc.retrieve( 104, 'pgdoc', 'pgdocTest', NULL, '{ "x": 2 }', NULL, '{ "group": "A" }' ) AS data;
 SELECT pgdoc.retrieve( 105, 'pgdoc', 'pgdocTest', NULL, '{ "x": 1 }', 1, '{ "group": "B" }' ) AS data;
 SELECT pgdoc.retrieve( 105, 'pgdoc', 'pgdocTest', NULL, '{ "x": 1 }', 0, '{ "group": "B" }' ) AS data;
+--- Test utils
+SELECT data FROM pgdoc.docs WHERE type = 'pgdocTest' AND data @> '{}';
+DELETE FROM pgdoc.docs WHERE type = 'pgdocTest';
+
+
+
+
+--- DELETE
+CREATE OR REPLACE FUNCTION pgdoc.delete( command INTEGER, schemaName TEXT, docType TEXT, doc JSONB, search JSONB, max INTEGER, exclude JSONB )
+RETURNS SETOF JSONB AS
+$$
+DECLARE recordCount INTEGER;
+DECLARE docs TEXT;
+BEGIN
+  docs := schemaName || '.docs' ;
+  IF command = 201 -- delete()
+  THEN
+    recordCount := COUNT(*) FROM docs WHERE type = docType ;
+    DELETE FROM docs WHERE type = docType ;
+    RETURN QUERY SELECT ('{ "deleted": ' || recordCount || ' }')::JSONB;
+
+  ELSIF command = 202 -- delete(), search
+  THEN
+    recordCount := COUNT(*) FROM docs WHERE type = docType AND data @> search ;
+    DELETE FROM docs WHERE type = docType AND data @> search ;
+    RETURN QUERY SELECT ('{ "deleted": ' || recordCount || ' }')::JSONB;
+
+  ELSIF command = 203 -- delete(), search with maxMatch
+  THEN
+    recordCount := COUNT(*) FROM docs WHERE type = docType AND data @> search ;
+    IF recordCount <= max
+    THEN
+      DELETE FROM docs WHERE type = docType AND data @> search ;
+      RETURN QUERY SELECT ('{ "deleted": ' || recordCount || ' }')::JSONB;
+    ELSE
+      RETURN QUERY SELECT ('{ "MaxExceededError": ' || recordCount || ' }')::JSONB;
+    END IF;
+
+  ELSIF command = 204 -- delete(), search and exclude
+  THEN
+    recordCount := COUNT(*) FROM docs WHERE type = docType AND data @> search AND NOT data @> exclude;
+    DELETE FROM docs WHERE type = docType AND data @> search AND NOT data @> exclude ;
+      RETURN QUERY SELECT ('{ "deleted": ' || recordCount || ' }')::JSONB;
+
+  ELSIF command = 205 -- delete(), search and exclude with maxMatch
+  THEN
+    recordCount := COUNT(*) FROM docs WHERE type = docType AND data @> search AND NOT data @> exclude;
+    IF recordCount <= max
+    THEN
+      DELETE FROM docs WHERE type = docType AND data @> search AND NOT data @> exclude;
+      RETURN QUERY SELECT ('{ "deleted": ' || recordCount || ' }')::JSONB;
+    ELSE
+      RETURN QUERY SELECT ('{ "MaxExceededError": ' || recordCount || ' }')::JSONB;
+    END IF;
+  ELSE
+    RETURN QUERY SELECT ('{ "UnknownCommandError": ' || command || ' }')::JSONB;
+  END IF;
+END;
+$$
+LANGUAGE plpgsql;
+ALTER FUNCTION pgdoc.delete( INTEGER, TEXT, TEXT, JSONB, JSONB, INTEGER, JSONB ) OWNER TO pgdoc;
+---
+--- Delete() tests
+INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -23 }' );
+SELECT pgdoc.delete( 200, 'pgdoc', 'pgdocTest', NULL, NULL, NULL, NULL ) AS data;
+SELECT pgdoc.delete( 201, 'pgdoc', 'pgdocTest', NULL, NULL, NULL, NULL ) AS data;
+INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -24 }' );
+INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -25 }' );
+SELECT pgdoc.delete( 202, 'pgdoc', 'pgdocTest', NULL, '{ "id": -25 }', NULL, NULL ) AS data;
+INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -24, "badID": false }' );
+SELECT pgdoc.delete( 203, 'pgdoc', 'pgdocTest', NULL, '{ "id": -24 }', 0, NULL ) AS data;
+SELECT pgdoc.delete( 204, 'pgdoc', 'pgdocTest', NULL, '{ "id": -24 }', NULL, '{ "badID": false }' ) AS data;
+INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -26 }' );
+INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -27 }' );
+SELECT pgdoc.delete( 205, 'pgdoc', 'pgdocTest', NULL, '{}', 1, '{ "id": "-24" }' ) AS data;
+SELECT pgdoc.delete( 205, 'pgdoc', 'pgdocTest', NULL, '{}', 30, '{ "id": "-24" }' ) AS data;
 --- Test utils
 SELECT data FROM pgdoc.docs WHERE type = 'pgdocTest' AND data @> '{}';
 DELETE FROM pgdoc.docs WHERE type = 'pgdocTest';
