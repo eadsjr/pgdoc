@@ -250,6 +250,12 @@ BEGIN
     ELSE
       RETURN QUERY SELECT ('{ "MaxExceededError": ' || recordCount || ' }')::JSONB;
     END IF;
+  ELSIF command = 4 -- store(), search & exclude
+  THEN
+    recordCount := COUNT(*) FROM docs WHERE type = docType AND data @> search AND NOT data @> exclude ;
+    DELETE FROM docs WHERE type = docType AND data @> search AND NOT data @> exclude ;
+    INSERT INTO docs VALUES ( docType , doc );
+    RETURN QUERY SELECT ('{ "deleted": ' || recordCount || ' }')::JSONB;
   END IF;
 END;
 $$
@@ -269,10 +275,9 @@ $$
 DECLARE recordCount INTEGER;
 DECLARE docs TEXT;
 BEGIN
-  -- recordCount := ( SELECT COUNT(*) FROM pgdoc.docs WHERE type = docType AND data @> search AND NOT data @> exclude ) ;
   docs := schemaName || '.docs' ;
   -- RAISE NOTICE 'recordCount: %', recordCount;
-  IF command = 4 -- store(), search & exclude
+  IF command = 5 -- store(), search with macMatch & exclude
   THEN
   END IF;
 END;
@@ -283,6 +288,7 @@ ALTER FUNCTION pgdoc.runCommand( INTEGER, TEXT, TEXT, JSONB, JSONB, INTEGER, JSO
 SELECT pgdoc.runCommand( 1, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "store" }', NULL, NULL, NULL ) AS data; 
 SELECT pgdoc.runCommand( 2, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "storeSearch" }', '{ "runCommandTest": "storeSimple" }', NULL, NULL ) AS data;
 SELECT pgdoc.runCommand( 3, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "storeSearchMax" }', '{ "runCommandTest": "storeSearch" }', 1, NULL ) AS data;
+SELECT pgdoc.runCommand( 4, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "storeSearchExclude" }', '{}', NULL, '{ "runCommandTest": "storeSearchMax" }' ) AS data;
 SELECT data FROM pgdoc.docs WHERE type = 'pgdocTest';
 DELETE FROM pgdoc.docs WHERE type = 'pgdocTest';
 -- DELETE FROM pgdoc.docs WHERE type = 'pgdocTest';
