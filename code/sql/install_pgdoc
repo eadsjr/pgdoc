@@ -220,13 +220,19 @@ $$
 LANGUAGE plpgsql;
 ALTER FUNCTION pgdoc.deleteUnderMaxExcluding( TEXT, TEXT, JSONB, INTEGER, JSONB ) OWNER TO pgdoc;
 
-CREATE OR REPLACE FUNCTION  pgdoc.runCommand( command INTEGER, schemaName TEXT, docType TEXT, doc JSONB, search JSONB, max INTEGER, exclude JSONB )
+
+
+
+
+
+
+
+CREATE OR REPLACE FUNCTION  pgdoc.store( command INTEGER, schemaName TEXT, docType TEXT, doc JSONB, search JSONB, max INTEGER, exclude JSONB )
 RETURNS SETOF JSONB AS
 $$
 DECLARE recordCount INTEGER;
 DECLARE docs TEXT;
 BEGIN
-  -- recordCount := ( SELECT COUNT(*) FROM pgdoc.docs WHERE type = docType AND data @> search AND NOT data @> exclude ) ;
   docs := schemaName || '.docs' ;
   -- RAISE NOTICE 'recordCount: %', recordCount;
   IF command = 1 -- store()
@@ -273,13 +279,20 @@ BEGIN
 END;
 $$
 LANGUAGE plpgsql;
+ALTER FUNCTION pgdoc.store( INTEGER, TEXT, TEXT, JSONB, JSONB, INTEGER, JSONB ) OWNER TO pgdoc;
 ---
 --- Store()tests
-SELECT pgdoc.runCommand( 1, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "store" }', NULL, NULL, NULL ) AS data; 
-SELECT pgdoc.runCommand( 2, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "storeSearch" }', '{ "runCommandTest": "store" }', NULL, NULL ) AS data;
-SELECT pgdoc.runCommand( 3, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "storeSearchMax" }', '{ "runCommandTest": "storeSearch" }', 1, NULL ) AS data;
-SELECT pgdoc.runCommand( 4, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "storeSearchExclude" }', '{}', NULL, '{ "runCommandTest": "storeSearchMax" }' ) AS data;
-SELECT pgdoc.runCommand( 5, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "storeSearchExcludeMax" }', '{}', 1, '{ "runCommandTest": "storeSearchExclude" }' ) AS data;
+SELECT pgdoc.store( 0, 'pgdoc', 'pgdocTest', NULL, NULL, NULL, NULL ) AS data; 
+SELECT pgdoc.store( 1, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "store" }', NULL, NULL, NULL ) AS data; 
+SELECT pgdoc.store( 2, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "storeSearch" }', '{ "runCommandTest": "store" }', NULL, NULL ) AS data;
+SELECT pgdoc.store( 3, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "storeSearchMax" }', '{ "runCommandTest": "storeSearch" }', 1, NULL ) AS data;
+SELECT pgdoc.store( 4, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "storeSearchExclude" }', '{}', NULL, '{ "runCommandTest": "storeSearchMax" }' ) AS data;
+SELECT pgdoc.store( 5, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "storeSearchExcludeMax" }', '{}', 1, '{ "runCommandTest": "storeSearchExclude" }' ) AS data;
+SELECT pgdoc.store( 5, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "storeSearchExcludeMax" }', '{}', 0, '{ "runCommandTest": "storeSearchExclude" }' ) AS data;
+--- Test utils
+SELECT data FROM pgdoc.docs WHERE type = 'pgdocTest' AND data @> '{}';
+DELETE FROM pgdoc.docs WHERE type = 'pgdocTest';
+
 
     -- recordCount :=
     --   WITH deleted AS
@@ -338,6 +351,7 @@ INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -19, "group": "A", "x":1, "y":2
 INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -20, "group": "B", "x":1, "y":2, "complex": { "a": { "t": 2, "u": 4 }, "c": 8 } }' );
 INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -21, "group": "B", "x":2, "y":1, "complex": { "a": { "t": 1, "u": -5 }, "b": 3 } }' );
 INSERT INTO docs VALUES ( 'pgdocTest' , '{ "id": -22, "group": "A", "x":2, "y":1, "complex": { "a": { "t": 7, "u": 2 }, "b": 3 } }' );
+SELECT pgdoc.retrieve( 100, 'pgdoc', 'pgdocTest', NULL, NULL, NULL, NULL ) AS data;
 SELECT pgdoc.retrieve( 101, 'pgdoc', 'pgdocTest', NULL, NULL, NULL, NULL ) AS data;
 SELECT pgdoc.retrieve( 102, 'pgdoc', 'pgdocTest', NULL, '{ "group": "A" }', NULL, NULL ) AS data;
 SELECT pgdoc.retrieve( 103, 'pgdoc', 'pgdocTest', NULL, '{ "complex": { "a": { "t": 1, "u": -5 }, "b": 3 } }', 1, NULL ) AS data;
