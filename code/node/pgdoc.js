@@ -101,6 +101,11 @@ module.exports.store = async (params) => {
   if( exclude != null ) {
     exclude = str(exclude)
   }
+  if( maxMatch != null ) {
+    if( typeof(maxMatch) != `string` && typeof(maxMatch) != `number` ) {
+      return pgdocError(`MaxMatchBadType`, params)
+    }
+  }
   // TODO: additional error handling
   // return pgdocError(`BadJSON`, params)
   // return pgdocError(`InsecureSQL`, params)
@@ -225,6 +230,11 @@ module.exports.retrieve = async (params) => {
   if( exclude != null ) {
     exclude = str(exclude)
   }
+  if( maxMatch != null ) {
+    if( typeof(maxMatch) != `string` && typeof(maxMatch) != `number` ) {
+      return pgdocError(`MaxMatchBadType`, params)
+    }
+  }
   // TODO: additional error handling
   // return pgdocError(`BadJSON`, params)
   // return pgdocError(`InsecureSQL`, params)
@@ -345,6 +355,11 @@ module.exports.delete = async (params) => {
   }
   if( exclude != null ) {
     exclude = str(exclude)
+  }
+  if( maxMatch != null ) {
+    if( typeof(maxMatch) != `string` && typeof(maxMatch) != `number` ) {
+      return pgdocError(`MaxMatchBadType`, params)
+    }
   }
   // TODO: additional error handling
   // return pgdocError(`BadJSON`, params)
@@ -623,22 +638,23 @@ const errors = {
   AccessDenied:        { error: true, label: `AccessDenied`,         code: -3,   description: `When attempting to connect, the database refused your connection due to failed authentication. Ensure your installation completed successfully, and check your login configuration.` },
   DatabaseNotCreated:  { error: true, label: `DatabaseNotCreated`,   code: -4,   description: `When attempting to connect, PostgreSQL connected but the specific database requested was not found. Ensure your installation completed successfully and check your login configuration.` },
   BadPermissions:      { error: true, label: `BadPermissions`,       code: -5,   description: `When attempting to interact with the database, your action was rejected due to permissions settings in the database. Please ensure your installation completed successfully.` },
-  ConnectFailed:       { error: true, label: `ConnectFailed`,        code: -10,  description: `The connect operation failed for unknown reasons.` },
-  TypeMissing:         { error: true, label: `TypeMissing`,          code: -10,  description: `Document type was not provided: all core functions require document type.` },
-  StoreFailed:         { error: true, label: `StoreFailed`,          code: -11,  description: `The store operation failed for unknown reasons.` },
-  StoreDocMissing:     { error: true, label: `StoreDocMissing`,      code: -11,  description: `A document was not provided to pgdoc.store()` },
-  RetrieveFailed:      { error: true, label: `RetrieveFailed`,       code: -12,  description: `The retrieve operation failed for unknown reasons.` },
-  DeleteFailed:        { error: true, label: `DeleteFailed`,         code: -13,  description: `The delete operation failed for unknown reasons.` },
-  RequestIDFailed:     { error: true, label: `RequestIDFailed`,      code: -14,  description: `The requestID operation failed for unknown reasons.` },
-  BadReturnValue:      { error: true, label: `BadReturnValue`,       code: -18,  description: `Returned an unexpected response from the database.\n` },
-  NoReturnValue:       { error: true, label: `NoReturnValue`,        code: -11,  description: `Returned an empty response from the database.` },
-  MaxExceeded:         { error: true, label: `MaxExceeded`,          code: -19,  description: `Search found more items then allowed by maxMatch.` },
-  UnknownCommandError: { error: true, label: `UnknownCommandError`,  code: -19,  description: `pgdoc internal error: The command number sent to a database function was not recognized!` },
-  ParseFailed:         { error: true, label: `ParseFailed`,          code: -15,  description: `The pgdoc.JSON.parse call failed. Is the argument valid JSON?` },
-  BadOptions:          { error: true, label: `BadOptions`,           code: -16,  description: `The options object passed into the function was not valid. It must be an object.` },
-  BadConnectionString: { error: true, label: `BadConnectionString`,  code: -17,  description: `The connectionString object passed into the function was not valid. Please check your configuration.` },
-  BadJSON:             { error: true, label: `BadJSON`,              code: -17,  description: `The JSON provided was malformed` },
-  InsecureSQL:         { error: true, label: `InsecureSQL`,          code: -17,  description: `The input provided appears dangerous or malicious, and was rejected.` },
+  ConnectFailed:       { error: true, label: `ConnectFailed`,        code: -6,   description: `The connect operation failed for unknown reasons.` },
+  TypeMissing:         { error: true, label: `TypeMissing`,          code: -7,   description: `Document type was not provided: all core functions require document type.` },
+  MaxMatchBadType:     { error: true, label: `MaxMatchBadType`,      code: -8,   description: `MaxMatch type was not a string or number, or was not an integer. MaxMatch should be zero or a positive integer.` },
+  StoreFailed:         { error: true, label: `StoreFailed`,          code: -9,   description: `The store operation failed for unknown reasons.` },
+  StoreDocMissing:     { error: true, label: `StoreDocMissing`,      code: -10,  description: `A document was not provided to pgdoc.store()` },
+  RetrieveFailed:      { error: true, label: `RetrieveFailed`,       code: -11,  description: `The retrieve operation failed for unknown reasons.` },
+  DeleteFailed:        { error: true, label: `DeleteFailed`,         code: -12,  description: `The delete operation failed for unknown reasons.` },
+  RequestIDFailed:     { error: true, label: `RequestIDFailed`,      code: -13,  description: `The requestID operation failed for unknown reasons.` },
+  BadReturnValue:      { error: true, label: `BadReturnValue`,       code: -14,  description: `Returned an unexpected response from the database.\n` },
+  NoReturnValue:       { error: true, label: `NoReturnValue`,        code: -15,  description: `Returned an empty response from the database.` },
+  MaxExceeded:         { error: true, label: `MaxExceeded`,          code: -16,  description: `Search found more items then allowed by maxMatch.` },
+  UnknownCommandError: { error: true, label: `UnknownCommandError`,  code: -17,  description: `pgdoc internal error: The command number sent to a database function was not recognized!` },
+  ParseFailed:         { error: true, label: `ParseFailed`,          code: -18,  description: `The pgdoc.JSON.parse call failed. Is the argument valid JSON?` },
+  BadOptions:          { error: true, label: `BadOptions`,           code: -19,  description: `The options object passed into the function was not valid. It must be an object.` },
+  BadConnectionString: { error: true, label: `BadConnectionString`,  code: -20,  description: `The connectionString object passed into the function was not valid. Please check your configuration.` },
+  BadJSON:             { error: true, label: `BadJSON`,              code: -21,  description: `The JSON provided was malformed` },
+  InsecureSQL:         { error: true, label: `InsecureSQL`,          code: -21,  description: `The input provided appears dangerous or malicious, and was rejected.` },
 }
 Object.freeze(errors)
 module.exports.errors = errors
