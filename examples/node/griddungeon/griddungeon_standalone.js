@@ -2,7 +2,8 @@
 const pgdoc = require(`../../../code/node/pgdoc.js`)
 const config = require(`./config`)
 const str = require(`fast-safe-stringify`)
-const rl = require(`readline`).createInterface({
+const readline = require(`readline`)
+let rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 })
@@ -76,15 +77,15 @@ let newGame = async () => {
 
 /// TODO: this should flex with game.boardSize
 let boardTemplate = {
-  -1: `+++++++++++++++\n`,
-   0: `+             +\n`,
+   0: `+++++++++++++++\n`,
    1: `+             +\n`,
    2: `+             +\n`,
    3: `+             +\n`,
    4: `+             +\n`,
    5: `+             +\n`,
    6: `+             +\n`,
-   7: `+++++++++++++++\n\n`,
+   7: `+             +\n`,
+   8: `+++++++++++++++\n\n`,
 }
 
 let renderBoard = async () => {
@@ -93,7 +94,7 @@ let renderBoard = async () => {
   for( e in gameState.entities ) {
     let entity = gameState.entities[e]
     let x = (entity.x * 2) + 1
-    let y = entity.y
+    let y = entity.y + 1
     let figure = entity.class == `hero` ? `@` : `M`
     let lineY = lines[y].slice(0,x) + figure + lines[y].slice(x,0)
     board[y] = lineY
@@ -105,6 +106,22 @@ let renderGame = async () => {
   rl.write(board)
 }
 
+let processInput = async (e) => {
+  // console.log(str(e))
+  // rl.clearLine(process.stdin, -1)
+  readline.cursorTo(process.stdin, 0)
+  rl.write(e)
+}
+
 let playGame = async () => {
+  // readline.emitKeypressEvents(process.stdin)
+  // if (process.stdin.isTTY)
+  //   process.stdin.setRawMode(true);
+  // process.stdin.on(`keypress`, processInput )
+
+  await newGame()
+  console.log(str(game))
+  console.log(str(gameState))
 }
 playGame()
+
