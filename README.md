@@ -46,6 +46,9 @@ A means of generating or requesting unused non-sequential IDs. `pgdoc.requestUUI
 
 Document Selection via JSON object subsets at any level of the object hierarchy.
 
+Additional asyncronous testing and support.
+
+
 ## Support
 
 Please report any bugs on our [GitHub issues page][issues]
