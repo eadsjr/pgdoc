@@ -220,6 +220,38 @@ $$
 LANGUAGE plpgsql;
 ALTER FUNCTION pgdoc.deleteUnderMaxExcluding( TEXT, TEXT, JSONB, INTEGER, JSONB ) OWNER TO pgdoc;
 
+CREATE OR REPLACE FUNCTION  pgdoc.runCommand( command INTEGER, schemaName TEXT, docType TEXT, doc JSONB, search JSONB, max INTEGER, exclude JSONB )
+RETURNS SETOF JSONB AS
+$$
+DECLARE recordCount INTEGER;
+DECLARE docs TEXT;
+BEGIN
+  -- recordCount := ( SELECT COUNT(*) FROM pgdoc.docs WHERE type = docType AND data @> search AND NOT data @> exclude ) ;
+  docs := schemaName || '.docs' ;
+  -- RAISE NOTICE 'recordCount: %', recordCount;
+  IF
+    command = 1 -- store(), simple
+  THEN
+    INSERT INTO docs VALUES ( docType , doc );
+    RETURN QUERY SELECT ('{ "deleted": 0 }')::JSONB;
+  ELSIF
+    command = 2 -- store(), search
+  THEN
+    recordCount := COUNT(*) FROM docs WHERE type = docType AND data @> search ;
+    DELETE FROM docs WHERE type = docType AND data @> search ;
+    INSERT INTO docs VALUES ( docType , doc );
+    RETURN QUERY SELECT ('{ "deleted": ' || recordCount || ' }')::JSONB;
+  END IF;
+END;
+$$
+LANGUAGE plpgsql;
+
+    -- recordCount :=
+    --   WITH deleted AS
+    --     (DELETE FROM docs WHERE type = docType AND data @> search)
+    --     SELECT COUNT(*) FROM deleted;
+    --   INSERT INTO docs VALUES ( docType , doc );
+    -- RETURN recordCount;
 
 
 CREATE OR REPLACE FUNCTION  pgdoc.runCommand( command INTEGER, schemaName TEXT, docType TEXT, doc JSONB, search JSONB, max INTEGER, exclude JSONB )
@@ -232,19 +264,28 @@ BEGIN
   docs := schemaName || '.docs' ;
   -- RAISE NOTICE 'recordCount: %', recordCount;
   IF
-    command = 1 -- Simple Store
+    command = 2 -- store(), search
   THEN
+    -- recordCount := DELETE FROM docs WHERE type = docType AND data @> search ;
+    -- recordCount := (WITH rc AS (DELETE FROM docs WHERE type = docType AND data @> search) SELECT COUNT(*) FROM rc );
+    -- recordCount := QUERY WITH rc AS (DELETE FROM docs WHERE type = docType AND data @> search) SELECT COUNT(*) FROM rc ;
+    -- recordCount := QUERY (DELETE FROM docs WHERE type = docType AND data @> search) ;
+    recordCount := COUNT(*) FROM docs WHERE type = docType AND data @> search ;
+    DELETE FROM docs WHERE type = docType AND data @> search ;
     INSERT INTO docs VALUES ( docType , doc );
+    RETURN QUERY SELECT ('{ "deleted": ' || recordCount || ' }')::JSONB;
   END IF;
 END;
 $$
 LANGUAGE plpgsql;
 ALTER FUNCTION pgdoc.runCommand( INTEGER, TEXT, TEXT, JSONB, JSONB, INTEGER, JSONB ) OWNER TO pgdoc;
 -- 
-SELECT pgdoc.runCommand( 1, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "storeSimple" }', NULL, NULL, NULL ) ; 
--- SELECT data FROM pgdoc.docs WHERE type = 'pgdocTest';
+SELECT pgdoc.runCommand( 1, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "storeSimple" }', NULL, NULL, NULL ) AS data; 
+SELECT pgdoc.runCommand( 2, 'pgdoc', 'pgdocTest', '{ "runCommandTest": "storeSearch" }', '{ "runCommandTest": "storeSimple" }', NULL, NULL ) AS data;
+SELECT data FROM pgdoc.docs WHERE type = 'pgdocTest';
+DELETE FROM pgdoc.docs WHERE type = 'pgdocTest';
 -- DELETE FROM pgdoc.docs WHERE type = 'pgdocTest';
-DROP FUNCTION pgdoc.runCommand( INTEGER, TEXT, TEXT, JSONB, JSONB, INTEGER, JSONB );
+-- DROP FUNCTION pgdoc.runCommand( INTEGER, TEXT, TEXT, JSONB, JSONB, INTEGER, JSONB );
 
 
 -- required for the above function to succeed
