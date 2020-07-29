@@ -20,9 +20,12 @@ Now install [PostgreSQL][postgresql] on your system and get it running on the de
 Once it is running, configure the database for use with pgdoc using psql.
 
 ``` bash
-psql -f ./node_modules/pgdoc/code/sql/install_pgdoc.sql
+psql -f ./node_modules/pgdoc/code/sql/install_pgdoc
 ```
 
 This should configure the default pgdoc user and enable you to run the examples included in this project.
 
-If you still don't know what to do, just keep reading.
+If you still don't know what to do, [try out this install method][verbose].
+
+[postgresql]: https://www.postgresql.org/
+[verbose]: DevEnv_Windows_10.md

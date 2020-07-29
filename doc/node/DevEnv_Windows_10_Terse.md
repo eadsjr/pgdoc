@@ -37,7 +37,7 @@ Open the "SQL shell (psql)" application from Windows search, and log in to the s
 From here you need to import pgdoc's SQL install file. Give it the full path to the install script. For Example:
 
 ``` sql
-\i C:/Users/<USERNAME>/Projects/myProject/node_modules/pgdoc/code/sql/install_pgdoc.sql
+\i C:/Users/<USERNAME>/Projects/myProject/node_modules/pgdoc/code/sql/install_pgdoc
 ```
 
 Note that the slashes required by psql are backslashes, unlike the forward slashes windows commandline normally uses.
@@ -144,7 +144,7 @@ postgres=# _
 From here you need to import pgdoc's SQL install file. Type the following into the prompt, replacing <USERNAME> with your own Window's username. This is the exact same name as your home folder.
 
 ``` sql
-\i C:/Users/<USERNAME>/Projects/pgdoc/code/sql/install_pgdoc.sql
+\i C:/Users/<USERNAME>/Projects/pgdoc/code/sql/install_pgdoc
 ```
 
 Note that the slashes required by psql are backslashes, unlike the forward slashes windows commandline normally uses.

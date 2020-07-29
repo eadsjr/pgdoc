@@ -17,7 +17,7 @@ Now install [PostgreSQL][postgresql] on your system and get it running on the de
 Once it is running, configure the database for use with pgdoc using psql.
 
 ``` bash
-psql -f ./code/sql/install_pgdoc.sql
+psql -f ./code/sql/install_pgdoc
 ```
 
 This should configure the default pgdoc user and enable you to run the examples included in this project.
