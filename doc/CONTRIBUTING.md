@@ -37,8 +37,6 @@ The code should be tight and simple, don't sprawl too much in the core module. I
 
 ## git Etiquette
 
-While dev branches can be messier, keep the commit history on master clean and legible, heavily favoring small, sensible code diffs. It's best to keep a running history with branches checked in denoting the completion of notable blocks of commits.
-
 Provide a message with every official commit describing what the commit did. When appropriate, add a prefix "STABLE: " in front of messages for commits that leave the system in a good state for testing.
 
 Branch names should be of the form `001_eadsjr_project_init`, with a three digit number indicating the order of the branches you submitted, then username, then branch description in snake case. For dev branches, follow username with `_dev` like so: `002_eadsjr_dev_building_on_001`
