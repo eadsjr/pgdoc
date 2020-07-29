@@ -20,6 +20,13 @@ let randomInt = (max) => {
 
 let newGame = async () => {
 
+  if( `status` in game && game.status == `active` ) {
+    game.status = `abandoned`
+    let search = { id: game.id }
+    let rv = await pgdoc.store({type: `game`, doc: game, search})
+    if( rv.error ) { console.error(`${rv.label}: ${rv.description}`) ; return }
+  }
+
   systemState.banner += `Starting new game. `
 
   gameState = {}
@@ -227,6 +234,8 @@ let processInput = async (c) => {
   if( c == `n` ) {
     await newGame()
     await renderGame()
+    systemState.ready = true
+    return
   }
   else if( c == `t` ) {
     process.exit(0) /// Without further protection, this has a chance of interrupting a save
