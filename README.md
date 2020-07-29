@@ -9,6 +9,8 @@ This project is intended to allow you to get a simple JSON document store databa
 
 Using this you can store and search JSON documents, a generic format for data structures popular in web programming, with simple function calls (or other language specific methods). All application logic is handled server-side, in the cozy confines of your programming language of choice. If it is supported.
 
+Available on the npm repository via `npm install --save pgdoc-nosql`
+
 # To get started, [check out the documentation][start].
 
 </break>
@@ -19,13 +21,13 @@ A library that allows document storage, retrieval and deletion with a function c
 
 Document selection via JSON object subset of the top level of a document. This allows selection via group tags, IDs and shared simple values, but not select elements of complex sub-object hierarchies.
 
+A means of requesting unused sequential IDs from the database. `pgdoc.requestID(docType)`
+
 Incomplete error handling system, that will reduce but not yet eliminate the need for try-catch blocks everywhere.
 
 An install script that configures PostgreSQL for pgdoc.
 
-A means of requesting unused sequential IDs from the database. `pgdoc.requestID(docType)`
-
-Partial support for NodeJS
+Full support for NodeJS.
 
 
 ## Features (Planned)
@@ -37,8 +39,6 @@ Specific errors for all known cases.
 A script to generate install scripts for custom projects.
 
 Pass through functions for other useful postgresQL features.
-
-Full support for NodeJS.
 
 Support for additional programming languages (tentative)
 
