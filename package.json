@@ -1,8 +1,8 @@
 {
   "name": "pgdoc",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Dead-simple NoSQL document storage using PostgreSQL.",
-  "main": "index.js",
+  "main": "code/node/pgdoc.js",
   "directories": {
     "doc": "docs"
   },
