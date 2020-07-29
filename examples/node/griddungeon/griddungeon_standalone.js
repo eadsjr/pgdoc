@@ -122,6 +122,8 @@ let renderBoard = async () => {
   return board
 }
 let renderGame = async () => {
+  readline.moveCursor(process.stdin, 0, -12)
+  readline.clearScreenDown(process.stdin)
   rl.write(systemState.banner)
   systemState.banner = ``
   rl.write(`\n`)
@@ -132,7 +134,7 @@ let renderGame = async () => {
   rl.write(systemState.footer)
 }
 let initRender = async () => {
-
+  rl.write(`\n\n\n\n\n\n\n\n\n\n\n\n`)
 }
 
 /// Checks for collision and damages if one happens with a non-ally.
@@ -236,7 +238,7 @@ let playGame = async () => {
   if( game.status == `active` ) {
     systemState.ready = true
   }
-
+  await initRender()
   await renderGame()
 
   readline.emitKeypressEvents(process.stdin)
