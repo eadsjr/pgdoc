@@ -10,7 +10,7 @@ let rl = readline.createInterface({
 
 console.log(`starting griddungeon standalone terminal application`)
 
-let inputState = {}
+let systemState = { banner: ``, ready: false }
 let gameState = {}
 let game = {}
 
@@ -35,7 +35,7 @@ let newGame = async () => {
     console.log(`gameID: ${str(gameID)}`)
   }
 
-  game = { id: gameID, state: `new`, move: 0, boardSize: config.boardSize }
+  game = { id: gameID, status: `active`, move: 0, boardSize: config.boardSize }
 
   /// Make a board grid, and populate it randomly with a hero and 3 monsters
   let i = 0
@@ -140,6 +140,12 @@ let checkCollision = async ( myID ) => {
           gameState.entities[id].hp -= gameState.entities[myID].attack
           if( gameState.entities[id].hp <= 0 ) {
             delete gameState.entities[id] /// Defeated!
+            if( id == game.heroID ) {
+              game.status = `lost`
+            }
+            else if ( Object.keys(gameState.entities).length == 1 ) {
+              game.status = `won`
+            }
           }
         }
         return true /// Report collision
@@ -184,7 +190,7 @@ let moveMonsters = async () => {
 }
 let processInput = async (c) => {
   readline.cursorTo(process.stdin, 0)
-  if( inputState.ready ) {
+  if( systemState.ready ) {
     let dir = null
     if( c == `w` ) {
       dir = 0
@@ -200,21 +206,26 @@ let processInput = async (c) => {
     }
     if( dir != null && gameState.entities[game.heroID] ) {
       console.log(`DEBUG: dir: ${dir}`)
-      inputState.ready = false
+      systemState.ready = false
       await moveEntity( game.heroID, dir )
       await moveMonsters()
       await renderGame()
-      inputState.ready = true
+
+      if( game.status == `active` ) {
+        systemState.ready = true
+      }
     }
   }
 }
 
 let playGame = async () => {
   // await newGame()
-  game = {"id":"11","state":"new","move":0,"boardSize":7,"heroID":"23055"}
+  game = {"id":"11","status":"active","move":0,"boardSize":7,"heroID":"23055"}
   gameState = {"entities":{ "23055": {"id":"23055","x":0,"y":3,"hp":15,"class":"hero","attack":6,"gameID":"11"}, "23056": {"id":"23056","x":2,"y":0,"hp":15,"class":"monster","attack":6,"gameID":"11"}, "23057": {"id":"23057","x":2,"y":5,"hp":13,"class":"monster","attack":6,"gameID":"11"}, "23058": {"id":"23058","x":6,"y":1,"hp":8,"class":"monster","attack":6,"gameID":"11"}},"gameID":"11","move":0}
 
-  inputState.ready = true
+  if( game.status == `active` ) {
+    systemState.ready = true
+  }
 
   await renderGame()
 
