@@ -654,7 +654,7 @@ const errors = {
   BadOptions:          { error: true, label: `BadOptions`,           code: -19,  description: `The options object passed into the function was not valid. It must be an object.` },
   BadConnectionString: { error: true, label: `BadConnectionString`,  code: -20,  description: `The connectionString object passed into the function was not valid. Please check your configuration.` },
   BadJSON:             { error: true, label: `BadJSON`,              code: -21,  description: `The JSON provided was malformed` },
-  InsecureSQL:         { error: true, label: `InsecureSQL`,          code: -21,  description: `The input provided appears dangerous or malicious, and was rejected.` },
+  InsecureSQL:         { error: true, label: `InsecureSQL`,          code: -22,  description: `The input provided appears dangerous or malicious, and was rejected.` },
 }
 Object.freeze(errors)
 module.exports.errors = errors
