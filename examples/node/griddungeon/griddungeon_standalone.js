@@ -54,9 +54,9 @@ let newGame = async () => {
     entity.id = rv
     entity.x = randomInt(config.boardSize)
     entity.y = randomInt(config.boardSize)
-    entity.hp = 6 + randomInt(10) /// Total between 6 and 15
     entity.class = ( i == 0 ) ? `hero` : `monster`
-    entity.attack = 6
+    entity.hp = ( i == 0 ) ? 9 + randomInt(7) : 8 /// Hero hp 6-15, Monster hp 8
+    entity.attackPower = ( i == 0 ) ? 8 : 6
     entity.gameID = gameID
 
     /// Ensure no starting position collisions
@@ -154,6 +154,12 @@ let renderBoard = async () => {
 let renderGame = async () => {
   readline.moveCursor(process.stdin, 0, -12)
   readline.clearScreenDown(process.stdin)
+  if( gameState.entities[game.heroID] ) {
+    systemState.banner = `Hero hp: ${gameState.entities[game.heroID].hp}. ` + systemState.banner
+  }
+  else {
+    systemState.banner = `Hero hp: 0. ` + systemState.banner
+  }
   rl.write(systemState.banner)
   systemState.banner = ``
   rl.write(`\n`)
@@ -176,8 +182,9 @@ let checkCollision = async ( myID ) => {
 
         /// Contact made, damage if non-enemy
         if( gameState.entities[id].class != gameState.entities[myID].class ) {
-          gameState.entities[id].hp -= gameState.entities[myID].attack
-          systemState.banner += `The ${gameState.entities[id].class} was hit. `
+          damage = randomInt( gameState.entities[myID].attackPower - 2 ) + 3
+          gameState.entities[id].hp -= damage
+          systemState.banner += `The ${gameState.entities[id].class} was hit for ${damage} damage. `
           if( gameState.entities[id].hp <= 0 ) {
             systemState.banner += `The ${gameState.entities[id].class} falls. `
             delete gameState.entities[id] /// Defeated!
