@@ -20,6 +20,7 @@ let randomInt = (max) => {
 
 let newGame = async () => {
 
+
   gameState = {}
 
   let rv = await pgdoc.connect({connectionString: config.connectionString, schema: config.schema})
@@ -31,15 +32,11 @@ let newGame = async () => {
   // if( rv.error ) { console.error(`${rv.label}: ${rv.description}: ${str(rv.wrapped)}`) ; return }
   let gameID = rv
 
-  if(config.verbose) {
-    console.log(`gameID: ${str(gameID)}`)
-  }
-
   game = { id: gameID, status: `active`, move: 0, boardSize: config.boardSize }
 
   /// Make a board grid, and populate it randomly with a hero and 3 monsters
   let i = 0
-  let entities = []
+  let entities = {}
   while( i < 4 ) {
 
     /// Create a new entity
@@ -55,15 +52,10 @@ let newGame = async () => {
     entity.gameID = gameID
 
     /// Ensure no starting position collisions
-    let j = 0
-    while( j < Object.keys(entities).length ) {
-      if( entities[j].x == entity.x && entities[j].y == entity.y ) {
+    for( e in entities ) {
+      if( entities[e].x == entity.x && entities[e].y == entity.y ) {
         entity.x = randomInt(config.boardSize)
         entity.y = randomInt(config.boardSize)
-        j = 0
-      }
-      else {
-        j += 1
       }
     }
 
@@ -75,10 +67,7 @@ let newGame = async () => {
     i += 1
   }
 
-  /// Save the game and gameState
-  if(config.verbose) {
-    console.log(`game: ${str(game)}`)
-  }
+  /// Save the game
   rv = await pgdoc.store({type: `game`, doc: game})
   if( rv.error ) { console.error(`${rv.label}: ${rv.description}`) ; return }
 
@@ -86,9 +75,42 @@ let newGame = async () => {
   gameState.entities = entities
   gameState.gameID = gameID
   gameState.move = 0
-  if(config.verbose) {
-    console.log(`gameState: ${str(gameState)}`)
+  rv = await pgdoc.store({type: `gameState`, doc: gameState})
+  if( rv.error ) { console.error(`${rv.label}: ${rv.description}`) ; return }
+
+}
+let loadGame = async () => {
+  /// Collect active game
+  let search = { status: `active` }
+  let rv = await pgdoc.retrieve({type: `game`, search })
+  if( rv.error ) { console.error(`${rv.label}: ${rv.description}`) ; return }
+  if( rv.length > 0 ) {
+    game = rv[0]
   }
+  else {
+    return false
+  }
+  /// Collect current gameState for active game
+  search = { move: game.move }
+  rv = await pgdoc.retrieve({type: `gameState`, search })
+  if( rv.error ) { console.error(`${rv.label}: ${rv.description}`) ; return }
+  if( rv.length > 0 ) {
+    gameState = rv[0]
+  }
+  else {
+    return false
+  }
+  return true
+}
+let updateState = async () => {
+  /// Jump to next move
+  gameState.move = gameState.move += 1
+  game.move = gameState.move
+  /// Save the game
+  let search = { id: game.id }
+  let rv = await pgdoc.store({type: `game`, doc: game, search})
+  if( rv.error ) { console.error(`${rv.label}: ${rv.description}`) ; return }
+  /// Save the gameState
   rv = await pgdoc.store({type: `gameState`, doc: gameState})
   if( rv.error ) { console.error(`${rv.label}: ${rv.description}`) ; return }
 }
@@ -201,6 +223,13 @@ let moveMonsters = async () => {
 }
 let processInput = async (c) => {
   readline.cursorTo(process.stdin, 0)
+  if( c == `n` ) {
+    await newGame()
+    await renderGame()
+  }
+  else if( c == `t` ) {
+    process.exit(0) /// Without further protection, this has a chance of interrupting a save
+  }
   if( systemState.ready ) {
     let dir = null
     if( c == `w` ) {
@@ -220,7 +249,7 @@ let processInput = async (c) => {
       await moveEntity( game.heroID, dir )
       await moveMonsters()
       await renderGame()
-
+      await updateState()
       if( game.status == `active` ) {
         systemState.ready = true
       }
@@ -229,10 +258,13 @@ let processInput = async (c) => {
 }
 
 let playGame = async () => {
-  // await newGame()
-  game = {"id":"11","status":"active","move":0,"boardSize":7,"heroID":"23055"}
-  gameState = {"entities":{ "23055": {"id":"23055","x":0,"y":3,"hp":15,"class":"hero","attack":6,"gameID":"11"}, "23056": {"id":"23056","x":2,"y":0,"hp":15,"class":"monster","attack":6,"gameID":"11"}, "23057": {"id":"23057","x":2,"y":5,"hp":13,"class":"monster","attack":6,"gameID":"11"}, "23058": {"id":"23058","x":6,"y":1,"hp":8,"class":"monster","attack":6,"gameID":"11"}},"gameID":"11","move":0}
+  let rv = await pgdoc.connect({connectionString: config.connectionString, schema: config.schema})
+  if( rv.error ) { console.error(`${rv.label}: ${rv.description}`) ; return }
+  if( ! await loadGame() ) {
+    await newGame()
+  }
 
+  console.log(str(game))
 
   systemState.footer = `Defeat the monsters. WASD to move. Bump to fight. (N)ew Game. EXI(T).\n`
   if( game.status == `active` ) {
