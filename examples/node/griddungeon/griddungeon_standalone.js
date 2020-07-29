@@ -10,7 +10,7 @@ let rl = readline.createInterface({
 
 console.log(`starting griddungeon standalone terminal application`)
 
-let systemState = { banner: ``, ready: false }
+let systemState = { banner: ``, ready: false, footer: `` }
 let gameState = {}
 let game = {}
 
@@ -122,10 +122,17 @@ let renderBoard = async () => {
   return board
 }
 let renderGame = async () => {
+  rl.write(systemState.banner)
+  systemState.banner = ``
+  rl.write(`\n`)
   let board = await renderBoard()
   for(l in board) {
     rl.write(board[l])
   }
+  rl.write(systemState.footer)
+}
+let initRender = async () => {
+
 }
 
 /// Checks for collision and damages if one happens with a non-ally.
@@ -138,13 +145,17 @@ let checkCollision = async ( myID ) => {
         /// Contact made, damage if non-enemy
         if( gameState.entities[id].class != gameState.entities[myID].class ) {
           gameState.entities[id].hp -= gameState.entities[myID].attack
+          systemState.banner += `The ${gameState.entities[id].class} was hit. `
           if( gameState.entities[id].hp <= 0 ) {
+            systemState.banner += `The ${gameState.entities[id].class} falls. `
             delete gameState.entities[id] /// Defeated!
             if( id == game.heroID ) {
               game.status = `lost`
+              systemState.banner += `You Lost!`
             }
             else if ( Object.keys(gameState.entities).length == 1 ) {
               game.status = `won`
+              systemState.banner += `You Won!`
             }
           }
         }
@@ -173,8 +184,6 @@ let moveEntity = async ( id, dir ) => {
   }
   else if( dir == 3 ) {
     let b = config.boardSize - 1
-    console.log(`DEBUG: b: ${b}`)
-    console.log(`DEBUG: gameState.entities[id].x: ${gameState.entities[id].x}`)
     gameState.entities[id].x = ( gameState.entities[id].x >= b ) ? b : gameState.entities[id].x + 1
     gameState.entities[id].x = await checkCollision(id) ? gameState.entities[id].x - 1 : gameState.entities[id].x
     return true
@@ -205,7 +214,6 @@ let processInput = async (c) => {
       dir = 3
     }
     if( dir != null && gameState.entities[game.heroID] ) {
-      console.log(`DEBUG: dir: ${dir}`)
       systemState.ready = false
       await moveEntity( game.heroID, dir )
       await moveMonsters()
@@ -223,6 +231,8 @@ let playGame = async () => {
   game = {"id":"11","status":"active","move":0,"boardSize":7,"heroID":"23055"}
   gameState = {"entities":{ "23055": {"id":"23055","x":0,"y":3,"hp":15,"class":"hero","attack":6,"gameID":"11"}, "23056": {"id":"23056","x":2,"y":0,"hp":15,"class":"monster","attack":6,"gameID":"11"}, "23057": {"id":"23057","x":2,"y":5,"hp":13,"class":"monster","attack":6,"gameID":"11"}, "23058": {"id":"23058","x":6,"y":1,"hp":8,"class":"monster","attack":6,"gameID":"11"}},"gameID":"11","move":0}
 
+
+  systemState.footer = `Defeat the monsters. WASD to move. Bump to fight. (N)ew Game. EXI(T).\n`
   if( game.status == `active` ) {
     systemState.ready = true
   }
