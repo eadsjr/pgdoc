@@ -44,6 +44,10 @@ Branch names should be of the form `001_eadsjr_project_init`, with a three digit
 Submit changes, dev branch or final, with [a pull request][pull-request].
 
 
+## git Privacy
+
+By submitting code to this project you recognize that any email, username or other personal information included in the commits submitted will be made publicly available on github and elsewhere. By contributing, you are providing a worldwide irrevocable license to the project maintainers to include this information when the project or any part of it is published.
+
 [todo-file]:https://github.com/eadsjr/pgdoc/doc/TODO.md
 [search-issues]:https://github.com/search?q=repo%3Aeadsjr%2Fpgdoc&type=Issues
 [new-issue]:https://github.com/eadsjr/pgdoc/issues/new
