@@ -8,7 +8,7 @@ let rl = readline.createInterface({
   output: process.stdout
 })
 
-console.log(`starting griddungeon standalone terminal application`)
+console.log(`Playing griddungeon standalone terminal game.`)
 
 let systemState = { banner: ``, ready: false, footer: `` }
 let gameState = {}
@@ -20,6 +20,7 @@ let randomInt = (max) => {
 
 let newGame = async () => {
 
+  systemState.banner += `Starting new game. `
 
   gameState = {}
 
@@ -91,7 +92,7 @@ let loadGame = async () => {
     return false
   }
   /// Collect current gameState for active game
-  search = { move: game.move }
+  search = { move: game.move, gameID: game.id }
   rv = await pgdoc.retrieve({type: `gameState`, search })
   if( rv.error ) { console.error(`${rv.label}: ${rv.description}`) ; return }
   if( rv.length > 0 ) {
@@ -230,7 +231,7 @@ let processInput = async (c) => {
   else if( c == `t` ) {
     process.exit(0) /// Without further protection, this has a chance of interrupting a save
   }
-  if( systemState.ready ) {
+  else if( systemState.ready ) {
     let dir = null
     if( c == `w` ) {
       dir = 0
@@ -263,8 +264,6 @@ let playGame = async () => {
   if( ! await loadGame() ) {
     await newGame()
   }
-
-  console.log(str(game))
 
   systemState.footer = `Defeat the monsters. WASD to move. Bump to fight. (N)ew Game. EXI(T).\n`
   if( game.status == `active` ) {
