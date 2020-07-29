@@ -10,7 +10,7 @@ let rl = readline.createInterface({
 
 console.log(`starting griddungeon standalone terminal application`)
 
-
+let inputState = {}
 let gameState = {}
 let game = {}
 
@@ -35,10 +35,13 @@ let newGame = async () => {
     console.log(`gameID: ${str(gameID)}`)
   }
 
+  game = { id: gameID, state: `new`, move: 0, boardSize: config.boardSize }
+
   /// Make a board grid, and populate it randomly with a hero and 3 monsters
   let i = 0
   let entities = []
   while( i < 4 ) {
+
     /// Create a new entity
     rv = await pgdoc.requestID({type:`entity`})
     if( rv.error ) { console.error(`${rv.label}: ${rv.description}`) ; return }
@@ -53,7 +56,7 @@ let newGame = async () => {
 
     /// Ensure no starting position collisions
     let j = 0
-    while( j < entities.length ) {
+    while( j < Object.keys(entities).length ) {
       if( entities[j].x == entity.x && entities[j].y == entity.y ) {
         entity.x = randomInt(config.boardSize)
         entity.y = randomInt(config.boardSize)
@@ -64,12 +67,15 @@ let newGame = async () => {
       }
     }
 
-    entities.push(entity)
+    if( i == 0 ) {
+      game.heroID = entity.id
+    }
+
+    entities[entity.id] = entity
     i += 1
   }
 
-  /// Save the game and game state
-  game = { id: gameID, state: `new`, move: 0, boardSize: config.boardSize }
+  /// Save the game and gameState
   if(config.verbose) {
     console.log(`game: ${str(game)}`)
   }
@@ -122,19 +128,93 @@ let renderGame = async () => {
   }
 }
 
-let processInput = async (e) => {
-  // console.log(str(e))
-  // rl.clearLine(process.stdin, -1)
+/// Checks for collision and damages if one happens with a non-ally.
+let checkCollision = async ( myID ) => {
+  for( let id in gameState.entities ) {
+    if( id != myID ) {
+      if( gameState.entities[id].x == gameState.entities[myID].x &&
+          gameState.entities[id].y == gameState.entities[myID].y ) {
+
+        /// Contact made, damage if non-enemy
+        if( gameState.entities[id].class != gameState.entities[myID].class ) {
+          gameState.entities[id].hp -= gameState.entities[myID].attack
+          if( gameState.entities[id].hp <= 0 ) {
+            delete gameState.entities[id] /// Defeated!
+          }
+        }
+        return true /// Report collision
+      }
+    }
+  }
+  return false
+}
+let moveEntity = async ( id, dir ) => {
+  if( dir == 0 ) {
+    gameState.entities[id].y = ( gameState.entities[id].y <= 0 ) ? 0 : gameState.entities[id].y - 1
+    gameState.entities[id].y = await checkCollision(id) ? gameState.entities[id].y + 1 : gameState.entities[id].y
+    return true
+  }
+  else if( dir == 1 ) {
+    gameState.entities[id].x = ( gameState.entities[id].x <= 0 ) ? 0 : gameState.entities[id].x - 1
+    gameState.entities[id].x = await checkCollision(id) ? gameState.entities[id].x + 1 : gameState.entities[id].x
+    return true
+  }
+  else if( dir == 2 ) {
+    let b = config.boardSize - 1
+    gameState.entities[id].y = ( gameState.entities[id].y >= b ) ? b : gameState.entities[id].y + 1
+    gameState.entities[id].y = await checkCollision(id) ? gameState.entities[id].y - 1 : gameState.entities[id].y
+    return true
+  }
+  else if( dir == 3 ) {
+    let b = config.boardSize - 1
+    console.log(`DEBUG: b: ${b}`)
+    console.log(`DEBUG: gameState.entities[id].x: ${gameState.entities[id].x}`)
+    gameState.entities[id].x = ( gameState.entities[id].x >= b ) ? b : gameState.entities[id].x + 1
+    gameState.entities[id].x = await checkCollision(id) ? gameState.entities[id].x - 1 : gameState.entities[id].x
+    return true
+  }
+  return false
+}
+let moveMonsters = async () => {
+  for( let id in gameState.entities ) {
+    if( id != game.heroID ) {
+      await moveEntity(id, randomInt(4))
+    }
+  }
+}
+let processInput = async (c) => {
   readline.cursorTo(process.stdin, 0)
-  rl.write(e)
+  if( inputState.ready ) {
+    let dir = null
+    if( c == `w` ) {
+      dir = 0
+    }
+    else if( c == `a` ) {
+      dir = 1
+    }
+    else if( c == `s` ) {
+      dir = 2
+    }
+    else if( c == `d` ) {
+      dir = 3
+    }
+    if( dir != null && gameState.entities[game.heroID] ) {
+      console.log(`DEBUG: dir: ${dir}`)
+      inputState.ready = false
+      await moveEntity( game.heroID, dir )
+      await moveMonsters()
+      await renderGame()
+      inputState.ready = true
+    }
+  }
 }
 
 let playGame = async () => {
   // await newGame()
-  // console.log(str(game))
-  // console.log(str(gameState))
-  game = {"id":"11","state":"new","move":0,"boardSize":7}
-  gameState = {"entities":[{"id":"23055","x":0,"y":3,"hp":15,"class":"hero","attack":6,"gameID":"11"},{"id":"23056","x":2,"y":0,"hp":15,"class":"monster","attack":6,"gameID":"11"},{"id":"23057","x":2,"y":5,"hp":13,"class":"monster","attack":6,"gameID":"11"},{"id":"23058","x":6,"y":1,"hp":8,"class":"monster","attack":6,"gameID":"11"}],"gameID":"11","move":0}
+  game = {"id":"11","state":"new","move":0,"boardSize":7,"heroID":"23055"}
+  gameState = {"entities":{ "23055": {"id":"23055","x":0,"y":3,"hp":15,"class":"hero","attack":6,"gameID":"11"}, "23056": {"id":"23056","x":2,"y":0,"hp":15,"class":"monster","attack":6,"gameID":"11"}, "23057": {"id":"23057","x":2,"y":5,"hp":13,"class":"monster","attack":6,"gameID":"11"}, "23058": {"id":"23058","x":6,"y":1,"hp":8,"class":"monster","attack":6,"gameID":"11"}},"gameID":"11","move":0}
+
+  inputState.ready = true
 
   await renderGame()
 
