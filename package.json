@@ -1,5 +1,5 @@
 {
-  "name": "pgdoc",
+  "name": "pgdoc-nosql",
   "version": "1.0.0",
   "description": "Dead-simple NoSQL document storage using PostgreSQL.",
   "main": "code/node/pgdoc.js",

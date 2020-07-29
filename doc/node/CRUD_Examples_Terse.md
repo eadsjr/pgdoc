@@ -10,7 +10,7 @@ For these examples to work, you must have first have completed the [install proc
 Connect to the database.
 
 ``` js
-const pgdoc = require(`pgdoc`)
+const pgdoc = require(`pgdoc-nosql`)
 connectionString = `postgres://pgdoc:${config.password}@${config.domain}:${config.port}/pgdoc`
 rv = await pgdoc.connect({connectionString})
 ```

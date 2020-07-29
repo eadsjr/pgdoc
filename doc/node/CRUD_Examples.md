@@ -18,7 +18,7 @@ Once that is done and the server is running, you can run `node` to drop into a R
 First we need to require the pgdoc module.
 
 ``` js
-const pgdoc = require(`pgdoc`)
+const pgdoc = require(`pgdoc-nosql`)
 const str   = pgdoc.JSON.stringify
 const parse = pgdoc.JSON.parse
 ```
